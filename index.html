@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Corte & Cobrança </title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:       #07111f;
+  --bg2:      #0d1e35;
+  --card:     #102040;
+  --borda:    #1a3560;
+  --borda2:   #244070;
+  --accent:   #00c2e0;
+  --accent2:  #4f8ef7;
+  --verde:    #22c55e;
+  --vermelho: #ef4444;
+  --amarelo:  #f59e0b;
+  --roxo:     #a855f7;
+  --texto:    #dde6f5;
+  --muted:    #6a8db5;
+  --white:    #ffffff;
+  --r:        10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--texto);min-height:100vh}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--borda2);border-radius:3px}
+
+/* HEADER */
+header{
+  background:var(--bg2);border-bottom:1px solid var(--borda);
+  padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-box{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:19px}
+.logo h1{font-size:16px;font-weight:700;color:var(--white)}
+.logo p{font-size:11px;color:var(--muted);margin-top:1px}
+.hbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;background:var(--card);border:1px solid var(--borda);color:var(--muted)}
+.chip b{color:var(--accent)}
+.btn{padding:7px 16px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:.15s}
+.btn-p{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg)}
+.btn-p:hover{opacity:.85}
+.btn-o{background:transparent;border:1px solid var(--borda);color:var(--texto)}
+.btn-o:hover{border-color:var(--accent);color:var(--accent)}
+.btn-g{background:var(--verde);color:#fff}
+.btn-g:hover{background:#16a34a}
+#file-input{display:none}
+
+/* TABS */
+.tabs{display:flex;gap:2px;padding:0 28px;background:var(--bg2);border-bottom:1px solid var(--borda)}
+.tab{padding:11px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:hover:not(.active){color:var(--texto)}
+
+/* UPLOAD */
+#upload-zone{
+  max-width:500px;margin:60px auto;background:var(--card);border:2px dashed var(--borda);
+  border-radius:16px;padding:52px 36px;text-align:center;cursor:pointer;transition:.2s
+}
+#upload-zone:hover,#upload-zone.drag{border-color:var(--accent);background:#0d2040}
+#upload-zone h2{font-size:20px;margin-bottom:10px}
+#upload-zone p{color:var(--muted);font-size:14px;margin-bottom:20px}
+#upload-zone small{color:var(--muted);font-size:11px;display:block;margin-top:14px}
+
+/* MAIN */
+main{display:none;padding:22px 28px;max-width:1600px;margin:0 auto}
+main.on{display:block}
+.page{display:none}.page.on{display:block}
+
+/* FILTROS */
+.filtros{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:14px 0 18px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+select,input[type=date],input[type=text]{
+  background:var(--card);border:1px solid var(--borda);color:var(--texto);
+  padding:7px 11px;border-radius:8px;font-size:12px;cursor:pointer;min-width:140px
+}
+select:focus,input:focus{outline:none;border-color:var(--accent)}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;transition:.15s}
+.kpi:hover{transform:translateY(-2px);border-color:var(--borda2)}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.c-a::after{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.kpi.c-g::after{background:var(--verde)}
+.kpi.c-r::after{background:var(--vermelho)}
+.kpi.c-y::after{background:var(--amarelo)}
+.kpi.c-p::after{background:var(--roxo)}
+.kpi-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.kpi-val{font-size:26px;font-weight:800;color:var(--white);line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* CHART CARDS */
+.row2{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.row-half{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.cc{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:18px}
+.cc-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.cc-sub{font-size:11px;color:var(--muted);margin-bottom:14px}
+.ch-wrap{position:relative}
+
+/* TABLE */
+.tbl-wrap{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.tbl-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--borda)}
+.tbl-head h3{font-size:13px;font-weight:700}
+.tbl-head span{font-size:11px;color:var(--muted)}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#081526;padding:9px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--borda);white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid rgba(26,53,96,.4);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.025)}
+
+/* BADGES */
+.b{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.b-g{background:rgba(34,197,94,.15);color:#4ade80}
+.b-r{background:rgba(239,68,68,.15);color:#f87171}
+.b-y{background:rgba(245,158,11,.15);color:#fbbf24}
+.b-a{background:rgba(0,194,224,.15);color:#00c2e0}
+.b-p{background:rgba(168,85,247,.15);color:#c084fc}
+.b-z{background:rgba(106,141,181,.15);color:var(--muted)}
+
+/* PROGRESS */
+.bar-wrap{height:6px;background:rgba(26,53,96,.5);border-radius:4px;min-width:70px}
+.bar-fill{height:6px;border-radius:4px}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:700;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.5);transform:translateY(80px);opacity:0;transition:.3s;z-index:999}
+.toast.on{transform:translateY(0);opacity:1}
+
+/* LOADER */
+.loader{display:none;position:fixed;inset:0;background:rgba(7,17,31,.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.loader.on{display:flex}
+.spin{width:42px;height:42px;border:4px solid var(--borda);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* PANEL FISCAL */
+.fiscal-hero{background:linear-gradient(135deg,var(--bg2) 0%,#0a1e38 100%);border:1px solid var(--borda);border-radius:var(--r);padding:22px 24px;margin-bottom:18px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.fiscal-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.fiscal-name{font-size:20px;font-weight:800;color:var(--white)}
+.fiscal-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.fiscal-kpis{display:flex;gap:24px;flex-wrap:wrap;margin-left:auto}
+.fk{text-align:center}
+.fk-val{font-size:22px;font-weight:800;color:var(--white)}
+.fk-lbl{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+
+/* TIMELINE */
+.timeline-bar{height:36px;background:rgba(26,53,96,.35);border-radius:8px;position:relative;margin:8px 0;overflow:hidden}
+.tl-seg{position:absolute;top:4px;bottom:4px;border-radius:5px;cursor:pointer;transition:.15s}
+.tl-seg:hover{filter:brightness(1.2)}
+.tl-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);padding:0 2px;margin-bottom:4px}
+.tl-row{margin-bottom:10px}
+.tl-name{font-size:11px;font-weight:700;color:var(--texto);margin-bottom:2px}
+
+/* CARD TEMPO */
+.tempo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.tempo-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:14px 16px}
+.tempo-card h4{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.tempo-card .val{font-size:20px;font-weight:800;color:var(--white)}
+.tempo-card .sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .row2,.row3,.row-half{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  main{padding:14px}
+  header{padding:12px 14px;flex-wrap:wrap;gap:8px}
+  .tabs{padding:0 14px;overflow-x:auto}
+  .filtros{gap:8px}
+  select,input{min-width:120px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader"><div class="spin"></div><span style="color:var(--muted);font-size:13px">Processando arquivo...</span></div>
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-box" style="background:#00c2e0;border-radius:50%"></div>
+    <div>
+      <h1>Dashboard · Corte & Cobrança</h1>
+      <p>SABESP</p>
+    </div>
+  </div>
+  <div class="hbtns">
+    <div class="chip">Data: <b id="chip-data">—</b></div>
+    <div class="chip">Total OS: <b id="chip-total">—</b></div>
+    <button class="btn btn-o" onclick="document.getElementById('file-input').click()">📂 Novo Arquivo</button>
+    <button class="btn btn-g" onclick="exportar()">⬇ Exportar Excel</button>
+    <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFile(event)">
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs" id="tabs" style="display:none">
+  <div class="tab active" onclick="showPage('geral',this)">📊 Visão Geral</div>
+  <div class="tab" onclick="showPage('jornada',this)">⏱ Jornada & Tempo Perdido</div>
+  <div class="tab" onclick="showPage('fiscal',this)">👤 Análise por Fiscal</div>
+  <div class="tab" onclick="showPage('detalhes',this)">📋 Detalhamento OS</div>
+</div>
+
+<!-- UPLOAD -->
+<div id="upload-zone"
+  onclick="document.getElementById('file-input').click()"
+  ondragover="event.preventDefault();this.classList.add('drag')"
+  ondragleave="this.classList.remove('drag')"
+  ondrop="event.preventDefault();this.classList.remove('drag');handleDrop(event)">
+  <div style="font-size:52px;margin-bottom:16px">📊</div>
+  <h2>Arraste ou selecione o arquivo Excel</h2>
+  <p>Importe o arquivo de Execuções do GeoCall.<br>O dashboard atualiza automaticamente.</p>
+  <button class="btn btn-p" onclick="event.stopPropagation();document.getElementById('file-input').click()">Selecionar .xlsx</button>
+  <small>Compatível com: Planilha Do GeoCall</small>
+</div>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- ═══════ PAGE: GERAL ═══════ -->
+  <div class="page on" id="page-geral">
+
+    <div class="filtros">
+      <div class="fg"><label>Colaborador</label>
+        <select id="f-colab" onchange="filtrar()"><option value="">Todos</option></select></div>
+      <div class="fg"><label>Tipo OS</label>
+        <select id="f-tipo" onchange="filtrar()">
+          <option value="">Todos</option>
+          <option>Corte</option><option>Cobrança</option><option>Outro</option>
+        </select></div>
+      <div class="fg"><label>Resultado</label>
+        <select id="f-res" onchange="filtrar()">
+          <option value="">Todos</option>
+          <option value="Executado">Executado</option>
+          <option value="Não Executado">Não Executado</option>
+          <option value="Não Atendida">Não Atendida (FIM DO DIA)</option>
+        </select></div>
+      <button class="btn btn-o" style="align-self:flex-end" onclick="limparFiltros()">✕ Limpar</button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi c-a"><div class="kpi-lbl">Total OS</div><div class="kpi-val" id="k-tot">—</div><div class="kpi-sub">Ordens no período</div></div>
+      <div class="kpi c-g"><div class="kpi-lbl">Executadas</div><div class="kpi-val" id="k-ex">—</div><div class="kpi-sub" id="k-ex-s">—</div></div>
+      <div class="kpi c-r"><div class="kpi-lbl">Não Executadas</div><div class="kpi-val" id="k-ne">—</div><div class="kpi-sub" id="k-ne-s">—</div></div>
+      <div class="kpi c-y"><div class="kpi-lbl">Não Atendidas</div><div class="kpi-val" id="k-na">—</div><div class="kpi-sub">FIM DO DIA</div></div>
+      <div class="kpi c-a"><div class="kpi-lbl">% Produtividade</div><div class="kpi-val" id="k-prod">—</div><div class="kpi-sub">Exec / Total</div></div>
+      <div class="kpi c-r"><div class="kpi-lbl">Cortes Realizados</div><div class="kpi-val" id="k-corte">—</div><div class="kpi-sub">Cortada + Suprimida</div></div>
+      <div class="kpi c-g"><div class="kpi-lbl">Pag. via POS</div><div class="kpi-val" id="k-pos">—</div><div class="kpi-sub">Pagamentos confirmados</div></div>
+      <div class="kpi c-p"><div class="kpi-lbl">T. Médio Exec.</div><div class="kpi-val" id="k-tmed">—</div><div class="kpi-sub">min por OS</div></div>
+    </div>
+
+    <!-- CHARTS R1 -->
+    <div class="row2">
+      <div class="cc">
+        <div class="cc-title">Produtividade por Colaborador</div>
+        <div class="cc-sub">OS executadas vs não executadas</div>
+        <div class="ch-wrap" style="height:260px"><canvas id="ch-colab"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="cc-title">Distribuição de Resultados</div>
+        <div class="cc-sub">Status geral das OS</div>
+        <div class="ch-wrap" style="height:260px"><canvas id="ch-dnut"></canvas></div>
+      </div>
+    </div>
+
+    <!-- CHARTS R2 -->
+    <div class="row3">
+      <div class="cc">
+        <div class="cc-title">Motivos de Não Execução</div>
+        <div class="cc-sub">Impedimentos mais frequentes</div>
+        <div class="ch-wrap" style="height:200px"><canvas id="ch-imp"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="cc-title">Tipo de OS</div>
+        <div class="cc-sub">Distribuição por categoria</div>
+        <div class="ch-wrap" style="height:200px"><canvas id="ch-tipo"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="cc-title">Cortes & Pagamentos POS</div>
+        <div class="cc-sub">Por colaborador</div>
+        <div class="ch-wrap" style="height:200px"><canvas id="ch-cpos"></canvas></div>
+      </div>
+    </div>
+
+    <!-- TABELA COLABORADORES -->
+    <div class="tbl-wrap">
+      <div class="tbl-head"><h3>📋 Desempenho por Colaborador</h3><span id="lbl-colab"></span></div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>Colaborador</th><th>Total</th><th>Executadas</th><th>Não Exec.</th>
+            <th>Não Atend.</th><th>% Execução</th><th>Cortes</th><th>Pag. POS</th>
+            <th>T. Médio</th><th>Status</th>
+          </tr></thead>
+          <tbody id="tb-colab"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TABELA RESULTADOS -->
+    <div class="row-half">
+      <div class="tbl-wrap" style="margin-bottom:0">
+        <div class="tbl-head"><h3>🔍 Resultados Detalhados</h3></div>
+        <div class="tbl-scroll"><table><thead><tr><th>Resultado</th><th>Qtd</th><th>%</th></tr></thead><tbody id="tb-res"></tbody></table></div>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:0">
+        <div class="tbl-head"><h3>📝 Últimas OS</h3><span>Top 15</span></div>
+        <div class="tbl-scroll">
+          <table><thead><tr><th>Nº OS</th><th>Colaborador</th><th>Tipo</th><th>Resultado</th><th>Tempo</th></tr></thead>
+          <tbody id="tb-ult"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ PAGE: JORNADA ═══════ -->
+  <div class="page" id="page-jornada">
+
+    <div class="filtros">
+      <div class="fg"><label>Colaborador</label>
+        <select id="jf-colab" onchange="renderJornada()"><option value="">Todos</option></select></div>
+      <button class="btn btn-o" style="align-self:flex-end" onclick="document.getElementById('jf-colab').value='';renderJornada()">✕ Limpar</button>
+    </div>
+
+    <!-- KPIs jornada -->
+    <div class="kpi-grid" id="j-kpis"></div>
+
+    <!-- Gráfico linha do tempo -->
+    <div class="cc" style="margin-bottom:14px">
+      <div class="cc-title">⏱ Linha do Tempo — Primeiro e Último Serviço</div>
+      <div class="cc-sub">Horário comercial 08h00 às 17h00 · Barra vermelha = tempo perdido após última OS</div>
+      <div id="timeline-container" style="padding:4px 0"></div>
+      <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:12px;height:12px;border-radius:3px;background:var(--verde);display:inline-block"></span>Trabalhou</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:12px;height:12px;border-radius:3px;background:var(--vermelho);display:inline-block"></span>Tempo perdido (após última OS)</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:12px;height:12px;border-radius:3px;background:var(--accent);opacity:.4;display:inline-block"></span>Antes da 1ª OS</span>
+      </div>
+    </div>
+
+    <!-- Tabela jornada -->
+    <div class="tbl-wrap">
+      <div class="tbl-head"><h3>📊 Resumo de Jornada por Colaborador</h3><span style="font-size:11px;color:var(--muted)">Base: horário comercial 08h–17h (9h disponíveis)</span></div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>Colaborador</th>
+            <th>1ª Baixa</th>
+            <th>Última Baixa</th>
+            <th>Jornada Efetiva</th>
+            <th>Tempo Disponível</th>
+            <th>Tempo Perdido</th>
+            <th>% Perda</th>
+            <th>% Aproveitamento</th>
+            <th>Alerta</th>
+          </tr></thead>
+          <tbody id="tb-jornada"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="cc" style="margin-bottom:14px">
+      <div class="cc-title">Tempo Perdido por Colaborador (min)</div>
+      <div class="cc-sub">Tempo após última OS até 17h — quanto o colaborador "deixou na mesa"</div>
+      <div class="ch-wrap" style="height:220px"><canvas id="ch-jorn"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ═══════ PAGE: FISCAL ═══════ -->
+  <div class="page" id="page-fiscal">
+
+    <div class="filtros">
+      <div class="fg"><label>Selecionar Fiscal</label>
+        <select id="ff-colab" onchange="renderFiscal()"><option value="">— Selecione um fiscal —</option></select></div>
+      <div class="fg"><label>Tipo OS</label>
+        <select id="ff-tipo" onchange="renderFiscal()">
+          <option value="">Todos</option><option>Corte</option><option>Cobrança</option><option>Outro</option>
+        </select></div>
+      <div class="fg"><label>Resultado</label>
+        <select id="ff-res" onchange="renderFiscal()">
+          <option value="">Todos</option>
+          <option value="Executado">Executado</option>
+          <option value="Não Executado">Não Executado</option>
+          <option value="Não Atendida">Não Atendida</option>
+        </select></div>
+    </div>
+
+    <div id="fiscal-vazio" style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:48px;margin-bottom:12px">👤</div>
+      <p>Selecione um fiscal para ver a análise completa</p>
+    </div>
+
+    <div id="fiscal-content" style="display:none">
+
+      <!-- Hero fiscal -->
+      <div class="fiscal-hero">
+        <div class="fiscal-avatar">👷</div>
+        <div>
+          <div class="fiscal-name" id="fn-nome">—</div>
+          <div class="fiscal-meta" id="fn-meta">—</div>
+        </div>
+        <div class="fiscal-kpis" id="fn-kpis"></div>
+      </div>
+
+      <!-- KPIs fiscal -->
+      <div class="kpi-grid" id="fis-kpis"></div>
+
+      <!-- Charts fiscal -->
+      <div class="row3">
+        <div class="cc">
+          <div class="cc-title">Resultados</div>
+          <div class="cc-sub">Distribuição das OS</div>
+          <div class="ch-wrap" style="height:190px"><canvas id="ch-fis-res"></canvas></div>
+        </div>
+        <div class="cc">
+          <div class="cc-title">Tipo de OS</div>
+          <div class="cc-sub">Corte / Cobrança / Outro</div>
+          <div class="ch-wrap" style="height:190px"><canvas id="ch-fis-tipo"></canvas></div>
+        </div>
+        <div class="cc">
+          <div class="cc-title">Tempo por Tipo (min)</div>
+          <div class="cc-sub">Tempo médio de execução</div>
+          <div class="ch-wrap" style="height:190px"><canvas id="ch-fis-tempo"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Tempo records -->
+      <div class="tempo-grid" id="fis-tempo-cards"></div>
+
+      <!-- Tabela OS do fiscal -->
+      <div class="tbl-wrap">
+        <div class="tbl-head"><h3>📋 Todas as OS do Fiscal</h3><span id="fis-os-count"></span></div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Nº OS</th><th>Tipo</th><th>Data</th>
+              <th>Início</th><th>Fim</th><th>Tempo (min)</th>
+              <th>Resultado</th><th>Detalhe</th><th>Bairro</th>
+            </tr></thead>
+            <tbody id="tb-fis"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ PAGE: DETALHES ═══════ -->
+  <div class="page" id="page-detalhes">
+    <div class="filtros">
+      <div class="fg"><label>Colaborador</label>
+        <select id="df-colab" onchange="renderDetalhes()"><option value="">Todos</option></select></div>
+      <div class="fg"><label>Tipo OS</label>
+        <select id="df-tipo" onchange="renderDetalhes()">
+          <option value="">Todos</option><option>Corte</option><option>Cobrança</option><option>Outro</option>
+        </select></div>
+      <div class="fg"><label>Resultado</label>
+        <select id="df-res" onchange="renderDetalhes()">
+          <option value="">Todos</option>
+          <option value="Executado">Executado</option>
+          <option value="Não Executado">Não Executado</option>
+          <option value="Não Atendida">Não Atendida</option>
+        </select></div>
+      <div class="fg"><label>Buscar OS / Endereço</label>
+        <input type="text" id="df-busca" placeholder="Nº OS, endereço..." oninput="renderDetalhes()" style="min-width:200px"></div>
+      <button class="btn btn-o" style="align-self:flex-end" onclick="limparDetalhes()">✕ Limpar</button>
+    </div>
+
+    <div class="tbl-wrap">
+      <div class="tbl-head">
+        <h3>📋 Detalhamento Completo de OS</h3>
+        <span id="det-count" style="color:var(--muted);font-size:11px"></span>
+      </div>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr>
+            <th>Nº OS</th><th>Colaborador</th><th>Tipo</th>
+            <th>Data</th><th>Início</th><th>Fim</th><th>Tempo</th>
+            <th>Código TSS</th><th>Descrição TSS</th>
+            <th>Resultado</th><th>Detalhe Resultado</th>
+            <th>Endereço</th><th>Bairro</th><th>PDE</th>
+            <th>Status OS</th><th>Mobile</th>
+          </tr></thead>
+          <tbody id="tb-det"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════ ESTADO ═══════════════════
+let ALL = [];     // todos os dados parsed
+let FILT = [];    // dados filtrados (aba geral)
+const CHARTS = {};
+const HORA_INI = 8 * 60;   // 08:00
+const HORA_FIM = 17 * 60;  // 17:00
+const JORNADA  = HORA_FIM - HORA_INI; // 540 min
+
+// ═══════════════════ UTILS ═══════════════════
+const $  = id => document.getElementById(id);
+const fmt = n => n == null ? '—' : Number(n).toLocaleString('pt-BR');
+const pct = (a,b) => b>0 ? ((a/b)*100).toFixed(1)+'%' : '0%';
+const minToHM = m => { const h=Math.floor(m/60),mi=m%60; return `${h}h${mi>0?mi+'min':''}`; };
+
+function toast(msg, ok=true){
+  const el=$('toast'); el.textContent=(ok?'✅ ':'❌ ')+msg;
+  el.style.background=ok?'var(--verde)':'var(--vermelho)';
+  el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),3200);
+}
+function loader(v){ $('loader').classList.toggle('on',v); }
+
+// Parse "DD/MM/YYYY HH:MM" → {date,minutos_desde_meia_noite}
+function parseHoraBR(str){
+  if(!str||typeof str!=='string') return null;
+  // "01/09/2026 09:01"
+  const m = str.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
+  if(!m) return null;
+  return {
+    str: str.trim(),
+    dateStr: `${m[3]}-${m[2]}-${m[1]}`,
+    hora: parseInt(m[4]),
+    min: parseInt(m[5]),
+    totalMin: parseInt(m[4])*60 + parseInt(m[5]),
+  };
+}
+
+// Parse "+00 HH:MM:SS" → minutos
+function parseTempo(str){
+  if(!str||typeof str!=='string') return 0;
+  const m=str.match(/\+00\s+(\d{2}):(\d{2})/);
+  if(!m) return 0;
+  return parseInt(m[1])*60+parseInt(m[2]);
+}
+
+function mapResultado(res){
+  const r=String(res||'').toUpperCase();
+  if(r==='FIM DO DIA'||r==='FJL') return 'Não Atendida';
+  const exec=['CORTADA','SUPRIMIDA','RELIGAD','FSR AVALIADO','PAGAMENTO EFETIVADO',
+    'EFETUOU PGTO','RESTABELECIDA','INFORMOU PAGAMENTO','CORRIGIDO CORTE',
+    'REATIVADA','TELEVISIONADA','LAVAGEM','REPARO','TROCA','PROLONGAMENTO',
+    'TRANSFORMAÇÃO','INCLUSÃO','CLIENTE APRESENTOU','INTERLIGAÇÃO'];
+  if(exec.some(e=>r.includes(e))) return 'Executado';
+  return 'Não Executado';
+}
+
+function mapTipo(codTSS, descTSS){
+  const c=String(codTSS||''), d=String(descTSS||'').toUpperCase();
+  if(c==='4025'||d.includes('CORTAR')) return 'Corte';
+  if(c==='6695'||d.includes('NEGOCIAÇÃO')) return 'Cobrança';
+  return 'Outro';
+}
+
+function nomeAbrev(nome){
+  const p=nome.split(' '); return p.length<=2?nome:p[0]+' '+p[1];
+}
+
+// ═══════════════════ HANDLE FILE ═══════════════════
+function handleDrop(e){ const f=e.dataTransfer.files[0]; if(f) processFile(f); }
+function handleFile(e){ const f=e.target.files[0]; if(f) processFile(f); }
+
+function processFile(file){
+  loader(true);
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary',cellDates:false});
+      const dados=extrair(wb);
+      if(!dados.length) throw new Error('Nenhuma OS encontrada.');
+      ALL=[...dados];
+      FILT=[...dados];
+      init();
+      toast(`${dados.length} OS carregadas!`);
+    }catch(err){
+      toast('Erro: '+err.message,false);
+      console.error(err);
+    }
+    loader(false);
+  };
+  reader.readAsBinaryString(file);
+}
+
+// ═══════════════════ EXTRAIR ═══════════════════
+function extrair(wb){
+  const dados=[];
+  // Tenta aba "Execução" primeiro (arquivo GeoCall)
+  let abaNome = wb.SheetNames.find(n=>n.toLowerCase().includes('execu'));
+  if(abaNome){
+    const ws=wb.Sheets[abaNome];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    const hdr=rows[0].map(h=>String(h).trim());
+    const ix=n=>hdr.indexOf(n);
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      const equipe=String(r[ix('Equipe')]||'').trim();
+      if(!equipe) continue;
+      const resultado=String(r[ix('Resultado')]||'').trim();
+      const dtInicio=parseHoraBR(String(r[ix('Data Início Execução')]||''));
+      const dtFim=parseHoraBR(String(r[ix('Data Fim Execução')]||''));
+      const tempo=parseTempo(String(r[ix('Tempo de execução efetivo')]||''));
+      dados.push({
+        nrOS:    String(r[ix('Número OS')]||''),
+        equipe,
+        codTSS:  String(r[ix('Código TSS')]||''),
+        descTSS: String(r[ix('Descrição TSS')]||''),
+        familia: String(r[ix('Família')]||''),
+        pde:     String(r[ix('PDE')]||''),
+        municipio:String(r[ix('Município')]||''),
+        endereco:String(r[ix('Endereço')]||'').trim(),
+        numero:  String(r[ix('Número')]||''),
+        bairro:  String(r[ix('Bairro')]||'').trim(),
+        resultado,
+        resultadoClass: mapResultado(resultado),
+        nota:    String(r[ix('Nota Execução/Não Execução')]||''),
+        dtInicio,
+        dtFim,
+        tempo,
+        statusOS:String(r[ix('Status da OS')]||''),
+        mobile:  String(r[ix('Mobile')]||''),
+        tipo:    mapTipo(r[ix('Código TSS')],r[ix('Descrição TSS')]),
+      });
+    }
+  }
+  return dados;
+}
+
+// ═══════════════════ INIT ═══════════════════
+function init(){
+  // Popula selects
+  const colabs=[...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
+  ['f-colab','jf-colab','ff-colab','df-colab'].forEach(id=>{
+    const sel=$(id);
+    const base=id==='ff-colab'?'<option value="">— Selecione um fiscal —</option>':'<option value="">Todos</option>';
+    sel.innerHTML=base+colabs.map(c=>`<option value="${c}">${c}</option>`).join('');
+  });
+
+  // Data e total
+  const datas=ALL.map(d=>d.dtInicio?.dateStr).filter(Boolean);
+  const maxData=datas.length?datas.sort().slice(-1)[0]:'—';
+  $('chip-data').textContent=maxData?maxData.split('-').reverse().join('/'):'—';
+  $('chip-total').textContent=ALL.length;
+
+  // Mostra UI
+  $('upload-zone').style.display='none';
+  $('tabs').style.display='flex';
+  $('main').classList.add('on');
+
+  renderGeral();
+  renderJornada();
+}
+
+// ═══════════════════ PAGE GERAL ═══════════════════
+function filtrar(){
+  const c=$('f-colab').value, t=$('f-tipo').value, r=$('f-res').value;
+  FILT=ALL.filter(d=>{
+    if(c&&d.equipe!==c) return false;
+    if(t&&d.tipo!==t) return false;
+    if(r&&d.resultadoClass!==r) return false;
+    return true;
+  });
+  renderGeral();
+}
+
+function limparFiltros(){
+  ['f-colab','f-tipo','f-res'].forEach(id=>$(id).value='');
+  FILT=[...ALL]; renderGeral();
+}
+
+function renderGeral(){
+  const D=FILT;
+  const tot=D.length;
+  const ex=D.filter(d=>d.resultadoClass==='Executado').length;
+  const ne=D.filter(d=>d.resultadoClass==='Não Executado').length;
+  const na=D.filter(d=>d.resultadoClass==='Não Atendida').length;
+  const cortes=D.filter(d=>d.resultado.toUpperCase().includes('CORTADA')).length;
+  const pos=D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
+  const ts=D.filter(d=>d.tempo>0&&d.tempo<300).map(d=>d.tempo);
+  const tmed=ts.length?(ts.reduce((a,b)=>a+b,0)/ts.length).toFixed(1):'—';
+
+  $('k-tot').textContent=fmt(tot);
+  $('k-ex').textContent=fmt(ex); $('k-ex-s').textContent=pct(ex,tot)+' de execução';
+  $('k-ne').textContent=fmt(ne); $('k-ne-s').textContent=pct(ne,tot)+' impedimento';
+  $('k-na').textContent=fmt(na);
+  $('k-prod').textContent=pct(ex,tot);
+  $('k-corte').textContent=fmt(cortes);
+  $('k-pos').textContent=fmt(pos);
+  $('k-tmed').textContent=tmed+(tmed!=='—'?' min':'');
+
+  renderChartsGeral(D,tot,ex,ne,na);
+  renderTblColab(D);
+  renderTblRes(D,tot);
+  renderTblUlt(D);
+}
+
+function renderChartsGeral(D,tot,ex,ne,na){
+  // colabs chart
+  const cm={};
+  D.forEach(d=>{
+    if(!cm[d.equipe]) cm[d.equipe]={ex:0,ne:0,na:0};
+    if(d.resultadoClass==='Executado') cm[d.equipe].ex++;
+    else if(d.resultadoClass==='Não Executado') cm[d.equipe].ne++;
+    else cm[d.equipe].na++;
+  });
+  const co=Object.entries(cm).sort((a,b)=>{
+    const pa=a[1].ex/(a[1].ex+a[1].ne+a[1].na);
+    const pb=b[1].ex/(b[1].ex+b[1].ne+b[1].na);
+    return pb-pa;
+  });
+  criarChart('ch-colab','bar',{
+    labels:co.map(([n])=>nomeAbrev(n)),
+    datasets:[
+      {label:'Executadas',data:co.map(([,v])=>v.ex),backgroundColor:'rgba(34,197,94,.8)',borderRadius:4},
+      {label:'Não Exec.',data:co.map(([,v])=>v.ne),backgroundColor:'rgba(239,68,68,.6)',borderRadius:4},
+      {label:'Não Atend.',data:co.map(([,v])=>v.na),backgroundColor:'rgba(245,158,11,.5)',borderRadius:4},
+    ]
+  },{indexAxis:'y',scales:{x:{stacked:true,ticks:{color:'#6a8db5'},grid:{color:'rgba(255,255,255,.04)'}},y:{stacked:true,ticks:{color:'#dde6f5',font:{size:10}},grid:{display:false}}},plugins:{legend:{labels:{color:'#6a8db5',font:{size:11}}}}});
+
+  criarChart('ch-dnut','doughnut',{
+    labels:['Executado','Não Executado','Não Atendida'],
+    datasets:[{data:[ex,ne,na],backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)','rgba(245,158,11,.85)'],borderWidth:2,borderColor:'#102040'}]
+  },{cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#6a8db5',font:{size:11},padding:10}}}});
+
+  // impedimentos
+  const imp={};
+  D.filter(d=>d.resultadoClass==='Não Executado').forEach(d=>{
+    const k=d.resultado||'Outro'; imp[k]=(imp[k]||0)+1;
+  });
+  const impArr=Object.entries(imp).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  criarChart('ch-imp','bar',{
+    labels:impArr.map(([k])=>k.length>25?k.slice(0,23)+'…':k),
+    datasets:[{data:impArr.map(([,v])=>v),backgroundColor:'rgba(245,158,11,.75)',borderRadius:4}]
+  },{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6a8db5',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#dde6f5',font:{size:10}},grid:{display:false}}}});
+
+  // tipo
+  const tipos={};
+  D.forEach(d=>{ tipos[d.tipo]=(tipos[d.tipo]||0)+1; });
+  criarChart('ch-tipo','pie',{
+    labels:Object.keys(tipos),
+    datasets:[{data:Object.values(tipos),backgroundColor:['rgba(0,194,224,.85)','rgba(79,142,247,.85)','rgba(168,85,247,.85)'],borderWidth:2,borderColor:'#102040'}]
+  },{plugins:{legend:{position:'bottom',labels:{color:'#6a8db5',font:{size:11},padding:8}}}});
+
+  // cortes e pos por colaborador
+  const cp={};
+  D.forEach(d=>{
+    const n=nomeAbrev(d.equipe);
+    if(!cp[n]) cp[n]={c:0,p:0};
+    if(d.resultado.toUpperCase().includes('CORTADA')) cp[n].c++;
+    const r=d.resultado.toUpperCase();
+    if(r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO')) cp[n].p++;
+  });
+  const cpL=Object.keys(cp);
+  criarChart('ch-cpos','bar',{
+    labels:cpL,
+    datasets:[
+      {label:'Cortes',data:cpL.map(k=>cp[k].c),backgroundColor:'rgba(239,68,68,.8)',borderRadius:4},
+      {label:'Pag. POS',data:cpL.map(k=>cp[k].p),backgroundColor:'rgba(34,197,94,.8)',borderRadius:4},
+    ]
+  },{plugins:{legend:{labels:{color:'#6a8db5',font:{size:11}}}},scales:{x:{ticks:{color:'#6a8db5',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6a8db5'},grid:{color:'rgba(255,255,255,.04)'}}}});
+}
+
+function renderTblColab(D){
+  const cm={};
+  D.forEach(d=>{
+    if(!cm[d.equipe]) cm[d.equipe]={ex:0,ne:0,na:0,cortes:0,pos:0,ts:[]};
+    const c=cm[d.equipe];
+    if(d.resultadoClass==='Executado') c.ex++;
+    else if(d.resultadoClass==='Não Executado') c.ne++;
+    else c.na++;
+    if(d.resultado.toUpperCase().includes('CORTADA')) c.cortes++;
+    const r=d.resultado.toUpperCase();
+    if(r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO')) c.pos++;
+    if(d.tempo>0&&d.tempo<300) c.ts.push(d.tempo);
+  });
+  $('lbl-colab').textContent=Object.keys(cm).length+' colaboradores';
+  const tb=$('tb-colab'); tb.innerHTML='';
+  Object.entries(cm).sort((a,b)=>{
+    const pa=a[1].ex/(a[1].ex+a[1].ne+a[1].na);
+    const pb=b[1].ex/(b[1].ex+b[1].ne+b[1].na);
+    return pb-pa;
+  }).forEach(([nome,v])=>{
+    const tot=v.ex+v.ne+v.na;
+    const p=tot>0?v.ex/tot:0;
+    const pFmt=(p*100).toFixed(1)+'%';
+    const tm=v.ts.length?(v.ts.reduce((a,b)=>a+b,0)/v.ts.length).toFixed(0)+'min':'—';
+    const fc=p>=.7?'var(--verde)':p>=.5?'var(--amarelo)':'var(--vermelho)';
+    const bl=p>=.7?'b-g':p>=.5?'b-y':'b-r';
+    const st=p>=.7?'Ótimo':p>=.5?'Regular':'Atenção';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:700;max-width:180px">${nome}</td>
+<td>${tot}</td>
+<td style="color:var(--verde);font-weight:700">${v.ex}</td>
+<td style="color:var(--vermelho)">${v.ne}</td>
+<td style="color:var(--amarelo)">${v.na}</td>
+<td>
+  <div style="display:flex;align-items:center;gap:7px">
+    <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(p*100)}%;background:${fc}"></div></div>
+    <span style="font-weight:700;font-size:12px">${pFmt}</span>
+  </div>
+</td>
+<td>${v.cortes}</td><td>${v.pos}</td><td>${tm}</td>
+<td><span class="b ${bl}">${st}</span></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function renderTblRes(D,tot){
+  const res={};
+  D.forEach(d=>{ const k=d.resultado||'—'; res[k]=(res[k]||0)+1; });
+  const tb=$('tb-res'); tb.innerHTML='';
+  Object.entries(res).sort((a,b)=>b[1]-a[1]).forEach(([nome,qtd])=>{
+    const rc=mapResultado(nome);
+    const bl=rc==='Executado'?'b-g':rc==='Não Atendida'?'b-y':'b-r';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${nome}</span></td>
+<td style="font-weight:700">${qtd}</td><td style="color:var(--muted)">${((qtd/tot)*100).toFixed(1)}%</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function renderTblUlt(D){
+  const tb=$('tb-ult'); tb.innerHTML='';
+  D.slice(0,15).forEach(d=>{
+    const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
+    const bt=d.tipo==='Corte'?'b-r':d.tipo==='Cobrança'?'b-a':'b-z';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-family:monospace;color:var(--accent);font-size:11px">${d.nrOS}</td>
+<td style="font-size:11px">${nomeAbrev(d.equipe)}</td>
+<td><span class="b ${bt}">${d.tipo}</span></td>
+<td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${(d.resultado||'—').slice(0,36)}</span></td>
+<td style="text-align:center">${d.tempo||'—'}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+// ═══════════════════ PAGE JORNADA ═══════════════════
+function renderJornada(){
+  const filtColab=$('jf-colab').value;
+  const D=filtColab?ALL.filter(d=>d.equipe===filtColab):ALL;
+
+  // Agrupa por colaborador e pega 1ª e última OS com horário real (não 16h00 ou 23h59 FIM DO DIA)
+  const cm={};
+  D.forEach(d=>{
+    if(!d.dtInicio) return;
+    const e=d.equipe;
+    if(!cm[e]) cm[e]={os:[]};
+    cm[e].os.push(d);
+  });
+
+  // Para cada colaborador calcula jornada
+  const jornadas=[];
+  Object.entries(cm).forEach(([nome,{os}])=>{
+    // Filtra OS com horário real (exclui FIM DO DIA que fica 16:00 ou 23:59)
+    const reais=os.filter(d=>{
+      if(!d.dtInicio) return false;
+      const m=d.dtInicio.totalMin;
+      // Exclui timestamps genéricos de "FIM DO DIA" (16:00:00 exato = 960, 23:59 = 1439)
+      if(d.resultadoClass==='Não Atendida') return false;
+      return true;
+    });
+    if(!reais.length) return;
+
+    const sorted=reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
+    const primeiraOS=sorted[0];
+    const ultimaOS=sorted[sorted.length-1];
+
+    const inicio=primeiraOS.dtInicio.totalMin;
+    const fimUltima=ultimaOS.dtFim?ultimaOS.dtFim.totalMin:ultimaOS.dtInicio.totalMin;
+
+    // Jornada efetiva = tempo entre 1ª baixa e última baixa
+    const jornadaEfetiva=Math.max(0,fimUltima-inicio);
+
+    // Tempo perdido = quanto sobrou até 17h depois da última baixa
+    const tempoPerdido=Math.max(0,HORA_FIM-fimUltima);
+
+    // Tempo antes da 1ª OS (chegou tarde?)
+    const atrasoInicio=Math.max(0,inicio-HORA_INI);
+
+    // % perda = tempo perdido / jornada disponível total
+    const pctPerda=(tempoPerdido/JORNADA)*100;
+    const pctAprov=((jornadaEfetiva/JORNADA)*100).toFixed(1);
+
+    jornadas.push({
+      nome,
+      primeiraOS, ultimaOS,
+      inicioMin: inicio,
+      fimMin: fimUltima,
+      jornadaEfetiva,
+      tempoPerdido,
+      atrasoInicio,
+      pctPerda: pctPerda.toFixed(1),
+      pctAprov,
+      totalOS: os.length,
+      osReais: reais.length,
+    });
+  });
+
+  jornadas.sort((a,b)=>b.tempoPerdido-a.tempoPerdido);
+
+  // KPIs jornada
+  const totalPerdido=jornadas.reduce((s,j)=>s+j.tempoPerdido,0);
+  const mediaPerdido=jornadas.length?Math.round(totalPerdido/jornadas.length):0;
+  const alertas=jornadas.filter(j=>j.tempoPerdido>60).length;
+  $('j-kpis').innerHTML=`
+<div class="kpi c-r"><div class="kpi-lbl">Tempo Total Perdido</div><div class="kpi-val">${minToHM(totalPerdido)}</div><div class="kpi-sub">Soma da equipe</div></div>
+<div class="kpi c-y"><div class="kpi-lbl">Média por Fiscal</div><div class="kpi-val">${minToHM(mediaPerdido)}</div><div class="kpi-sub">Após última OS</div></div>
+<div class="kpi c-r"><div class="kpi-lbl">Alertas</div><div class="kpi-val">${alertas}</div><div class="kpi-sub">+60min perdidos</div></div>
+<div class="kpi c-a"><div class="kpi-lbl">Fiscais Analisados</div><div class="kpi-val">${jornadas.length}</div><div class="kpi-sub">Com dados de horário</div></div>`;
+
+  // Timeline
+  const tc=$('timeline-container'); tc.innerHTML='';
+  const labels=['08h','09h','10h','11h','12h','13h','14h','15h','16h','17h'];
+  const labDiv=document.createElement('div');
+  labDiv.className='tl-labels';
+  labels.forEach(l=>{ const s=document.createElement('span'); s.textContent=l; labDiv.appendChild(s); });
+  tc.appendChild(labDiv);
+
+  jornadas.forEach(j=>{
+    const row=document.createElement('div'); row.className='tl-row';
+    const nameEl=document.createElement('div'); nameEl.className='tl-name';
+    nameEl.textContent=`${nomeAbrev(j.nome)}  ·  1ª OS: ${j.primeiraOS.dtInicio.str.split(' ')[1]}  ·  Última: ${j.fimMin<600?(Math.floor(j.fimMin/60)+':'+String(j.fimMin%60).padStart(2,'0')):'—'}  ·  Perdeu: ${minToHM(j.tempoPerdido)}`;
+    row.appendChild(nameEl);
+
+    const bar=document.createElement('div'); bar.className='timeline-bar';
+
+    // Função de conversão minuto → %
+    const toX=m=>((m-HORA_INI)/JORNADA*100).toFixed(2)+'%';
+    const toW=m=>(m/JORNADA*100).toFixed(2)+'%';
+
+    // Segmento: antes da 1ª OS (fundo mais escuro)
+    if(j.atrasoInicio>0){
+      const seg=document.createElement('div'); seg.className='tl-seg';
+      seg.style.cssText=`left:0;width:${toW(j.atrasoInicio)};background:rgba(0,194,224,.25)`;
+      seg.title=`Inicio às ${Math.floor(j.inicioMin/60)}:${String(j.inicioMin%60).padStart(2,'0')} (+${j.atrasoInicio}min antes)`;
+      bar.appendChild(seg);
+    }
+
+    // Segmento: jornada efetiva (verde)
+    const inicioX=Math.max(0,(j.inicioMin-HORA_INI)/JORNADA*100);
+    const seg2=document.createElement('div'); seg2.className='tl-seg';
+    seg2.style.cssText=`left:${inicioX.toFixed(2)}%;width:${toW(j.jornadaEfetiva)};background:rgba(34,197,94,.75)`;
+    seg2.title=`Trabalhou ${minToHM(j.jornadaEfetiva)}`;
+    bar.appendChild(seg2);
+
+    // Segmento: tempo perdido (vermelho)
+    if(j.tempoPerdido>0){
+      const fimX=((j.fimMin-HORA_INI)/JORNADA*100).toFixed(2);
+      const seg3=document.createElement('div'); seg3.className='tl-seg';
+      seg3.style.cssText=`left:${fimX}%;width:${toW(j.tempoPerdido)};background:rgba(239,68,68,.65)`;
+      seg3.title=`Tempo perdido: ${minToHM(j.tempoPerdido)}`;
+      bar.appendChild(seg3);
+    }
+
+    row.appendChild(bar);
+    tc.appendChild(row);
+  });
+
+  // Tabela jornada
+  const tb=$('tb-jornada'); tb.innerHTML='';
+  jornadas.forEach(j=>{
+    const iniH=`${Math.floor(j.inicioMin/60)}:${String(j.inicioMin%60).padStart(2,'0')}`;
+    const fimH=`${Math.floor(j.fimMin/60)}:${String(j.fimMin%60).padStart(2,'0')}`;
+    const alerta=j.tempoPerdido>120?'<span class="b b-r">⚠ CRITICO</span>':j.tempoPerdido>60?'<span class="b b-y">⚠ ATENÇÃO</span>':'<span class="b b-g">✔ OK</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+<td style="font-weight:700;min-width:160px">${nomeAbrev(j.nome)}</td>
+<td style="color:var(--accent);font-weight:700">${iniH}</td>
+<td style="color:var(--amarelo);font-weight:700">${fimH}</td>
+<td>${minToHM(j.jornadaEfetiva)}</td>
+<td style="color:var(--muted)">9h (540min)</td>
+<td style="color:var(--vermelho);font-weight:700">${minToHM(j.tempoPerdido)}</td>
+<td><span style="color:${j.pctPerda>22?'var(--vermelho)':j.pctPerda>11?'var(--amarelo)':'var(--verde)'};font-weight:700">${j.pctPerda}%</span></td>
+<td>
+  <div style="display:flex;align-items:center;gap:7px">
+    <div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,parseFloat(j.pctAprov))}%;background:var(--verde)"></div></div>
+    <span style="font-size:12px;font-weight:700">${j.pctAprov}%</span>
+  </div>
+</td>
+<td>${alerta}</td>`;
+    tb.appendChild(tr);
+  });
+
+  // Chart barras tempo perdido
+  criarChart('ch-jorn','bar',{
+    labels:jornadas.map(j=>nomeAbrev(j.nome)),
+    datasets:[
+      {label:'Tempo Perdido (min)',data:jornadas.map(j=>j.tempoPerdido),backgroundColor:jornadas.map(j=>j.tempoPerdido>120?'rgba(239,68,68,.8)':j.tempoPerdido>60?'rgba(245,158,11,.8)':'rgba(34,197,94,.6)'),borderRadius:4},
+    ]
+  },{plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y}min (${minToHM(ctx.parsed.y)})`}}},scales:{x:{ticks:{color:'#6a8db5',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6a8db5',callback:v=>v+'min'},grid:{color:'rgba(255,255,255,.04)'}}}});
+}
+
+// ═══════════════════ PAGE FISCAL ═══════════════════
+function renderFiscal(){
+  const colab=$('ff-colab').value;
+  const tipo=$('ff-tipo').value;
+  const res=$('ff-res').value;
+
+  if(!colab){ $('fiscal-vazio').style.display='block'; $('fiscal-content').style.display='none'; return; }
+  $('fiscal-vazio').style.display='none';
+  $('fiscal-content').style.display='block';
+
+  let D=ALL.filter(d=>d.equipe===colab);
+  if(tipo) D=D.filter(d=>d.tipo===tipo);
+  if(res) D=D.filter(d=>d.resultadoClass===res);
+
+  const tot=D.length;
+  const ex=D.filter(d=>d.resultadoClass==='Executado').length;
+  const ne=D.filter(d=>d.resultadoClass==='Não Executado').length;
+  const na=D.filter(d=>d.resultadoClass==='Não Atendida').length;
+
+  // jornada do fiscal
+  const reais=ALL.filter(d=>d.equipe===colab&&d.dtInicio&&d.resultadoClass!=='Não Atendida');
+  const sorted=reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
+  const primeiraOS=sorted[0];
+  const ultimaOS=sorted[sorted.length-1];
+
+  $('fn-nome').textContent=colab;
+  $('fn-meta').textContent=`${tot} OS no período${primeiraOS?` · 1ª: ${primeiraOS.dtInicio.str.split(' ')[1]} · Última: ${ultimaOS.dtFim?ultimaOS.dtFim.str.split(' ')[1]:ultimaOS.dtInicio.str.split(' ')[1]}`:''}`;
+
+  $('fn-kpis').innerHTML=`
+<div class="fk"><div class="fk-val" style="color:var(--verde)">${ex}</div><div class="fk-lbl">Executadas</div></div>
+<div class="fk"><div class="fk-val" style="color:var(--vermelho)">${ne}</div><div class="fk-lbl">Não Exec.</div></div>
+<div class="fk"><div class="fk-val" style="color:var(--amarelo)">${na}</div><div class="fk-lbl">Não Atend.</div></div>
+<div class="fk"><div class="fk-val" style="color:var(--accent)">${pct(ex,tot)}</div><div class="fk-lbl">Produtiv.</div></div>`;
+
+  // KPIs fiscal
+  const cortes=D.filter(d=>d.resultado.toUpperCase().includes('CORTADA')).length;
+  const pos=D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
+  const ts=D.filter(d=>d.tempo>0&&d.tempo<300).map(d=>d.tempo);
+  const tMed=ts.length?(ts.reduce((a,b)=>a+b,0)/ts.length).toFixed(1):'—';
+  const tMax=ts.length?Math.max(...ts):null;
+  const tMin=ts.length?Math.min(...ts):null;
+
+  let perdaHTML='—';
+  if(primeiraOS&&ultimaOS){
+    const fimM=ultimaOS.dtFim?ultimaOS.dtFim.totalMin:ultimaOS.dtInicio.totalMin;
+    const perdido=Math.max(0,HORA_FIM-fimM);
+    perdaHTML=`${minToHM(perdido)} (${((perdido/JORNADA)*100).toFixed(1)}% jornada)`;
+  }
+
+  $('fis-kpis').innerHTML=`
+<div class="kpi c-a"><div class="kpi-lbl">Total OS</div><div class="kpi-val">${tot}</div></div>
+<div class="kpi c-g"><div class="kpi-lbl">% Execução</div><div class="kpi-val">${pct(ex,tot)}</div></div>
+<div class="kpi c-r"><div class="kpi-lbl">Cortes</div><div class="kpi-val">${cortes}</div></div>
+<div class="kpi c-g"><div class="kpi-lbl">Pag. POS</div><div class="kpi-val">${pos}</div></div>
+<div class="kpi c-a"><div class="kpi-lbl">T. Médio Exec.</div><div class="kpi-val">${tMed}${tMed!=='—'?' min':''}</div></div>
+<div class="kpi c-r"><div class="kpi-lbl">Tempo Perdido</div><div class="kpi-val" style="font-size:18px">${perdaHTML}</div></div>`;
+
+  // Charts fiscal
+  criarChart('ch-fis-res','doughnut',{
+    labels:['Executado','Não Exec.','Não Atend.'],
+    datasets:[{data:[ex,ne,na],backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)','rgba(245,158,11,.85)'],borderWidth:2,borderColor:'#102040'}]
+  },{cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'#6a8db5',font:{size:11},padding:8}}}});
+
+  const tipos={};
+  D.forEach(d=>{ tipos[d.tipo]=(tipos[d.tipo]||0)+1; });
+  criarChart('ch-fis-tipo','pie',{
+    labels:Object.keys(tipos),
+    datasets:[{data:Object.values(tipos),backgroundColor:['rgba(0,194,224,.85)','rgba(79,142,247,.85)','rgba(168,85,247,.85)'],borderWidth:2,borderColor:'#102040'}]
+  },{plugins:{legend:{position:'bottom',labels:{color:'#6a8db5',font:{size:11},padding:8}}}});
+
+  // Tempo médio por tipo
+  const tmTipo={};
+  D.filter(d=>d.tempo>0&&d.tempo<300).forEach(d=>{
+    if(!tmTipo[d.tipo]) tmTipo[d.tipo]={soma:0,n:0};
+    tmTipo[d.tipo].soma+=d.tempo; tmTipo[d.tipo].n++;
+  });
+  const tmL=Object.keys(tmTipo);
+  criarChart('ch-fis-tempo','bar',{
+    labels:tmL,
+    datasets:[{label:'T. Médio (min)',data:tmL.map(k=>(tmTipo[k].soma/tmTipo[k].n).toFixed(1)),backgroundColor:'rgba(79,142,247,.8)',borderRadius:4}]
+  },{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6a8db5'}},y:{ticks:{color:'#6a8db5'},grid:{color:'rgba(255,255,255,.04)'}}}});
+
+  // Tempo records
+  const osComTempo=D.filter(d=>d.tempo>0&&d.tempo<300).sort((a,b)=>a.tempo-b.tempo);
+  const maiRapida=osComTempo[0];
+  const maiDemorada=osComTempo[osComTempo.length-1];
+  $('fis-tempo-cards').innerHTML=`
+<div class="tempo-card"><h4>⚡ OS Mais Rápida</h4><div class="val">${maiRapida?maiRapida.tempo+'min':'—'}</div><div class="sub">${maiRapida?maiRapida.nrOS+' · '+maiRapida.resultado.slice(0,30):'—'}</div></div>
+<div class="tempo-card"><h4>🐢 OS Mais Demorada</h4><div class="val">${maiDemorada?maiDemorada.tempo+'min':'—'}</div><div class="sub">${maiDemorada?maiDemorada.nrOS+' · '+maiDemorada.resultado.slice(0,30):'—'}</div></div>
+<div class="tempo-card"><h4>📊 Tempo Médio</h4><div class="val">${tMed}${tMed!=='—'?' min':''}</div><div class="sub">${ts.length} OS com tempo registrado</div></div>
+<div class="tempo-card"><h4>⏱ 1ª Baixa do Dia</h4><div class="val">${primeiraOS?primeiraOS.dtInicio.str.split(' ')[1]:'—'}</div><div class="sub">${primeiraOS?'OS '+primeiraOS.nrOS:'sem dado'}</div></div>
+<div class="tempo-card"><h4>🔚 Última Baixa</h4><div class="val">${ultimaOS?((ultimaOS.dtFim||ultimaOS.dtInicio).str.split(' ')[1]):'—'}</div><div class="sub">${ultimaOS?'OS '+ultimaOS.nrOS:'sem dado'}</div></div>`;
+
+  // Tabela OS fiscal
+  $('fis-os-count').textContent=`${D.length} OS`;
+  const tb=$('tb-fis'); tb.innerHTML='';
+  D.forEach((d,i)=>{
+    const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
+    const bt=d.tipo==='Corte'?'b-r':d.tipo==='Cobrança'?'b-a':'b-z';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+<td style="color:var(--muted)">${i+1}</td>
+<td style="font-family:monospace;color:var(--accent);font-size:11px">${d.nrOS}</td>
+<td><span class="b ${bt}">${d.tipo}</span></td>
+<td style="color:var(--muted);font-size:11px">${d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-'}</td>
+<td style="color:var(--accent)">${d.dtInicio?d.dtInicio.str.split(' ')[1]:'—'}</td>
+<td style="color:var(--amarelo)">${d.dtFim?d.dtFim.str.split(' ')[1]:'—'}</td>
+<td style="text-align:center;font-weight:700">${d.tempo||'—'}</td>
+<td><span class="b ${bl}" style="border-radius:5px;font-size:10px;white-space:normal">${d.resultado.slice(0,35)}</span></td>
+<td style="color:var(--muted);font-size:11px;max-width:160px">${d.nota?d.nota.slice(0,50):'-'}</td>
+<td style="font-size:11px">${d.bairro||'-'}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+// ═══════════════════ PAGE DETALHES ═══════════════════
+function limparDetalhes(){
+  ['df-colab','df-tipo','df-res'].forEach(id=>$(id).value='');
+  $('df-busca').value='';
+  renderDetalhes();
+}
+
+function renderDetalhes(){
+  const c=$('df-colab').value, t=$('df-tipo').value, r=$('df-res').value;
+  const busca=$('df-busca').value.toLowerCase();
+  const D=ALL.filter(d=>{
+    if(c&&d.equipe!==c) return false;
+    if(t&&d.tipo!==t) return false;
+    if(r&&d.resultadoClass!==r) return false;
+    if(busca&&!d.nrOS.includes(busca)&&!d.endereco.toLowerCase().includes(busca)&&
+       !d.resultado.toLowerCase().includes(busca)&&!d.equipe.toLowerCase().includes(busca)) return false;
+    return true;
+  });
+  $('det-count').textContent=`${D.length} OS exibidas`;
+  const tb=$('tb-det'); tb.innerHTML='';
+  D.slice(0,300).forEach(d=>{
+    const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
+    const bt=d.tipo==='Corte'?'b-r':d.tipo==='Cobrança'?'b-a':'b-z';
+    const mob=d.mobile==='Sim'?'<span class="b b-g">Sim</span>':'<span class="b b-z">Não</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+<td style="font-family:monospace;color:var(--accent);font-size:11px;white-space:nowrap">${d.nrOS}</td>
+<td style="font-size:11px;min-width:130px">${d.equipe}</td>
+<td><span class="b ${bt}">${d.tipo}</span></td>
+<td style="font-size:11px;color:var(--muted);white-space:nowrap">${d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-'}</td>
+<td style="font-size:11px;color:var(--accent)">${d.dtInicio?d.dtInicio.str.split(' ')[1]:'—'}</td>
+<td style="font-size:11px;color:var(--amarelo)">${d.dtFim?d.dtFim.str.split(' ')[1]:'—'}</td>
+<td style="text-align:center;font-weight:700">${d.tempo||'—'}</td>
+<td style="font-size:11px">${d.codTSS}</td>
+<td style="font-size:11px;max-width:180px">${d.descTSS.slice(0,40)}</td>
+<td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${d.resultado.slice(0,35)}</span></td>
+<td style="font-size:10px;color:var(--muted);max-width:160px">${(d.nota||'').slice(0,45)}</td>
+<td style="font-size:11px">${d.endereco}</td>
+<td style="font-size:11px">${d.bairro}</td>
+<td style="font-size:11px;color:var(--muted)">${d.pde}</td>
+<td style="font-size:11px">${d.statusOS}</td>
+<td>${mob}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+// ═══════════════════ CHARTS ═══════════════════
+function criarChart(id,tipo,data,opts){
+  if(CHARTS[id]) CHARTS[id].destroy();
+  const ctx=$(id);
+  if(!ctx) return;
+  CHARTS[id]=new Chart(ctx.getContext('2d'),{
+    type:tipo, data,
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:350},
+      plugins:{...opts?.plugins},
+      ...opts,
+    }
+  });
+}
+
+// ═══════════════════ TABS ═══════════════════
+function showPage(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  el.classList.add('active');
+  $('page-'+id).classList.add('on');
+  if(id==='fiscal') renderFiscal();
+  if(id==='detalhes') renderDetalhes();
+}
+
+// ═══════════════════ EXPORTAR ═══════════════════
+function exportar(){
+  if(!ALL.length){ toast('Carregue um arquivo primeiro!',false); return; }
+  const wb=XLSX.utils.book_new();
+
+  // Aba resumo
+  const res=[];
+  res.push(['RELATÓRIO DE GESTÃO — CORTE & COBRANÇA']);
+  res.push(['OCMS - Divisão de Manutenção Serv. Operacionais - São Mateus']);
+  res.push(['Gerado em:',(new Date()).toLocaleString('pt-BR')]);
+  res.push([]);
+  res.push(['RESUMO GERAL']);
+  res.push(['Total OS','Executadas','Não Exec.','Não Atend.','% Produtividade']);
+  const tot=ALL.length,ex=ALL.filter(d=>d.resultadoClass==='Executado').length;
+  const ne=ALL.filter(d=>d.resultadoClass==='Não Executado').length,na=ALL.filter(d=>d.resultadoClass==='Não Atendida').length;
+  res.push([tot,ex,ne,na,pct(ex,tot)]);
+  res.push([]);
+  res.push(['JORNADA POR COLABORADOR']);
+  res.push(['Colaborador','1ª Baixa','Última Baixa','Jornada Efetiva','Tempo Perdido (min)','% Perda','% Aproveitamento']);
+
+  const colabs=[...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
+  colabs.forEach(nome=>{
+    const reais=ALL.filter(d=>d.equipe===nome&&d.dtInicio&&d.resultadoClass!=='Não Atendida');
+    if(!reais.length){ res.push([nome,'—','—','—','—','—','—']); return; }
+    const sorted=reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
+    const p=sorted[0],u=sorted[sorted.length-1];
+    const fimM=u.dtFim?u.dtFim.totalMin:u.dtInicio.totalMin;
+    const jef=Math.max(0,fimM-p.dtInicio.totalMin);
+    const perdido=Math.max(0,HORA_FIM-fimM);
+    res.push([nome,p.dtInicio.str.split(' ')[1],(u.dtFim||u.dtInicio).str.split(' ')[1],minToHM(jef),perdido,((perdido/JORNADA)*100).toFixed(1)+'%',((jef/JORNADA)*100).toFixed(1)+'%']);
+  });
+
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(res),'Resumo Executivo');
+
+  // Aba detalhamento
+  const hdr=['Nº OS','Colaborador','Tipo','Data','Hora Início','Hora Fim','Tempo (min)','Resultado','Detalhe','Endereço','Bairro','Código TSS','Desc TSS','Status OS','Mobile'];
+  const rows=ALL.map(d=>[
+    d.nrOS,d.equipe,d.tipo,
+    d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-',
+    d.dtInicio?d.dtInicio.str.split(' ')[1]:'-',
+    d.dtFim?d.dtFim.str.split(' ')[1]:'-',
+    d.tempo,d.resultado,d.nota,
+    d.endereco,d.bairro,d.codTSS,d.descTSS,d.statusOS,d.mobile
+  ]);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([hdr,...rows]),'Detalhamento OS');
+
+  XLSX.writeFile(wb,'Relatorio_Corte_Cobranca.xlsx');
+  toast('Relatório exportado!');
+}
+</script>
+</body>
+</html>
