@@ -3,43 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Acompanhamento de serviços </title>
+<title>Dashboard — acompanhamento de serviços </title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg:       #07111f;
-  --bg2:      #0d1e35;
-  --card:     #102040;
-  --borda:    #1a3560;
-  --borda2:   #244070;
-  --accent:   #00c2e0;
-  --accent2:  #4f8ef7;
-  --verde:    #22c55e;
-  --vermelho: #ef4444;
-  --amarelo:  #f59e0b;
-  --roxo:     #a855f7;
-  --texto:    #dde6f5;
-  --muted:    #6a8db5;
-  --white:    #ffffff;
-  --r:        10px;
-}
+:root{--bg:#07111f;--bg2:#0d1e35;--card:#102040;--borda:#1a3560;--borda2:#244070;
+--accent:#00c2e0;--accent2:#4f8ef7;--verde:#22c55e;--vermelho:#ef4444;--amarelo:#f59e0b;
+--roxo:#a855f7;--laranja:#fb923c;--texto:#dde6f5;--muted:#6a8db5;--white:#fff;--r:10px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--texto);min-height:100vh}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--borda2);border-radius:3px}
-
-/* HEADER */
-header{
-  background:var(--bg2);border-bottom:1px solid var(--borda);
-  padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;
-}
+header{background:var(--bg2);border-bottom:1px solid var(--borda);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px}
 .logo{display:flex;align-items:center;gap:12px}
-.logo-box{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:19px}
+.logo-box{width:38px;height:38px;border-radius:50%;background:#00c2e0;display:flex;align-items:center;justify-content:center;font-size:19px}
 .logo h1{font-size:16px;font-weight:700;color:var(--white)}
 .logo p{font-size:11px;color:var(--muted);margin-top:1px}
 .hbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -50,56 +27,37 @@ header{
 .btn-p:hover{opacity:.85}
 .btn-o{background:transparent;border:1px solid var(--borda);color:var(--texto)}
 .btn-o:hover{border-color:var(--accent);color:var(--accent)}
-.btn-g{background:var(--verde);color:#fff}
-.btn-g:hover{background:#16a34a}
+.btn-g{background:var(--verde);color:#fff}.btn-g:hover{background:#16a34a}
+.btn-r{background:var(--vermelho);color:#fff}.btn-r:hover{background:#dc2626}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:6px;border:none;cursor:pointer;font-weight:700}
 #file-input{display:none}
-
-/* TABS */
-.tabs{display:flex;gap:2px;padding:0 28px;background:var(--bg2);border-bottom:1px solid var(--borda)}
-.tab{padding:11px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap}
+.tabs{display:flex;gap:2px;padding:0 28px;background:var(--bg2);border-bottom:1px solid var(--borda);overflow-x:auto}
+.tab{padding:11px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab:hover:not(.active){color:var(--texto)}
-
-/* UPLOAD */
-#upload-zone{
-  max-width:500px;margin:60px auto;background:var(--card);border:2px dashed var(--borda);
-  border-radius:16px;padding:52px 36px;text-align:center;cursor:pointer;transition:.2s
-}
+#upload-zone{max-width:520px;margin:60px auto;background:var(--card);border:2px dashed var(--borda);border-radius:16px;padding:52px 36px;text-align:center;cursor:pointer;transition:.2s}
 #upload-zone:hover,#upload-zone.drag{border-color:var(--accent);background:#0d2040}
 #upload-zone h2{font-size:20px;margin-bottom:10px}
 #upload-zone p{color:var(--muted);font-size:14px;margin-bottom:20px}
 #upload-zone small{color:var(--muted);font-size:11px;display:block;margin-top:14px}
-
-/* MAIN */
 main{display:none;padding:22px 28px;max-width:1600px;margin:0 auto}
-main.on{display:block}
-.page{display:none}.page.on{display:block}
-
-/* FILTROS */
+main.on{display:block}.page{display:none}.page.on{display:block}
 .filtros{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:14px 0 18px}
 .fg{display:flex;flex-direction:column;gap:4px}
 .fg label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
-select,input[type=date],input[type=text]{
-  background:var(--card);border:1px solid var(--borda);color:var(--texto);
-  padding:7px 11px;border-radius:8px;font-size:12px;cursor:pointer;min-width:140px
-}
+select,input[type=date],input[type=text],input[type=number]{background:var(--card);border:1px solid var(--borda);color:var(--texto);padding:7px 11px;border-radius:8px;font-size:12px;cursor:pointer;min-width:140px}
 select:focus,input:focus{outline:none;border-color:var(--accent)}
-
-/* KPI GRID */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
-.kpi{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;transition:.15s}
+.kpi{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;transition:.15s;cursor:pointer}
 .kpi:hover{transform:translateY(-2px);border-color:var(--borda2)}
 .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .kpi.c-a::after{background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.kpi.c-g::after{background:var(--verde)}
-.kpi.c-r::after{background:var(--vermelho)}
-.kpi.c-y::after{background:var(--amarelo)}
-.kpi.c-p::after{background:var(--roxo)}
+.kpi.c-g::after{background:var(--verde)}.kpi.c-r::after{background:var(--vermelho)}
+.kpi.c-y::after{background:var(--amarelo)}.kpi.c-p::after{background:var(--roxo)}
+.kpi.c-o::after{background:var(--laranja)}
 .kpi-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
 .kpi-val{font-size:26px;font-weight:800;color:var(--white);line-height:1}
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
-
-/* CHART CARDS */
 .row2{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
 .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
 .row-half{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
@@ -107,43 +65,32 @@ select:focus,input:focus{outline:none;border-color:var(--accent)}
 .cc-title{font-size:13px;font-weight:700;margin-bottom:2px}
 .cc-sub{font-size:11px;color:var(--muted);margin-bottom:14px}
 .ch-wrap{position:relative}
-
-/* TABLE */
 .tbl-wrap{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
-.tbl-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--borda)}
+.tbl-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--borda);gap:10px;flex-wrap:wrap}
 .tbl-head h3{font-size:13px;font-weight:700}
 .tbl-head span{font-size:11px;color:var(--muted)}
-.tbl-scroll{overflow-x:auto}
+.tbl-scroll{overflow-x:auto;max-height:520px;overflow-y:auto}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{background:#081526;padding:9px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--borda);white-space:nowrap}
+th{background:#081526;padding:9px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--borda);white-space:nowrap;position:sticky;top:0}
 td{padding:9px 14px;border-bottom:1px solid rgba(26,53,96,.4);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(255,255,255,.025)}
-
-/* BADGES */
 .b{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
 .b-g{background:rgba(34,197,94,.15);color:#4ade80}
 .b-r{background:rgba(239,68,68,.15);color:#f87171}
 .b-y{background:rgba(245,158,11,.15);color:#fbbf24}
 .b-a{background:rgba(0,194,224,.15);color:#00c2e0}
 .b-p{background:rgba(168,85,247,.15);color:#c084fc}
+.b-o{background:rgba(251,146,60,.15);color:#fdba74}
 .b-z{background:rgba(106,141,181,.15);color:var(--muted)}
-
-/* PROGRESS */
-.bar-wrap{height:6px;background:rgba(26,53,96,.5);border-radius:4px;min-width:70px}
-.bar-fill{height:6px;border-radius:4px}
-
-/* TOAST */
-.toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:700;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.5);transform:translateY(80px);opacity:0;transition:.3s;z-index:999}
+.bar-wrap{height:6px;background:rgba(26,53,96,.5);border-radius:4px;min-width:70px;flex:1}
+.bar-fill{height:6px;border-radius:4px;transition:.3s}
+.toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:700;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.5);transform:translateY(80px);opacity:0;transition:.3s;z-index:999;max-width:400px}
 .toast.on{transform:translateY(0);opacity:1}
-
-/* LOADER */
 .loader{display:none;position:fixed;inset:0;background:rgba(7,17,31,.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:14px}
 .loader.on{display:flex}
 .spin{width:42px;height:42px;border:4px solid var(--borda);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-
-/* PANEL FISCAL */
 .fiscal-hero{background:linear-gradient(135deg,var(--bg2) 0%,#0a1e38 100%);border:1px solid var(--borda);border-radius:var(--r);padding:22px 24px;margin-bottom:18px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
 .fiscal-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 .fiscal-name{font-size:20px;font-weight:800;color:var(--white)}
@@ -152,32 +99,96 @@ tr:hover td{background:rgba(255,255,255,.025)}
 .fk{text-align:center}
 .fk-val{font-size:22px;font-weight:800;color:var(--white)}
 .fk-lbl{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
-
-/* TIMELINE */
 .timeline-bar{height:36px;background:rgba(26,53,96,.35);border-radius:8px;position:relative;margin:8px 0;overflow:hidden}
 .tl-seg{position:absolute;top:4px;bottom:4px;border-radius:5px;cursor:pointer;transition:.15s}
 .tl-seg:hover{filter:brightness(1.2)}
 .tl-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);padding:0 2px;margin-bottom:4px}
 .tl-row{margin-bottom:10px}
 .tl-name{font-size:11px;font-weight:700;color:var(--texto);margin-bottom:2px}
-
-/* CARD TEMPO */
 .tempo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
 .tempo-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:14px 16px}
 .tempo-card h4{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
 .tempo-card .val{font-size:20px;font-weight:800;color:var(--white)}
 .tempo-card .sub{font-size:11px;color:var(--muted);margin-top:4px}
-
-/* RESPONSIVE */
+.hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:18px}
+.hist-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:16px;cursor:pointer;transition:.15s;position:relative}
+.hist-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.hist-card.active{border-color:var(--verde);background:linear-gradient(135deg,#102040,#0d2a1e)}
+.hist-periodo{font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px}
+.hist-meta{font-size:11px;color:var(--muted);margin-bottom:8px}
+.hist-stats{display:flex;gap:14px;font-size:12px;margin-top:8px;flex-wrap:wrap}
+.hist-stats span b{color:var(--accent)}
+.hist-del{position:absolute;top:8px;right:8px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:5px}
+.hist-del:hover{background:rgba(239,68,68,.2);color:var(--vermelho)}
+.painel-relig{background:linear-gradient(135deg,#0a1e38 0%,#0d1e35 100%);border:1px solid var(--borda);border-radius:var(--r);padding:22px 24px;margin-bottom:18px}
+.painel-relig h2{font-size:22px;font-weight:800;color:var(--white);margin-bottom:4px;letter-spacing:.5px}
+.painel-relig .sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.pr-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:18px}
+.pr-box{background:var(--card);border-radius:var(--r);padding:14px 18px;text-align:center;border:2px solid var(--borda);cursor:pointer;transition:.15s}
+.pr-box:hover{transform:translateY(-2px)}
+.pr-box .lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.pr-box .val{font-size:32px;font-weight:900;color:var(--white);line-height:1}
+.pr-box.vermelho{background:linear-gradient(135deg,#7f1d1d,#991b1b);border-color:#dc2626}
+.pr-box.vermelho .val{color:#fecaca}.pr-box.vermelho .lbl{color:#fca5a5}
+.pr-box.destaque{border-color:var(--accent);background:linear-gradient(135deg,#0a1e38,#153358)}
+.pr-cidades{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.pr-cidade{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;transition:.15s}
+.pr-cidade:hover{border-color:var(--accent);transform:translateY(-2px)}
+.pr-cidade .nome{font-size:12px;font-weight:700;color:var(--white);text-transform:uppercase;margin-bottom:6px}
+.pr-cidade .qtd{font-size:26px;font-weight:900;color:var(--accent)}
+.pr-cidade.alerta .qtd{color:var(--vermelho)}
+.pr-status{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.pr-status .box{border-radius:var(--r);padding:14px;text-align:center;font-weight:800}
+.pr-status .box .nome{font-size:11px;text-transform:uppercase;margin-bottom:6px;letter-spacing:.5px}
+.pr-status .box .qtd{font-size:28px;line-height:1}
+.pr-status .planejada{background:rgba(236,72,153,.15);color:#f9a8d4;border:1px solid rgba(236,72,153,.4)}
+.pr-status .planejavel{background:rgba(251,146,60,.15);color:#fdba74;border:1px solid rgba(251,146,60,.4)}
+.pr-status .despachada{background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.4)}
+.alerta-prazo{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.ap-atrasado{background:rgba(239,68,68,.25);color:#fca5a5;border:1px solid #dc2626;animation:pulse 1.6s infinite}
+.ap-urgente{background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid #f59e0b}
+.ap-hoje{background:rgba(251,146,60,.2);color:#fdba74;border:1px solid #fb923c}
+.ap-futuro{background:rgba(34,197,94,.15);color:#86efac;border:1px solid #22c55e}
+.ap-sem{background:rgba(106,141,181,.15);color:#94a3b8;border:1px solid var(--borda2)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-bg.on{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--borda2);border-radius:14px;max-width:1300px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-head{padding:16px 22px;border-bottom:1px solid var(--borda);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.modal-head h3{font-size:16px;font-weight:800;color:var(--white)}
+.modal-head .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.modal-close{background:transparent;border:1px solid var(--borda);color:var(--texto);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700}
+.modal-close:hover{border-color:var(--vermelho);color:var(--vermelho)}
+.modal-body{padding:0;overflow:auto;flex:1}
+.gest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:18px}
+.gest-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;transition:.15s}
+.gest-card:hover{border-color:var(--borda2)}
+.gest-card.excluido{opacity:.5}
+.gest-nome{flex:1;font-weight:700;font-size:13px}
+.gest-count{font-size:11px;color:var(--muted);margin-right:8px}
+.fimdia-box{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fimdia-hora{font-family:monospace;font-weight:800;color:var(--amarelo)}
+.fimdia-hora.cedo{color:var(--vermelho)}
+.fimdia-hora.ok{color:var(--verde)}
+/* META CARDS */
+.meta-hero{background:linear-gradient(135deg,#0a1e38 0%,#102040 100%);border:2px solid var(--accent);border-radius:var(--r);padding:22px 24px;margin-bottom:18px;position:relative;overflow:hidden}
+.meta-hero::before{content:'';position:absolute;top:-50%;right:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(0,194,224,.15),transparent 70%);pointer-events:none}
+.meta-hero h2{font-size:22px;font-weight:800;color:var(--white);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.meta-hero .sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.meta-inputs{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px}
+.meta-input{background:rgba(0,0,0,.25);border:1px solid var(--borda2);border-radius:10px;padding:14px 16px}
+.meta-input label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
+.meta-input input{background:transparent;border:none;border-bottom:2px solid var(--accent);color:var(--white);font-size:28px;font-weight:900;width:100%;padding:4px 0;outline:none;text-align:left}
+.meta-input input:focus{border-bottom-color:var(--verde)}
+.meta-input .hint{font-size:10px;color:var(--muted);margin-top:6px}
+.gauge-wrap{position:relative;display:flex;justify-content:center;align-items:center}
+.meta-tbl input{width:70px;padding:4px 8px;background:var(--bg);border:1px solid var(--borda);color:var(--texto);border-radius:6px;font-size:12px;font-weight:700;text-align:center;outline:none;font-family:inherit}
+.meta-tbl input:focus{border-color:var(--accent)}
 @media(max-width:900px){
-  .row2,.row3,.row-half{grid-template-columns:1fr}
-  .kpi-grid{grid-template-columns:repeat(2,1fr)}
-  main{padding:14px}
-  header{padding:12px 14px;flex-wrap:wrap;gap:8px}
-  .tabs{padding:0 14px;overflow-x:auto}
-  .filtros{gap:8px}
-  select,input{min-width:120px;font-size:11px}
-}
+.row2,.row3,.row-half,.pr-grid,.pr-cidades,.pr-status,.meta-inputs{grid-template-columns:1fr}
+.kpi-grid{grid-template-columns:repeat(2,1fr)}
+main{padding:14px}header{padding:12px 14px}.tabs{padding:0 14px}
+select,input{min-width:120px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -185,33 +196,35 @@ tr:hover td{background:rgba(255,255,255,.025)}
 <div class="loader" id="loader"><div class="spin"></div><span style="color:var(--muted);font-size:13px">Processando arquivo...</span></div>
 <div class="toast" id="toast"></div>
 
-<!-- HEADER -->
 <header>
   <div class="logo">
-    <div class="logo-box" style="background:#00c2e0;border-radius:50%"></div>
+    <div class="logo-box"></div>
     <div>
-      <h1>Dashboard · Acompanhamento de serviços</h1>
-      <p>SABESP</p>
+      <h1>Dashboard · acompanhamento de serviços </h1>
+      <p>SABESP </p>
     </div>
   </div>
   <div class="hbtns">
-    <div class="chip">Data: <b id="chip-data">—</b></div>
+    <div class="chip">Período: <b id="chip-data">—</b></div>
     <div class="chip">Total OS: <b id="chip-total">—</b></div>
-    <button class="btn btn-o" onclick="document.getElementById('file-input').click()">📂 Novo Arquivo</button>
+    <button class="btn btn-o" onclick="document.getElementById('file-input').click()">📂 Nova Planilha</button>
     <button class="btn btn-g" onclick="exportar()">⬇ Exportar Excel</button>
     <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFile(event)">
   </div>
 </header>
 
-<!-- TABS -->
 <div class="tabs" id="tabs" style="display:none">
   <div class="tab active" onclick="showPage('geral',this)">📊 Visão Geral</div>
-  <div class="tab" onclick="showPage('jornada',this)">⏱ Jornada & Tempo Perdido</div>
-  <div class="tab" onclick="showPage('fiscal',this)">👤 Análise por Fiscal</div>
-  <div class="tab" onclick="showPage('detalhes',this)">📋 Detalhamento OS</div>
+  <div class="tab" onclick="showPage('metas',this)">🎯 Metas</div>
+  <div class="tab" onclick="showPage('relig',this)">🚨 Restab/Relig</div>
+  <div class="tab" onclick="showPage('jornada',this)">⏱ Jornada</div>
+  <div class="tab" onclick="showPage('fiscal',this)">👤 Produtividade</div>
+  <div class="tab" onclick="showPage('gestao',this)">👥 Colaboradores</div>
+  <div class="tab" onclick="showPage('historico',this)">📅 Histórico</div>
+  <div class="tab" onclick="showPage('auditoria',this)">🔎 Auditoria</div>
+  <div class="tab" onclick="showPage('detalhes',this)">📋 Detalhes</div>
 </div>
 
-<!-- UPLOAD -->
 <div id="upload-zone"
   onclick="document.getElementById('file-input').click()"
   ondragover="event.preventDefault();this.classList.add('drag')"
@@ -219,96 +232,67 @@ tr:hover td{background:rgba(255,255,255,.025)}
   ondrop="event.preventDefault();this.classList.remove('drag');handleDrop(event)">
   <div style="font-size:52px;margin-bottom:16px">📊</div>
   <h2>Arraste ou selecione o arquivo Excel</h2>
-  <p>Importe o arquivo de Execuções do GeoCall.<br>O dashboard atualiza automaticamente.</p>
+  <p>Importe o arquivo do GeoCall / WFM.<br>O dashboard atualiza automaticamente.</p>
   <button class="btn btn-p" onclick="event.stopPropagation();document.getElementById('file-input').click()">Selecionar .xlsx</button>
-  <small>Compatível com: Planilha Do GeoCall</small>
+  <small>Compatível com: Planilha do GeoCall / WFM</small>
+  <div id="hist-quick" style="margin-top:24px"></div>
 </div>
 
-<!-- MAIN -->
 <main id="main">
 
-  <!-- ═══════ PAGE: GERAL ═══════ -->
+  <!-- GERAL -->
   <div class="page on" id="page-geral">
-
     <div class="filtros">
-      <div class="fg"><label>Colaborador</label>
+      <div class="fg"><label>Colaborador / Equipe</label>
         <select id="f-colab" onchange="filtrar()"><option value="">Todos</option></select></div>
-      <div class="fg"><label>Tipo OS</label>
+      <div class="fg"><label>Atividade</label>
         <select id="f-tipo" onchange="filtrar()">
-          <option value="">Todos</option>
-          <option>Corte</option><option>Cobrança</option><option>Outro</option>
+          <option value="">Todas</option>
+          <option>Corte</option><option>Supressão</option>
+          <option>Restabelecimento</option><option>Religação</option><option>Outros</option>
         </select></div>
       <div class="fg"><label>Resultado</label>
         <select id="f-res" onchange="filtrar()">
           <option value="">Todos</option>
           <option value="Executado">Executado</option>
           <option value="Não Executado">Não Executado</option>
-          <option value="Não Atendida">Não Atendida (FIM DO DIA)</option>
+          <option value="Não Atendida">Não Atendida (Fim do Dia)</option>
+        </select></div>
+      <div class="fg"><label>Origem</label>
+        <select id="f-orig" onchange="filtrar()">
+          <option value="">Todas</option>
+          <option>Rotina</option><option>Ação 40+</option><option>Outra Ação</option>
         </select></div>
       <button class="btn btn-o" style="align-self:flex-end" onclick="limparFiltros()">✕ Limpar</button>
     </div>
-
-    <!-- KPIs -->
     <div class="kpi-grid">
-      <div class="kpi c-a"><div class="kpi-lbl">Total OS</div><div class="kpi-val" id="k-tot">—</div><div class="kpi-sub">Ordens no período</div></div>
-      <div class="kpi c-g"><div class="kpi-lbl">Executadas</div><div class="kpi-val" id="k-ex">—</div><div class="kpi-sub" id="k-ex-s">—</div></div>
-      <div class="kpi c-r"><div class="kpi-lbl">Não Executadas</div><div class="kpi-val" id="k-ne">—</div><div class="kpi-sub" id="k-ne-s">—</div></div>
-      <div class="kpi c-y"><div class="kpi-lbl">Não Atendidas</div><div class="kpi-val" id="k-na">—</div><div class="kpi-sub">FIM DO DIA</div></div>
-      <div class="kpi c-a"><div class="kpi-lbl">% Produtividade</div><div class="kpi-val" id="k-prod">—</div><div class="kpi-sub">Exec / Total</div></div>
-      <div class="kpi c-r"><div class="kpi-lbl">Cortes Realizados</div><div class="kpi-val" id="k-corte">—</div><div class="kpi-sub">Cortada + Suprimida</div></div>
-      <div class="kpi c-g"><div class="kpi-lbl">Pag. via POS</div><div class="kpi-val" id="k-pos">—</div><div class="kpi-sub">Pagamentos confirmados</div></div>
+      <div class="kpi c-a" onclick="drilldown('Total OS', d=>true)"><div class="kpi-lbl">Total OS</div><div class="kpi-val" id="k-tot">—</div><div class="kpi-sub">Ordens no período</div></div>
+      <div class="kpi c-g" onclick="drilldown('Executadas', d=>d.resultadoClass==='Executado')"><div class="kpi-lbl">Executadas</div><div class="kpi-val" id="k-ex">—</div><div class="kpi-sub" id="k-ex-s">—</div></div>
+      <div class="kpi c-r" onclick="drilldown('Não Executadas', d=>d.resultadoClass==='Não Executado')"><div class="kpi-lbl">Não Executadas</div><div class="kpi-val" id="k-ne">—</div><div class="kpi-sub" id="k-ne-s">—</div></div>
+      <div class="kpi c-y" onclick="drilldown('Fim do Dia', d=>d.resultadoClass==='Não Atendida')"><div class="kpi-lbl">Fim do Dia</div><div class="kpi-val" id="k-na">—</div><div class="kpi-sub">Não atendidas</div></div>
+      <div class="kpi c-a"><div class="kpi-lbl">% Execução</div><div class="kpi-val" id="k-prod">—</div><div class="kpi-sub">Exec / Total</div></div>
+      <div class="kpi c-r" onclick="drilldown('Cortes', d=>d.resultado.toUpperCase().includes('CORTAD'))"><div class="kpi-lbl">Cortes</div><div class="kpi-val" id="k-corte">—</div><div class="kpi-sub">Cortada + Suprimida</div></div>
+      <div class="kpi c-g" onclick="drilldown('Pagamentos POS', d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO')})"><div class="kpi-lbl">Pagamentos POS</div><div class="kpi-val" id="k-pos">—</div><div class="kpi-sub">Confirmados</div></div>
       <div class="kpi c-p"><div class="kpi-lbl">T. Médio Exec.</div><div class="kpi-val" id="k-tmed">—</div><div class="kpi-sub">min por OS</div></div>
     </div>
-
-    <!-- CHARTS R1 -->
     <div class="row2">
-      <div class="cc">
-        <div class="cc-title">Produtividade por Colaborador</div>
-        <div class="cc-sub">OS executadas vs não executadas</div>
-        <div class="ch-wrap" style="height:260px"><canvas id="ch-colab"></canvas></div>
-      </div>
-      <div class="cc">
-        <div class="cc-title">Distribuição de Resultados</div>
-        <div class="cc-sub">Status geral das OS</div>
-        <div class="ch-wrap" style="height:260px"><canvas id="ch-dnut"></canvas></div>
-      </div>
+      <div class="cc"><div class="cc-title">Produtividade por Colaborador</div><div class="cc-sub">Executadas vs Não Executadas</div><div class="ch-wrap" style="height:260px"><canvas id="ch-colab"></canvas></div></div>
+      <div class="cc"><div class="cc-title">Distribuição de Resultados</div><div class="cc-sub">Status geral</div><div class="ch-wrap" style="height:260px"><canvas id="ch-dnut"></canvas></div></div>
     </div>
-
-    <!-- CHARTS R2 -->
     <div class="row3">
-      <div class="cc">
-        <div class="cc-title">Motivos de Não Execução</div>
-        <div class="cc-sub">Impedimentos mais frequentes</div>
-        <div class="ch-wrap" style="height:200px"><canvas id="ch-imp"></canvas></div>
-      </div>
-      <div class="cc">
-        <div class="cc-title">Tipo de OS</div>
-        <div class="cc-sub">Distribuição por categoria</div>
-        <div class="ch-wrap" style="height:200px"><canvas id="ch-tipo"></canvas></div>
-      </div>
-      <div class="cc">
-        <div class="cc-title">Cortes & Pagamentos POS</div>
-        <div class="cc-sub">Por colaborador</div>
-        <div class="ch-wrap" style="height:200px"><canvas id="ch-cpos"></canvas></div>
-      </div>
+      <div class="cc"><div class="cc-title">Motivos de Não Execução</div><div class="cc-sub">Impedimentos frequentes</div><div class="ch-wrap" style="height:200px"><canvas id="ch-imp"></canvas></div></div>
+      <div class="cc"><div class="cc-title">Tipo de Atividade</div><div class="cc-sub">Distribuição</div><div class="ch-wrap" style="height:200px"><canvas id="ch-tipo"></canvas></div></div>
+      <div class="cc"><div class="cc-title">Origem / Ação</div><div class="cc-sub">Rotina vs Ações</div><div class="ch-wrap" style="height:200px"><canvas id="ch-orig"></canvas></div></div>
     </div>
-
-    <!-- TABELA COLABORADORES -->
     <div class="tbl-wrap">
       <div class="tbl-head"><h3>📋 Desempenho por Colaborador</h3><span id="lbl-colab"></span></div>
-      <div class="tbl-scroll">
-        <table>
-          <thead><tr>
-            <th>Colaborador</th><th>Total</th><th>Executadas</th><th>Não Exec.</th>
-            <th>Não Atend.</th><th>% Execução</th><th>Cortes</th><th>Pag. POS</th>
-            <th>T. Médio</th><th>Status</th>
-          </tr></thead>
-          <tbody id="tb-colab"></tbody>
-        </table>
-      </div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>Colaborador</th><th>Total</th><th>Exec.</th><th>Não Exec.</th>
+        <th>Fim Dia</th><th>% Exec.</th><th>Cortes</th><th>POS</th>
+        <th>Relig.</th><th>Restab.</th><th>Status</th></tr></thead>
+        <tbody id="tb-colab"></tbody>
+      </table></div>
     </div>
-
-    <!-- TABELA RESULTADOS -->
     <div class="row-half">
       <div class="tbl-wrap" style="margin-bottom:0">
         <div class="tbl-head"><h3>🔍 Resultados Detalhados</h3></div>
@@ -316,75 +300,169 @@ tr:hover td{background:rgba(255,255,255,.025)}
       </div>
       <div class="tbl-wrap" style="margin-bottom:0">
         <div class="tbl-head"><h3>📝 Últimas OS</h3><span>Top 15</span></div>
-        <div class="tbl-scroll">
-          <table><thead><tr><th>Nº OS</th><th>Colaborador</th><th>Tipo</th><th>Resultado</th><th>Tempo</th></tr></thead>
-          <tbody id="tb-ult"></tbody></table>
-        </div>
+        <div class="tbl-scroll"><table><thead><tr><th>Nº OS</th><th>Colab.</th><th>Tipo</th><th>Resultado</th><th>Tempo</th></tr></thead><tbody id="tb-ult"></tbody></table></div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════ PAGE: JORNADA ═══════ -->
-  <div class="page" id="page-jornada">
+  <!-- METAS -->
+  <div class="page" id="page-metas">
+    <div class="meta-hero">
+      <h2>🎯 Painel de Metas & Evolução</h2>
+      <div class="sub">Defina a meta de serviços executados. O sistema projeta se você vai bater até o fim do mês, calcula a probabilidade e mostra quem está no ritmo.</div>
+      <div class="meta-inputs">
+        <div class="meta-input">
+          <label>🎯 Meta da Equipe (mês)</label>
+          <input type="number" id="meta-geral" min="0" step="10" placeholder="0" onchange="setMetaGeral(this.value)">
+          <div class="hint">Quantidade total de OS executadas que a equipe deve bater no mês</div>
+        </div>
+        <div class="meta-input">
+          <label>📅 Dias úteis do mês</label>
+          <input type="number" id="meta-dias" min="1" max="31" value="22" onchange="setDiasUteis(this.value)">
+          <div class="hint">Base de cálculo para projeção e ritmo necessário</div>
+        </div>
+      </div>
+    </div>
 
+    <div class="kpi-grid" id="meta-kpis"></div>
+
+    <div class="row2">
+      <div class="cc">
+        <div class="cc-title">📈 Evolução Acumulada vs Ritmo Necessário</div>
+        <div class="cc-sub">Realizado dia a dia · Linha tracejada = ritmo ideal para bater a meta</div>
+        <div class="ch-wrap" style="height:300px"><canvas id="ch-meta-evol"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="cc-title">🎯 Progresso da Meta</div>
+        <div class="cc-sub">Quanto já foi realizado do total</div>
+        <div class="ch-wrap gauge-wrap" style="height:300px"><canvas id="ch-meta-gauge"></canvas></div>
+      </div>
+    </div>
+
+    <div class="cc" style="margin-bottom:14px">
+      <div class="cc-title">📊 Realizado × Meta × Projeção por Colaborador</div>
+      <div class="cc-sub">Top 15 colaboradores por produção</div>
+      <div class="ch-wrap" style="height:300px"><canvas id="ch-meta-barras"></canvas></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <div class="tbl-head">
+        <h3>👥 Metas por Colaborador</h3>
+        <span id="meta-count"></span>
+      </div>
+      <div class="tbl-scroll meta-tbl">
+        <table>
+          <thead><tr>
+            <th>Colaborador</th>
+            <th>🎯 Meta (mês)</th>
+            <th>Realizado</th>
+            <th>% Atingido</th>
+            <th>Média/dia</th>
+            <th>Projeção fim mês</th>
+            <th>Falta</th>
+            <th>Probabilidade</th>
+            <th>Status</th>
+          </tr></thead>
+          <tbody id="tb-metas"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESTAB / RELIG -->
+  <div class="page" id="page-relig">
+    <div class="filtros">
+      <div class="fg"><label>Cidade</label>
+        <select id="r-cidade" onchange="renderRelig()"><option value="">Todas</option></select></div>
+      <div class="fg"><label>Status</label>
+        <select id="r-status" onchange="renderRelig()">
+          <option value="">Todos</option>
+          <option>Planejada</option><option>Planejável</option><option>Despachada</option>
+        </select></div>
+      <div class="fg"><label>Colaborador</label>
+        <select id="r-colab" onchange="renderRelig()"><option value="">Todos</option></select></div>
+      <div class="fg"><label>Resultado</label>
+        <select id="r-res" onchange="renderRelig()">
+          <option value="">Todos</option>
+          <option value="Executado">Executado</option>
+          <option value="Não Executado">Não Executado</option>
+          <option value="Pendente">Pendente</option>
+        </select></div>
+      <button class="btn btn-o" style="align-self:flex-end" onclick="limparRelig()">✕ Limpar</button>
+    </div>
+    <div class="painel-relig">
+      <h2>PRIMARIZAÇÃO — ACOMPANHAMENTO RELIG/RESTAB</h2>
+      <div class="sub" id="relig-update">Última atualização: —</div>
+      <div class="pr-grid">
+        <div class="pr-box destaque" onclick="drilldownRelig('Total OS', ()=>true)">
+          <div class="lbl">Total de OS</div><div class="val" id="pr-total">—</div></div>
+        <div class="pr-box vermelho" onclick="drilldownRelig('Em Atraso', d=>d.prazoStatus==='atrasado')">
+          <div class="lbl">🔴 Em Atraso</div><div class="val" id="pr-atraso">—</div></div>
+        <div class="pr-box vermelho" onclick="drilldownRelig('Atrasando <24h', d=>d.prazoStatus==='urgente'||d.prazoStatus==='hoje')">
+          <div class="lbl">⚠ Atrasando &lt;24h</div><div class="val" id="pr-urgente">—</div></div>
+        <div class="pr-box destaque" onclick="drilldownRelig('Executadas', d=>d.resultadoClass==='Executado')">
+          <div class="lbl">✔ Executadas</div><div class="val" id="pr-exec">—</div></div>
+      </div>
+      <div class="pr-cidades" id="pr-cidades"></div>
+      <div class="pr-status" id="pr-status"></div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-head"><h3>📋 OS Restabelecimento / Religação</h3><span id="relig-count">—</span></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>Nº OS</th><th>Cidade</th><th>Colaborador</th><th>Endereço</th>
+        <th>Atividade</th><th>Resultado</th><th>Prazo</th><th>Status Prazo</th>
+        <th>Status OS</th><th>Tempo</th></tr></thead>
+        <tbody id="tb-relig"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- JORNADA -->
+  <div class="page" id="page-jornada">
     <div class="filtros">
       <div class="fg"><label>Colaborador</label>
         <select id="jf-colab" onchange="renderJornada()"><option value="">Todos</option></select></div>
       <button class="btn btn-o" style="align-self:flex-end" onclick="document.getElementById('jf-colab').value='';renderJornada()">✕ Limpar</button>
     </div>
-
-    <!-- KPIs jornada -->
     <div class="kpi-grid" id="j-kpis"></div>
-
-    <!-- Gráfico linha do tempo -->
     <div class="cc" style="margin-bottom:14px">
-      <div class="cc-title">⏱ Linha do Tempo — Primeiro e Último Serviço</div>
-      <div class="cc-sub">Horário comercial 08h00 às 17h00 · Barra vermelha = tempo perdido após última OS</div>
+      <div class="cc-title">⏱ Linha do Tempo — Primeiro, Último Serviço e Fim do Dia</div>
+      <div class="cc-sub">Horário comercial 08h00–17h00 · Vermelho = perdido · 🚩 Marcador = Fim do Dia</div>
       <div id="timeline-container" style="padding:4px 0"></div>
       <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:12px;height:12px;border-radius:3px;background:var(--verde);display:inline-block"></span>Trabalhou</span>
-        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:12px;height:12px;border-radius:3px;background:var(--vermelho);display:inline-block"></span>Tempo perdido (após última OS)</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:12px;height:12px;border-radius:3px;background:var(--vermelho);display:inline-block"></span>Tempo perdido</span>
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:12px;height:12px;border-radius:3px;background:var(--accent);opacity:.4;display:inline-block"></span>Antes da 1ª OS</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="font-size:14px">🚩</span>Fim do Dia</span>
       </div>
     </div>
-
-    <!-- Tabela jornada -->
     <div class="tbl-wrap">
-      <div class="tbl-head"><h3>📊 Resumo de Jornada por Colaborador</h3><span style="font-size:11px;color:var(--muted)">Base: horário comercial 08h–17h (9h disponíveis)</span></div>
-      <div class="tbl-scroll">
-        <table>
-          <thead><tr>
-            <th>Colaborador</th>
-            <th>1ª Baixa</th>
-            <th>Última Baixa</th>
-            <th>Jornada Efetiva</th>
-            <th>Tempo Disponível</th>
-            <th>Tempo Perdido</th>
-            <th>% Perda</th>
-            <th>% Aproveitamento</th>
-            <th>Alerta</th>
-          </tr></thead>
-          <tbody id="tb-jornada"></tbody>
-        </table>
-      </div>
+      <div class="tbl-head"><h3>📊 Resumo de Jornada com Hora do Fim do Dia</h3><span>Base: 08h–17h (540min)</span></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr>
+          <th>Colaborador</th><th>1ª Baixa</th><th>Última Baixa</th>
+          <th>🚩 Fim do Dia</th><th>Jornada Efetiva</th>
+          <th>Tempo Perdido</th><th>% Perda</th><th>% Aproveit.</th><th>Alerta</th>
+        </tr></thead>
+        <tbody id="tb-jornada"></tbody>
+      </table></div>
     </div>
-
     <div class="cc" style="margin-bottom:14px">
       <div class="cc-title">Tempo Perdido por Colaborador (min)</div>
-      <div class="cc-sub">Tempo após última OS até 17h — quanto o colaborador "deixou na mesa"</div>
+      <div class="cc-sub">Do Fim do Dia até 17h00</div>
       <div class="ch-wrap" style="height:220px"><canvas id="ch-jorn"></canvas></div>
     </div>
   </div>
 
-  <!-- ═══════ PAGE: FISCAL ═══════ -->
+  <!-- FISCAL / PRODUTIVIDADE -->
   <div class="page" id="page-fiscal">
-
     <div class="filtros">
-      <div class="fg"><label>Selecionar Fiscal</label>
-        <select id="ff-colab" onchange="renderFiscal()"><option value="">— Selecione um fiscal —</option></select></div>
-      <div class="fg"><label>Tipo OS</label>
+      <div class="fg"><label>Selecionar Colaborador</label>
+        <select id="ff-colab" onchange="renderFiscal()"><option value="">— Selecione —</option></select></div>
+      <div class="fg"><label>Atividade</label>
         <select id="ff-tipo" onchange="renderFiscal()">
-          <option value="">Todos</option><option>Corte</option><option>Cobrança</option><option>Outro</option>
+          <option value="">Todas</option><option>Corte</option><option>Supressão</option>
+          <option>Restabelecimento</option><option>Religação</option><option>Outros</option>
         </select></div>
       <div class="fg"><label>Resultado</label>
         <select id="ff-res" onchange="renderFiscal()">
@@ -394,74 +472,89 @@ tr:hover td{background:rgba(255,255,255,.025)}
           <option value="Não Atendida">Não Atendida</option>
         </select></div>
     </div>
-
     <div id="fiscal-vazio" style="text-align:center;padding:60px;color:var(--muted)">
       <div style="font-size:48px;margin-bottom:12px">👤</div>
-      <p>Selecione um fiscal para ver a análise completa</p>
+      <p>Selecione um colaborador para ver a análise completa de produtividade</p>
     </div>
-
     <div id="fiscal-content" style="display:none">
-
-      <!-- Hero fiscal -->
       <div class="fiscal-hero">
         <div class="fiscal-avatar">👷</div>
-        <div>
-          <div class="fiscal-name" id="fn-nome">—</div>
-          <div class="fiscal-meta" id="fn-meta">—</div>
-        </div>
+        <div><div class="fiscal-name" id="fn-nome">—</div><div class="fiscal-meta" id="fn-meta">—</div></div>
         <div class="fiscal-kpis" id="fn-kpis"></div>
       </div>
-
-      <!-- KPIs fiscal -->
       <div class="kpi-grid" id="fis-kpis"></div>
-
-      <!-- Charts fiscal -->
       <div class="row3">
-        <div class="cc">
-          <div class="cc-title">Resultados</div>
-          <div class="cc-sub">Distribuição das OS</div>
-          <div class="ch-wrap" style="height:190px"><canvas id="ch-fis-res"></canvas></div>
-        </div>
-        <div class="cc">
-          <div class="cc-title">Tipo de OS</div>
-          <div class="cc-sub">Corte / Cobrança / Outro</div>
-          <div class="ch-wrap" style="height:190px"><canvas id="ch-fis-tipo"></canvas></div>
-        </div>
-        <div class="cc">
-          <div class="cc-title">Tempo por Tipo (min)</div>
-          <div class="cc-sub">Tempo médio de execução</div>
-          <div class="ch-wrap" style="height:190px"><canvas id="ch-fis-tempo"></canvas></div>
-        </div>
+        <div class="cc"><div class="cc-title">Resultados</div><div class="ch-wrap" style="height:190px"><canvas id="ch-fis-res"></canvas></div></div>
+        <div class="cc"><div class="cc-title">Tipo de Atividade</div><div class="ch-wrap" style="height:190px"><canvas id="ch-fis-tipo"></canvas></div></div>
+        <div class="cc"><div class="cc-title">Tempo por Tipo (min)</div><div class="ch-wrap" style="height:190px"><canvas id="ch-fis-tempo"></canvas></div></div>
       </div>
-
-      <!-- Tempo records -->
       <div class="tempo-grid" id="fis-tempo-cards"></div>
-
-      <!-- Tabela OS do fiscal -->
       <div class="tbl-wrap">
-        <div class="tbl-head"><h3>📋 Todas as OS do Fiscal</h3><span id="fis-os-count"></span></div>
-        <div class="tbl-scroll">
-          <table>
-            <thead><tr>
-              <th>#</th><th>Nº OS</th><th>Tipo</th><th>Data</th>
-              <th>Início</th><th>Fim</th><th>Tempo (min)</th>
-              <th>Resultado</th><th>Detalhe</th><th>Bairro</th>
-            </tr></thead>
-            <tbody id="tb-fis"></tbody>
-          </table>
-        </div>
+        <div class="tbl-head"><h3>📋 Todas as OS</h3><span id="fis-os-count"></span></div>
+        <div class="tbl-scroll"><table>
+          <thead><tr><th>#</th><th>Nº OS</th><th>Atividade</th><th>Data</th>
+          <th>Início</th><th>Fim</th><th>Tempo</th>
+          <th>Resultado</th><th>Bairro</th></tr></thead>
+          <tbody id="tb-fis"></tbody>
+        </table></div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════ PAGE: DETALHES ═══════ -->
+  <!-- GESTÃO COLABORADORES -->
+  <div class="page" id="page-gestao">
+    <div class="cc" style="margin-bottom:14px">
+      <div class="cc-title">👥 Gerenciar Colaboradores</div>
+      <div class="cc-sub">Renomeie para mesclar duplicados, exclua colaboradores inativos ou adicione manualmente. As alterações são gravadas no navegador e aplicadas em todas as telas.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-p" onclick="adicionarColab()">➕ Adicionar Colaborador</button>
+        <button class="btn btn-o" onclick="resetarColabConfig()">↺ Restaurar Padrão</button>
+      </div>
+    </div>
+    <div id="gest-empty" style="text-align:center;padding:40px;color:var(--muted);display:none">
+      <p>Nenhum colaborador detectado. Importe uma planilha primeiro.</p>
+    </div>
+    <div class="gest-grid" id="gest-grid"></div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="page" id="page-historico">
+    <div class="cc" style="margin-bottom:14px">
+      <div class="cc-title">📅 Histórico de Períodos Importados</div>
+      <div class="cc-sub">Cada importação fica gravada no navegador. Clique para reabrir, ou exclua com ×.</div>
+      <div id="hist-info" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
+    </div>
+    <div class="hist-grid" id="hist-grid"></div>
+    <div id="hist-vazio" style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:48px;margin-bottom:12px">📭</div>
+      <p>Nenhum período salvo ainda. Importe uma planilha para começar.</p>
+    </div>
+  </div>
+
+  <!-- AUDITORIA -->
+  <div class="page" id="page-auditoria">
+    <div class="kpi-grid" id="aud-kpis"></div>
+    <div class="row-half">
+      <div class="tbl-wrap" style="margin-bottom:0">
+        <div class="tbl-head"><h3>🚨 Inconsistências Detectadas</h3><span id="aud-count"></span></div>
+        <div class="tbl-scroll"><table><thead><tr><th>Nº OS</th><th>Problema</th><th>Detalhe</th></tr></thead><tbody id="tb-aud"></tbody></table></div>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:0">
+        <div class="tbl-head"><h3>📊 Resumo por Atividade</h3></div>
+        <div class="tbl-scroll"><table><thead><tr><th>Atividade</th><th>Total</th><th>Exec.</th><th>%</th></tr></thead><tbody id="tb-atv"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETALHES -->
   <div class="page" id="page-detalhes">
     <div class="filtros">
       <div class="fg"><label>Colaborador</label>
         <select id="df-colab" onchange="renderDetalhes()"><option value="">Todos</option></select></div>
-      <div class="fg"><label>Tipo OS</label>
+      <div class="fg"><label>Atividade</label>
         <select id="df-tipo" onchange="renderDetalhes()">
-          <option value="">Todos</option><option>Corte</option><option>Cobrança</option><option>Outro</option>
+          <option value="">Todas</option><option>Corte</option><option>Supressão</option>
+          <option>Restabelecimento</option><option>Religação</option><option>Outros</option>
         </select></div>
       <div class="fg"><label>Resultado</label>
         <select id="df-res" onchange="renderDetalhes()">
@@ -470,117 +563,501 @@ tr:hover td{background:rgba(255,255,255,.025)}
           <option value="Não Executado">Não Executado</option>
           <option value="Não Atendida">Não Atendida</option>
         </select></div>
-      <div class="fg"><label>Buscar OS / Endereço</label>
-        <input type="text" id="df-busca" placeholder="Nº OS, endereço..." oninput="renderDetalhes()" style="min-width:200px"></div>
+      <div class="fg"><label>Buscar</label>
+        <input type="text" id="df-busca" placeholder="Nº OS, endereço, bairro..." oninput="renderDetalhes()" style="min-width:200px"></div>
       <button class="btn btn-o" style="align-self:flex-end" onclick="limparDetalhes()">✕ Limpar</button>
     </div>
-
     <div class="tbl-wrap">
-      <div class="tbl-head">
-        <h3>📋 Detalhamento Completo de OS</h3>
-        <span id="det-count" style="color:var(--muted);font-size:11px"></span>
-      </div>
-      <div class="tbl-scroll">
-        <table>
-          <thead><tr>
-            <th>Nº OS</th><th>Colaborador</th><th>Tipo</th>
-            <th>Data</th><th>Início</th><th>Fim</th><th>Tempo</th>
-            <th>Código TSS</th><th>Descrição TSS</th>
-            <th>Resultado</th><th>Detalhe Resultado</th>
-            <th>Endereço</th><th>Bairro</th><th>PDE</th>
-            <th>Status OS</th><th>Mobile</th>
-          </tr></thead>
-          <tbody id="tb-det"></tbody>
-        </table>
-      </div>
+      <div class="tbl-head"><h3>📋 Detalhamento Completo</h3><span id="det-count"></span></div>
+      <div class="tbl-scroll"><table>
+        <thead><tr><th>Nº OS</th><th>Colaborador</th><th>Atividade</th>
+        <th>Data</th><th>Início</th><th>Fim</th><th>Tempo</th>
+        <th>Resultado</th><th>Nota</th>
+        <th>Endereço</th><th>Bairro</th><th>Município</th><th>Status OS</th></tr></thead>
+        <tbody id="tb-det"></tbody>
+      </table></div>
     </div>
   </div>
 
 </main>
 
-<script>
-// ═══════════════════ ESTADO ═══════════════════
-let ALL = [];     // todos os dados parsed
-let FILT = [];    // dados filtrados (aba geral)
-const CHARTS = {};
-const HORA_INI = 8 * 60;   // 08:00
-const HORA_FIM = 17 * 60;  // 17:00
-const JORNADA  = HORA_FIM - HORA_INI; // 540 min
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3 id="modal-title">Detalhamento</h3><div class="sub" id="modal-sub"></div></div>
+      <button class="modal-close" onclick="closeModal()">✕ Fechar</button>
+    </div>
+    <div class="modal-body">
+      <div class="tbl-scroll"><table><thead id="modal-thead"></thead><tbody id="modal-tbody"></tbody></table></div>
+    </div>
+  </div>
+</div>
 
-// ═══════════════════ UTILS ═══════════════════
-const $  = id => document.getElementById(id);
-const fmt = n => n == null ? '—' : Number(n).toLocaleString('pt-BR');
-const pct = (a,b) => b>0 ? ((a/b)*100).toFixed(1)+'%' : '0%';
-const minToHM = m => { const h=Math.floor(m/60),mi=m%60; return `${h}h${mi>0?mi+'min':''}`; };
+<script>
+// ═══════════ ESTADO ═══════════
+let ALL = [], FILT = [], BASE_ORIGINAL = [];
+const CHARTS = {};
+const HORA_INI = 8*60, HORA_FIM = 17*60, JORNADA = HORA_FIM-HORA_INI;
+const LS_KEY = 'sabesp_dashboard_v7_historico';
+const LS_ATIVO = 'sabesp_dashboard_v7_ativo';
+const LS_COLLAB = 'sabesp_dashboard_v7_collab_config';
+const LS_METAS = 'sabesp_dashboard_v7_metas';
+
+// ═══════════ UTILS ═══════════
+const $ = id=>document.getElementById(id);
+const fmt = n=> n==null ? '—' : Number(n).toLocaleString('pt-BR');
+const pct = (a,b)=> b>0 ? ((a/b)*100).toFixed(1)+'%' : '0%';
+const minToHM = m=>{const h=Math.floor(m/60),mi=m%60;return `${h}h${mi>0?mi+'min':''}`;};
+const minToHHMM = m=>{const h=Math.floor(m/60),mi=m%60;return `${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;};
+const esc = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const escAttr = s => String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
 
 function toast(msg, ok=true){
   const el=$('toast'); el.textContent=(ok?'✅ ':'❌ ')+msg;
   el.style.background=ok?'var(--verde)':'var(--vermelho)';
-  el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),3200);
+  el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),4200);
 }
 function loader(v){ $('loader').classList.toggle('on',v); }
 
-// Parse "DD/MM/YYYY HH:MM" → {date,minutos_desde_meia_noite}
-function parseHoraBR(str){
-  if(!str||typeof str!=='string') return null;
-  // "01/09/2026 09:01"
-  const m = str.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
+function parseHoraBR(val){
+  if(!val) return null;
+  if(val instanceof Date){
+    const d = val;
+    return {str:`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,
+      dateStr:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,
+      hora:d.getHours(), min:d.getMinutes(), totalMin:d.getHours()*60+d.getMinutes()};
+  }
+  const m = String(val).match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
   if(!m) return null;
-  return {
-    str: str.trim(),
+  return {str: String(val).trim(),
     dateStr: `${m[3]}-${m[2]}-${m[1]}`,
-    hora: parseInt(m[4]),
-    min: parseInt(m[5]),
-    totalMin: parseInt(m[4])*60 + parseInt(m[5]),
-  };
+    hora: parseInt(m[4]), min: parseInt(m[5]),
+    totalMin: parseInt(m[4])*60+parseInt(m[5])};
 }
-
-// Parse "+00 HH:MM:SS" → minutos
 function parseTempo(str){
-  if(!str||typeof str!=='string') return 0;
-  const m=str.match(/\+00\s+(\d{2}):(\d{2})/);
+  if(!str) return 0;
+  const m = String(str).match(/(\d{1,2}):(\d{2})/);
   if(!m) return 0;
   return parseInt(m[1])*60+parseInt(m[2]);
 }
+function parseDataGenerica(val){
+  if(!val) return null;
+  if(val instanceof Date) return val;
+  const s = String(val).trim();
+  let m = s.match(/(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+  if(m) return new Date(parseInt(m[1]),parseInt(m[2])-1,parseInt(m[3]),m[4]?+m[4]:0,m[5]?+m[5]:0);
+  m = s.match(/(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}))?/);
+  if(m) return new Date(parseInt(m[3]),parseInt(m[2])-1,parseInt(m[1]),m[4]?+m[4]:0,m[5]?+m[5]:0);
+  return null;
+}
+function calcPrazoStatus(prazo){
+  if(!prazo) return 'sem';
+  const diffMin = (prazo - new Date())/60000;
+  if(diffMin < 0) return 'atrasado';
+  if(diffMin < 6*60) return 'urgente';
+  if(diffMin < 24*60) return 'hoje';
+  return 'futuro';
+}
+const labelPrazo = s => ({atrasado:'🔴 ATRASADO',urgente:'🟠 <6H',hoje:'🟡 <24H',futuro:'🟢 OK',sem:'⚪ SEM PRAZO'}[s]||'⚪');
+const corPrazo = s => ({atrasado:'ap-atrasado',urgente:'ap-urgente',hoje:'ap-hoje',futuro:'ap-futuro',sem:'ap-sem'}[s]||'ap-sem');
 
+// ═══════════ METAS ═══════════
+function carregarMetas(){
+  try{
+    return JSON.parse(localStorage.getItem(LS_METAS)||'{"geral":0,"diasUteis":22,"fiscais":{}}');
+  }catch(e){ return {geral:0, diasUteis:22, fiscais:{}}; }
+}
+function salvarMetas(m){
+  try{ localStorage.setItem(LS_METAS, JSON.stringify(m)); }catch(e){}
+}
+function setMetaGeral(v){
+  const m = carregarMetas();
+  m.geral = parseInt(v)||0;
+  salvarMetas(m);
+  renderMetas();
+}
+function setDiasUteis(v){
+  const m = carregarMetas();
+  m.diasUteis = parseInt(v)||22;
+  salvarMetas(m);
+  renderMetas();
+}
+function setMetaFiscal(nome, v){
+  const m = carregarMetas();
+  const val = parseInt(v)||0;
+  if(val>0) m.fiscais[nome] = val;
+  else delete m.fiscais[nome];
+  salvarMetas(m);
+  renderMetas();
+}
+
+// Calcula probabilidade de bater a meta até o fim do mês
+// baseado no ritmo atual vs ritmo necessário nos dias restantes
+function calcProbabilidade(atual, meta, diasComDados, diasUteis){
+  if(!meta || meta<=0) return 0;
+  if(atual >= meta) return 99;
+  const diasRestantes = Math.max(1, diasUteis - diasComDados);
+  const ritmoAtual = atual / Math.max(1, diasComDados);
+  const ritmoNecessario = (meta - atual) / diasRestantes;
+  if(ritmoNecessario <= 0) return 99;
+  const ratio = ritmoAtual / ritmoNecessario;
+  // Curva: ratio 1 → 60%, ratio 1.5 → 90%, ratio 0.5 → 30%
+  let prob = Math.min(99, Math.round(ratio * 60));
+  return Math.max(0, prob);
+}
+
+function renderMetas(){
+  const metas = carregarMetas();
+  const diasUteis = metas.diasUteis || 22;
+  $('meta-geral').value = metas.geral || '';
+  $('meta-dias').value = diasUteis;
+
+  // Produção de executadas
+  const execs = ALL.filter(d=>d.resultadoClass==='Executado');
+  const porColab = {};
+  execs.forEach(d=>{ porColab[d.equipe] = (porColab[d.equipe]||0)+1; });
+  const totalExec = execs.length;
+
+  // Dias com dados
+  const diasSet = new Set();
+  ALL.forEach(d=>{ if(d.dtInicio?.dateStr) diasSet.add(d.dtInicio.dateStr); });
+  const diasComDados = Math.max(1, diasSet.size);
+
+  const mediaDiaria = totalExec / diasComDados;
+  const projecao = mediaDiaria * diasUteis;
+  const metaGeral = metas.geral || 0;
+  const progresso = metaGeral > 0 ? totalExec/metaGeral : 0;
+  const prob = calcProbabilidade(totalExec, metaGeral, diasComDados, diasUteis);
+  const falta = Math.max(0, metaGeral - totalExec);
+
+  // KPIs
+  $('meta-kpis').innerHTML = `
+    <div class="kpi c-a"><div class="kpi-lbl">🎯 Meta Equipe</div><div class="kpi-val">${metaGeral?fmt(metaGeral):'—'}</div><div class="kpi-sub">${metaGeral?'definida':'clique para definir'}</div></div>
+    <div class="kpi c-g"><div class="kpi-lbl">✅ Realizado</div><div class="kpi-val">${fmt(totalExec)}</div><div class="kpi-sub">${metaGeral?pct(totalExec,metaGeral)+' da meta':'sem meta'}</div></div>
+    <div class="kpi c-p"><div class="kpi-lbl">📈 Projeção Fim Mês</div><div class="kpi-val">${fmt(Math.round(projecao))}</div><div class="kpi-sub">${diasComDados} dias c/ dados · ${diasUteis} úteis</div></div>
+    <div class="kpi ${prob>=80?'c-g':prob>=50?'c-y':'c-r'}"><div class="kpi-lbl">🎲 Probabilidade</div><div class="kpi-val">${prob}%</div><div class="kpi-sub">de bater a meta</div></div>
+    <div class="kpi c-o"><div class="kpi-lbl">⏳ Falta</div><div class="kpi-val">${metaGeral>0?fmt(falta):'—'}</div><div class="kpi-sub">${metaGeral>totalExec?'para atingir':'meta batida!'}</div></div>
+    <div class="kpi c-a"><div class="kpi-lbl">📊 Média Diária</div><div class="kpi-val">${mediaDiaria.toFixed(1)}</div><div class="kpi-sub">OS executadas/dia</div></div>
+  `;
+
+  // Gráfico evolução acumulada
+  const porDia = {};
+  execs.forEach(d=>{ if(d.dtInicio?.dateStr){ porDia[d.dtInicio.dateStr] = (porDia[d.dtInicio.dateStr]||0)+1; } });
+  const datas = Object.keys(porDia).sort();
+  let acum = 0;
+  const serieReal = datas.map(dt=>{ acum += porDia[dt]; return acum; });
+  const ritmo = metaGeral > 0 ? metaGeral / diasUteis : 0;
+  const serieMeta = datas.map((_,i)=>(i+1)*ritmo);
+
+  criarChart('ch-meta-evol','line',{
+    labels: datas.map(d=>d.slice(5).split('-').reverse().join('/')),
+    datasets:[
+      {label:'Realizado Acumulado', data:serieReal, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.15)', tension:.3, fill:true, borderWidth:3, pointRadius:4, pointBackgroundColor:'#22c55e', pointBorderColor:'#fff'},
+      {label:'Meta (ritmo ideal)', data:serieMeta, borderColor:'#f59e0b', borderDash:[6,4], borderWidth:2, pointRadius:0, fill:false},
+    ]
+  },{
+    plugins:{legend:{labels:{color:'#6a8db5', font:{size:12}}},
+             tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}`}}},
+    scales:{
+      x:{ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}},
+      y:{ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}, beginAtZero:true}
+    }
+  });
+
+  // Gauge
+  const restante = Math.max(0, metaGeral - totalExec);
+  criarChart('ch-meta-gauge','doughnut',{
+    labels:['Realizado','Falta'],
+    datasets:[{
+      data:[totalExec, restante],
+      backgroundColor:['#22c55e','rgba(239,68,68,.25)'],
+      borderWidth:3,
+      borderColor:'#102040',
+      hoverOffset:8
+    }]
+  },{
+    cutout:'72%',
+    plugins:{
+      legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:12}},
+      tooltip:{callbacks:{label:ctx=>{
+        const v = ctx.parsed;
+        return `${ctx.label}: ${v}`;
+      }}}
+    }
+  });
+
+  // Tabela por colaborador
+  const nomes = [...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
+  const tb = $('tb-metas'); tb.innerHTML = '';
+  const dadosFiscais = [];
+
+  nomes.forEach(nome=>{
+    const realizado = porColab[nome] || 0;
+    const meta = metas.fiscais[nome] || 0;
+    const p = meta>0 ? realizado/meta : 0;
+    const proj = (realizado / diasComDados) * diasUteis;
+    const faltaColab = Math.max(0, meta - realizado);
+    const probC = calcProbabilidade(realizado, meta, diasComDados, diasUteis);
+
+    dadosFiscais.push({nome, realizado, meta, proj, prob:probC, p, falta:faltaColab});
+
+    let st, bl;
+    if(meta===0){ st='— sem meta'; bl='b-z'; }
+    else if(p>=1){ st='✅ Batida'; bl='b-g'; }
+    else if(probC>=80){ st='🟢 No ritmo'; bl='b-g'; }
+    else if(probC>=50){ st='🟡 Atenção'; bl='b-y'; }
+    else { st='🔴 Dificuldade'; bl='b-r'; }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:700">${esc(nome.split(' ').slice(0,2).join(' '))}</td>
+      <td><input type="number" min="0" step="1" value="${meta||''}" placeholder="0"
+           onchange="setMetaFiscal('${escAttr(nome)}', this.value)"></td>
+      <td style="color:var(--verde);font-weight:800;font-size:14px">${realizado}</td>
+      <td><div style="display:flex;align-items:center;gap:7px">
+        <div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,p*100)}%;background:${p>=1?'var(--verde)':p>=0.5?'var(--amarelo)':'var(--vermelho)'}"></div></div>
+        <span style="font-weight:700;font-size:12px">${meta>0?(p*100).toFixed(0)+'%':'—'}</span></div></td>
+      <td>${(realizado/diasComDados).toFixed(1)}/dia</td>
+      <td style="color:var(--accent);font-weight:700">${Math.round(proj)}</td>
+      <td>${faltaColab>0?faltaColab:'—'}</td>
+      <td><span style="color:${probC>=80?'var(--verde)':probC>=50?'var(--amarelo)':'var(--vermelho)'};font-weight:800">${meta>0?probC+'%':'—'}</span></td>
+      <td><span class="b ${bl}" style="border-radius:5px">${st}</span></td>
+    `;
+    tb.appendChild(tr);
+  });
+
+  $('meta-count').textContent = nomes.length + ' colaboradores';
+
+  // Barras Realizado × Meta × Projeção
+  const top = dadosFiscais.filter(d=>d.meta>0||d.realizado>0).sort((a,b)=>b.realizado-a.realizado).slice(0,15);
+  criarChart('ch-meta-barras','bar',{
+    labels: top.map(d=>d.nome.split(' ').slice(0,2).join(' ')),
+    datasets:[
+      {label:'Realizado', data:top.map(d=>d.realizado), backgroundColor:'rgba(34,197,94,.85)', borderRadius:4},
+      {label:'Meta', data:top.map(d=>d.meta), backgroundColor:'rgba(245,158,11,.65)', borderRadius:4},
+      {label:'Projeção', data:top.map(d=>Math.round(d.proj)), backgroundColor:'rgba(0,194,224,.55)', borderRadius:4},
+    ]
+  },{
+    plugins:{legend:{labels:{color:'#6a8db5', font:{size:12}}}},
+    scales:{
+      x:{ticks:{color:'#6a8db5', font:{size:10}}, grid:{display:false}},
+      y:{ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}, beginAtZero:true}
+    }
+  });
+}
+
+// ═══════════ CONFIG COLABORADOR ═══════════
+function carregarCollabConfig(){
+  try{ return JSON.parse(localStorage.getItem(LS_COLLAB)||'{"aliases":{},"excluidos":[],"adicionados":[]}'); }
+  catch(e){ return {aliases:{},excluidos:[],adicionados:[]}; }
+}
+function salvarCollabConfig(cfg){
+  try{ localStorage.setItem(LS_COLLAB, JSON.stringify(cfg)); }catch(e){}
+}
+function aplicarCollabConfig(dados){
+  const cfg = carregarCollabConfig();
+  return dados.map(d=>{
+    const orig = d.equipe;
+    const renomeado = cfg.aliases[orig] || orig;
+    return {...d, equipe: renomeado, _equipeOrig: orig};
+  }).filter(d=>!cfg.excluidos.includes(d.equipe));
+}
+
+// ═══════════ CLASSIFICAÇÕES ═══════════
 function mapResultado(res){
-  const r=String(res||'').toUpperCase();
-  if(r==='FIM DO DIA'||r==='FJL') return 'Não Atendida';
+  const r = String(res||'').toUpperCase().trim();
+  if(!r) return 'Pendente';
+  if(r.includes('FIM DO DIA')||r==='FJL') return 'Não Atendida';
   const exec=['CORTADA','SUPRIMIDA','RELIGAD','FSR AVALIADO','PAGAMENTO EFETIVADO',
-    'EFETUOU PGTO','RESTABELECIDA','INFORMOU PAGAMENTO','CORRIGIDO CORTE',
-    'REATIVADA','TELEVISIONADA','LAVAGEM','REPARO','TROCA','PROLONGAMENTO',
-    'TRANSFORMAÇÃO','INCLUSÃO','CLIENTE APRESENTOU','INTERLIGAÇÃO'];
+    'EFETUOU PGTO','RESTABELECIDA','RESTABELECIDO','INFORMOU PAGAMENTO','CORRIGIDO CORTE',
+    'REATIVADA','REATIVADO','TELEVISIONADA','LAVAGEM','REPARO','TROCA','PROLONGAMENTO',
+    'TRANSFORMAÇÃO','INCLUSÃO','CLIENTE APRESENTOU','INTERLIGAÇÃO','CONCLU'];
   if(exec.some(e=>r.includes(e))) return 'Executado';
+  if(r.includes('PENDENTE')||r.includes('PROGRAMAD')) return 'Pendente';
   return 'Não Executado';
 }
-
-function mapTipo(codTSS, descTSS){
-  const c=String(codTSS||''), d=String(descTSS||'').toUpperCase();
-  if(c==='4025'||d.includes('CORTAR')) return 'Corte';
-  if(c==='6695'||d.includes('NEGOCIAÇÃO')) return 'Cobrança';
-  return 'Outro';
+function mapAtividade(codTSS, descTSS, familia){
+  const c=String(codTSS||''), d=String(descTSS||'').toUpperCase(), f=String(familia||'').toUpperCase();
+  if(d.includes('RESTABELEC')||d.includes('RESTAB')) return 'Restabelecimento';
+  if(d.includes('RELIGA')||d.includes('RELIG')) return 'Religação';
+  if(d.includes('SUPRESS')||f.includes('SUPRESS')) return 'Supressão';
+  if(c==='4025'||d.includes('CORTAR')||d.includes('CORTE')) return 'Corte';
+  return 'Outros';
+}
+function mapOrigem(familia, descTSS, nota){
+  const s = (String(familia||'')+' '+String(descTSS||'')+' '+String(nota||'')).toUpperCase();
+  if(s.includes('40+')||s.includes('40 MAIS')||s.includes('AÇÃO 40')) return 'Ação 40+';
+  if(s.includes('AÇÃO')||s.includes('ACAO')) return 'Outra Ação';
+  return 'Rotina';
 }
 
-function nomeAbrev(nome){
-  const p=nome.split(' '); return p.length<=2?nome:p[0]+' '+p[1];
+// ═══════════ EXTRAIR ═══════════
+function norm(h){ return String(h||'').trim().replace(/\s+/g,' ').toLowerCase(); }
+function achar(hdr,nomes){ for(const n of nomes){ const i=hdr.indexOf(norm(n)); if(i>=0) return i; } return -1; }
+
+function extrair(wb){
+  const dados=[];
+  let abaNome = wb.SheetNames.find(n=>/execu|os|wf/i.test(n)) || wb.SheetNames[0];
+  const ws = wb.Sheets[abaNome];
+  if(!ws) return dados;
+  const rows = XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'dd/mm/yyyy hh:mm'});
+  if(!rows.length) return dados;
+  let hdrIdx = 0;
+  for(let i=0;i<Math.min(10,rows.length);i++){
+    const t = rows[i].map(norm);
+    if(t.includes('equipe')||t.includes('numero os')||t.includes('número os')){ hdrIdx=i; break; }
+  }
+  const hdr = rows[hdrIdx].map(norm);
+  const I = {
+    nrOS: achar(hdr,['Número OS','Numero OS','Nº OS','Numero da OS','Número da OS']),
+    equipe: achar(hdr,['Equipe','Colaborador','Nome','Nome do Colaborador','Recurso']),
+    codTSS: achar(hdr,['Código TSS','Codigo TSS','Cod TSS']),
+    descTSS: achar(hdr,['Descrição TSS','Descricao TSS','Serviço']),
+    familia: achar(hdr,['Família','Familia']),
+    pde: achar(hdr,['PDE']),
+    municipio: achar(hdr,['Município','Municipio','Cidade']),
+    endereco: achar(hdr,['Endereço','Endereco','Logradouro']),
+    numero: achar(hdr,['Número','Numero']),
+    bairro: achar(hdr,['Bairro']),
+    resultado: achar(hdr,['Resultado','Descrição do Resultado','Descricao Resultado']),
+    nota: achar(hdr,['Nota Execução/Não Execução','Nota','Observação','Nota Execucao']),
+    dtInicio: achar(hdr,['Data Início Execução','Data Inicio Execucao','Data Início','Início']),
+    dtFim: achar(hdr,['Data Fim Execução','Data Fim Execucao','Data Fim','Fim']),
+    tempo: achar(hdr,['Tempo de execução efetivo','Tempo de Execucao Efetivo','Tempo Efetivo','Tempo']),
+    statusOS: achar(hdr,['Status da OS','Status OS','Situação OS','Status da Operação','Status da Operacao','Status']),
+    prazo: achar(hdr,['Prazo','Data Prazo','Vencimento','Data Limite']),
+    mobile: achar(hdr,['Mobile']),
+  };
+  const get = (r,i)=> i>=0 ? String(r[i]||'').trim() : '';
+  for(let i=hdrIdx+1;i<rows.length;i++){
+    const r = rows[i];
+    if(!r||!r.length) continue;
+    const equipe = get(r,I.equipe), nrOS = get(r,I.nrOS);
+    if(!equipe && !nrOS) continue;
+    const resultado = get(r,I.resultado);
+    const codTSS = get(r,I.codTSS), descTSS = get(r,I.descTSS), familia = get(r,I.familia);
+    const nota = get(r,I.nota);
+    const dtInicio = parseHoraBR(get(r,I.dtInicio));
+    const dtFim = parseHoraBR(get(r,I.dtFim));
+    const tempo = parseTempo(get(r,I.tempo));
+    const prazoDate = parseDataGenerica(get(r,I.prazo));
+    const prazoStatus = calcPrazoStatus(prazoDate);
+    dados.push({
+      nrOS, equipe, codTSS, descTSS, familia,
+      pde: get(r,I.pde), municipio: get(r,I.municipio),
+      endereco: get(r,I.endereco), numero: get(r,I.numero), bairro: get(r,I.bairro),
+      resultado, resultadoClass: mapResultado(resultado), nota,
+      dtInicio, dtFim, tempo,
+      statusOS: get(r,I.statusOS), mobile: get(r,I.mobile),
+      atividade: mapAtividade(codTSS,descTSS,familia),
+      origem: mapOrigem(familia,descTSS,nota),
+      prazoDate, prazoStatus,
+    });
+  }
+  return dados;
 }
 
-// ═══════════════════ HANDLE FILE ═══════════════════
+// ═══════════ LOCALSTORAGE ═══════════
+function serializarReg(d){
+  return {
+    nrOS:d.nrOS, equipe:d.equipe, codTSS:d.codTSS, descTSS:d.descTSS,
+    familia:d.familia, pde:d.pde, municipio:d.municipio, endereco:d.endereco,
+    numero:d.numero, bairro:d.bairro, resultado:d.resultado,
+    resultadoClass:d.resultadoClass, nota:d.nota,
+    dtInicio:d.dtInicio, dtFim:d.dtFim, tempo:d.tempo,
+    statusOS:d.statusOS, mobile:d.mobile,
+    atividade:d.atividade, origem:d.origem,
+    prazoISO: d.prazoDate ? d.prazoDate.toISOString() : null,
+    prazoStatus: d.prazoStatus,
+    _equipeOrig: d._equipeOrig || d.equipe,
+  };
+}
+function desserializarReg(o){
+  return { ...o, prazoDate: o.prazoISO ? new Date(o.prazoISO) : null };
+}
+function estimarTamanho(obj){
+  try{ return new Blob([JSON.stringify(obj)]).size; }catch(e){ return JSON.stringify(obj).length; }
+}
+function carregarHistorico(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)||'[]'); }catch(e){ return []; }
+}
+function salvarHistorico(arr){
+  const tam = estimarTamanho(arr);
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify(arr));
+    return {ok:true, tam};
+  }catch(e){
+    return {ok:false, erro:e.name||'erro', tam};
+  }
+}
+function salvarPeriodo(nomeArquivo, dados){
+  const cont = {};
+  dados.forEach(d=>{ if(d.dtInicio?.dateStr){ const p=d.dtInicio.dateStr.slice(0,7); cont[p]=(cont[p]||0)+1; } });
+  const periodo = Object.entries(cont).sort((a,b)=>b[1]-a[1])[0]?.[0] || new Date().toISOString().slice(0,7);
+  const id = periodo + '_' + Date.now();
+  const comp = dados.map(serializarReg);
+  const tot = dados.length;
+  const ex = dados.filter(d=>d.resultadoClass==='Executado').length;
+  const ne = dados.filter(d=>d.resultadoClass==='Não Executado').length;
+  const na = dados.filter(d=>d.resultadoClass==='Não Atendida').length;
+  const item = {
+    id, periodo, nomeArquivo,
+    dataImport: new Date().toISOString(),
+    total: tot, exec: ex, naoExec: ne, fimDia: na,
+    registros: comp,
+  };
+  let hist = carregarHistorico();
+  const jaExiste = hist.findIndex(h=>h.periodo===periodo && h.nomeArquivo===nomeArquivo);
+  if(jaExiste>=0) hist[jaExiste] = item; else hist.push(item);
+  hist.sort((a,b)=>(b.periodo||'').localeCompare(a.periodo||''));
+  const res = salvarHistorico(hist);
+  if(!res.ok){
+    const reduzido = hist.slice(-5);
+    const res2 = salvarHistorico(reduzido);
+    if(res2.ok) toast(`Limite atingido. Mantidos apenas os 5 últimos períodos.`,false);
+    else toast(`Não foi possível salvar o histórico. Dados em memória apenas.`,false);
+    return null;
+  }
+  try{ localStorage.setItem(LS_ATIVO, id); }catch(e){}
+  return id;
+}
+function abrirPeriodo(id){
+  const hist = carregarHistorico();
+  const h = hist.find(x=>x.id===id);
+  if(!h){ toast('Período não encontrado',false); return; }
+  ALL = (h.registros||[]).map(desserializarReg);
+  ALL = aplicarCollabConfig(ALL);
+  try{ localStorage.setItem(LS_ATIVO, id); }catch(e){}
+  init();
+  toast(`Período ${h.periodo} carregado (${ALL.length} OS)`);
+}
+function excluirPeriodo(id, ev){
+  if(ev) ev.stopPropagation();
+  if(!confirm('Excluir este período do histórico?')) return;
+  let hist = carregarHistorico().filter(x=>x.id!==id);
+  salvarHistorico(hist);
+  renderHistorico(); renderHistQuick();
+  toast('Período excluído');
+}
+
+// ═══════════ HANDLE FILE ═══════════
 function handleDrop(e){ const f=e.dataTransfer.files[0]; if(f) processFile(f); }
 function handleFile(e){ const f=e.target.files[0]; if(f) processFile(f); }
 
 function processFile(file){
   loader(true);
-  const reader=new FileReader();
-  reader.onload=e=>{
+  const reader = new FileReader();
+  reader.onload = e=>{
     try{
-      const wb=XLSX.read(e.target.result,{type:'binary',cellDates:false});
-      const dados=extrair(wb);
-      if(!dados.length) throw new Error('Nenhuma OS encontrada.');
-      ALL=[...dados];
-      FILT=[...dados];
+      const wb = XLSX.read(e.target.result,{type:'binary',cellDates:true});
+      const dados = extrair(wb);
+      if(!dados.length) throw new Error('Nenhuma OS encontrada. Verifique se o arquivo é do GeoCall/WFM.');
+      BASE_ORIGINAL = dados.slice();
+      ALL = aplicarCollabConfig([...dados]);
+      FILT = [...ALL];
+      const id = salvarPeriodo(file.name, dados);
       init();
-      toast(`${dados.length} OS carregadas!`);
+      toast(`${dados.length} OS carregadas!${id?' Salvo no histórico.':' (só em memória)'}`);
     }catch(err){
       toast('Erro: '+err.message,false);
       console.error(err);
@@ -590,649 +1067,800 @@ function processFile(file){
   reader.readAsBinaryString(file);
 }
 
-// ═══════════════════ EXTRAIR ═══════════════════
-function extrair(wb){
-  const dados=[];
-  // Tenta aba "Execução" primeiro (arquivo GeoCall)
-  let abaNome = wb.SheetNames.find(n=>n.toLowerCase().includes('execu'));
-  if(abaNome){
-    const ws=wb.Sheets[abaNome];
-    const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-    const hdr=rows[0].map(h=>String(h).trim());
-    const ix=n=>hdr.indexOf(n);
-    for(let i=1;i<rows.length;i++){
-      const r=rows[i];
-      const equipe=String(r[ix('Equipe')]||'').trim();
-      if(!equipe) continue;
-      const resultado=String(r[ix('Resultado')]||'').trim();
-      const dtInicio=parseHoraBR(String(r[ix('Data Início Execução')]||''));
-      const dtFim=parseHoraBR(String(r[ix('Data Fim Execução')]||''));
-      const tempo=parseTempo(String(r[ix('Tempo de execução efetivo')]||''));
-      dados.push({
-        nrOS:    String(r[ix('Número OS')]||''),
-        equipe,
-        codTSS:  String(r[ix('Código TSS')]||''),
-        descTSS: String(r[ix('Descrição TSS')]||''),
-        familia: String(r[ix('Família')]||''),
-        pde:     String(r[ix('PDE')]||''),
-        municipio:String(r[ix('Município')]||''),
-        endereco:String(r[ix('Endereço')]||'').trim(),
-        numero:  String(r[ix('Número')]||''),
-        bairro:  String(r[ix('Bairro')]||'').trim(),
-        resultado,
-        resultadoClass: mapResultado(resultado),
-        nota:    String(r[ix('Nota Execução/Não Execução')]||''),
-        dtInicio,
-        dtFim,
-        tempo,
-        statusOS:String(r[ix('Status da OS')]||''),
-        mobile:  String(r[ix('Mobile')]||''),
-        tipo:    mapTipo(r[ix('Código TSS')],r[ix('Descrição TSS')]),
-      });
-    }
-  }
-  return dados;
-}
-
-// ═══════════════════ INIT ═══════════════════
+// ═══════════ INIT ═══════════
 function init(){
-  // Popula selects
-  const colabs=[...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
-  ['f-colab','jf-colab','ff-colab','df-colab'].forEach(id=>{
-    const sel=$(id);
-    const base=id==='ff-colab'?'<option value="">— Selecione um fiscal —</option>':'<option value="">Todos</option>';
-    sel.innerHTML=base+colabs.map(c=>`<option value="${c}">${c}</option>`).join('');
+  const colabs = [...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
+  ['f-colab','jf-colab','ff-colab','df-colab','r-colab'].forEach(id=>{
+    const sel = $(id); if(!sel) return;
+    const base = id==='ff-colab' ? '<option value="">— Selecione —</option>' : '<option value="">Todos</option>';
+    sel.innerHTML = base + colabs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
   });
+  const cidades = [...new Set(ALL.map(d=>d.municipio).filter(Boolean))].sort();
+  const rCid = $('r-cidade');
+  if(rCid) rCid.innerHTML = '<option value="">Todas</option>' + cidades.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
 
-  // Data e total
-  const datas=ALL.map(d=>d.dtInicio?.dateStr).filter(Boolean);
-  const maxData=datas.length?datas.sort().slice(-1)[0]:'—';
-  $('chip-data').textContent=maxData?maxData.split('-').reverse().join('/'):'—';
-  $('chip-total').textContent=ALL.length;
+  const datas = ALL.map(d=>d.dtInicio?.dateStr).filter(Boolean);
+  const maxData = datas.length ? datas.sort().slice(-1)[0] : '—';
+  $('chip-data').textContent = maxData ? maxData.split('-').reverse().join('/') : '—';
+  $('chip-total').textContent = ALL.length;
 
-  // Mostra UI
-  $('upload-zone').style.display='none';
-  $('tabs').style.display='flex';
+  $('upload-zone').style.display = 'none';
+  $('tabs').style.display = 'flex';
   $('main').classList.add('on');
 
-  renderGeral();
-  renderJornada();
+  renderGeral(); renderMetas(); renderRelig(); renderJornada(); renderHistorico();
 }
 
-// ═══════════════════ PAGE GERAL ═══════════════════
+// ═══════════ GERAL ═══════════
 function filtrar(){
-  const c=$('f-colab').value, t=$('f-tipo').value, r=$('f-res').value;
-  FILT=ALL.filter(d=>{
-    if(c&&d.equipe!==c) return false;
-    if(t&&d.tipo!==t) return false;
-    if(r&&d.resultadoClass!==r) return false;
+  const c=$('f-colab').value, t=$('f-tipo').value, r=$('f-res').value, o=$('f-orig').value;
+  FILT = ALL.filter(d=>{
+    if(c && d.equipe!==c) return false;
+    if(t && d.atividade!==t) return false;
+    if(r && d.resultadoClass!==r) return false;
+    if(o && d.origem!==o) return false;
     return true;
   });
   renderGeral();
 }
-
 function limparFiltros(){
-  ['f-colab','f-tipo','f-res'].forEach(id=>$(id).value='');
+  ['f-colab','f-tipo','f-res','f-orig'].forEach(id=>$(id).value='');
   FILT=[...ALL]; renderGeral();
 }
-
 function renderGeral(){
-  const D=FILT;
-  const tot=D.length;
-  const ex=D.filter(d=>d.resultadoClass==='Executado').length;
-  const ne=D.filter(d=>d.resultadoClass==='Não Executado').length;
-  const na=D.filter(d=>d.resultadoClass==='Não Atendida').length;
-  const cortes=D.filter(d=>d.resultado.toUpperCase().includes('CORTADA')).length;
-  const pos=D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
-  const ts=D.filter(d=>d.tempo>0&&d.tempo<300).map(d=>d.tempo);
-  const tmed=ts.length?(ts.reduce((a,b)=>a+b,0)/ts.length).toFixed(1):'—';
-
+  const D = FILT, tot = D.length;
+  const ex = D.filter(d=>d.resultadoClass==='Executado').length;
+  const ne = D.filter(d=>d.resultadoClass==='Não Executado').length;
+  const na = D.filter(d=>d.resultadoClass==='Não Atendida').length;
+  const cortes = D.filter(d=>d.resultado.toUpperCase().includes('CORTAD')).length;
+  const pos = D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
+  const ts = D.filter(d=>d.tempo>0 && d.tempo<300).map(d=>d.tempo);
+  const tmed = ts.length ? (ts.reduce((a,b)=>a+b,0)/ts.length).toFixed(1) : '—';
   $('k-tot').textContent=fmt(tot);
-  $('k-ex').textContent=fmt(ex); $('k-ex-s').textContent=pct(ex,tot)+' de execução';
-  $('k-ne').textContent=fmt(ne); $('k-ne-s').textContent=pct(ne,tot)+' impedimento';
+  $('k-ex').textContent=fmt(ex); $('k-ex-s').textContent=pct(ex,tot)+' do total';
+  $('k-ne').textContent=fmt(ne); $('k-ne-s').textContent=pct(ne,tot)+' do total';
   $('k-na').textContent=fmt(na);
   $('k-prod').textContent=pct(ex,tot);
   $('k-corte').textContent=fmt(cortes);
   $('k-pos').textContent=fmt(pos);
   $('k-tmed').textContent=tmed+(tmed!=='—'?' min':'');
-
   renderChartsGeral(D,tot,ex,ne,na);
-  renderTblColab(D);
-  renderTblRes(D,tot);
-  renderTblUlt(D);
+  renderTblColab(D); renderTblRes(D,tot); renderTblUlt(D);
 }
-
 function renderChartsGeral(D,tot,ex,ne,na){
-  // colabs chart
-  const cm={};
+  const cm = {};
   D.forEach(d=>{
     if(!cm[d.equipe]) cm[d.equipe]={ex:0,ne:0,na:0};
     if(d.resultadoClass==='Executado') cm[d.equipe].ex++;
     else if(d.resultadoClass==='Não Executado') cm[d.equipe].ne++;
     else cm[d.equipe].na++;
   });
-  const co=Object.entries(cm).sort((a,b)=>{
-    const pa=a[1].ex/(a[1].ex+a[1].ne+a[1].na);
-    const pb=b[1].ex/(b[1].ex+b[1].ne+b[1].na);
-    return pb-pa;
-  });
+  const co = Object.entries(cm).sort((a,b)=>{
+    const ta=a[1].ex+a[1].ne+a[1].na, tb=b[1].ex+b[1].ne+b[1].na;
+    return (b[1].ex/tb)-(a[1].ex/ta);
+  }).slice(0,20);
   criarChart('ch-colab','bar',{
-    labels:co.map(([n])=>nomeAbrev(n)),
+    labels: co.map(([n])=>n.split(' ').slice(0,2).join(' ')),
     datasets:[
-      {label:'Executadas',data:co.map(([,v])=>v.ex),backgroundColor:'rgba(34,197,94,.8)',borderRadius:4},
-      {label:'Não Exec.',data:co.map(([,v])=>v.ne),backgroundColor:'rgba(239,68,68,.6)',borderRadius:4},
-      {label:'Não Atend.',data:co.map(([,v])=>v.na),backgroundColor:'rgba(245,158,11,.5)',borderRadius:4},
+      {label:'Executadas', data:co.map(([,v])=>v.ex), backgroundColor:'rgba(34,197,94,.8)', borderRadius:4},
+      {label:'Não Exec.', data:co.map(([,v])=>v.ne), backgroundColor:'rgba(239,68,68,.6)', borderRadius:4},
+      {label:'Fim Dia', data:co.map(([,v])=>v.na), backgroundColor:'rgba(245,158,11,.5)', borderRadius:4},
     ]
-  },{indexAxis:'y',scales:{x:{stacked:true,ticks:{color:'#6a8db5'},grid:{color:'rgba(255,255,255,.04)'}},y:{stacked:true,ticks:{color:'#dde6f5',font:{size:10}},grid:{display:false}}},plugins:{legend:{labels:{color:'#6a8db5',font:{size:11}}}}});
-
+  },{indexAxis:'y', scales:{x:{stacked:true, ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}}, y:{stacked:true, ticks:{color:'#dde6f5', font:{size:10}}, grid:{display:false}}}, plugins:{legend:{labels:{color:'#6a8db5', font:{size:11}}}}});
   criarChart('ch-dnut','doughnut',{
-    labels:['Executado','Não Executado','Não Atendida'],
-    datasets:[{data:[ex,ne,na],backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)','rgba(245,158,11,.85)'],borderWidth:2,borderColor:'#102040'}]
-  },{cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#6a8db5',font:{size:11},padding:10}}}});
-
-  // impedimentos
-  const imp={};
-  D.filter(d=>d.resultadoClass==='Não Executado').forEach(d=>{
-    const k=d.resultado||'Outro'; imp[k]=(imp[k]||0)+1;
-  });
-  const impArr=Object.entries(imp).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    labels:['Executado','Não Executado','Fim do Dia'],
+    datasets:[{data:[ex,ne,na], backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)','rgba(245,158,11,.85)'], borderWidth:2, borderColor:'#102040'}]
+  },{cutout:'65%', plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:10}}}});
+  const imp = {};
+  D.filter(d=>d.resultadoClass==='Não Executado').forEach(d=>{const k=d.resultado||'Outro'; imp[k]=(imp[k]||0)+1;});
+  const impArr = Object.entries(imp).sort((a,b)=>b[1]-a[1]).slice(0,8);
   criarChart('ch-imp','bar',{
-    labels:impArr.map(([k])=>k.length>25?k.slice(0,23)+'…':k),
-    datasets:[{data:impArr.map(([,v])=>v),backgroundColor:'rgba(245,158,11,.75)',borderRadius:4}]
-  },{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6a8db5',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#dde6f5',font:{size:10}},grid:{display:false}}}});
-
-  // tipo
-  const tipos={};
-  D.forEach(d=>{ tipos[d.tipo]=(tipos[d.tipo]||0)+1; });
+    labels: impArr.map(([k])=>k.length>25?k.slice(0,23)+'…':k),
+    datasets:[{data:impArr.map(([,v])=>v), backgroundColor:'rgba(245,158,11,.75)', borderRadius:4}]
+  },{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#6a8db5', font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'}}, y:{ticks:{color:'#dde6f5', font:{size:10}}, grid:{display:false}}}});
+  const tipos = {};
+  D.forEach(d=>{tipos[d.atividade]=(tipos[d.atividade]||0)+1;});
   criarChart('ch-tipo','pie',{
     labels:Object.keys(tipos),
-    datasets:[{data:Object.values(tipos),backgroundColor:['rgba(0,194,224,.85)','rgba(79,142,247,.85)','rgba(168,85,247,.85)'],borderWidth:2,borderColor:'#102040'}]
-  },{plugins:{legend:{position:'bottom',labels:{color:'#6a8db5',font:{size:11},padding:8}}}});
-
-  // cortes e pos por colaborador
-  const cp={};
-  D.forEach(d=>{
-    const n=nomeAbrev(d.equipe);
-    if(!cp[n]) cp[n]={c:0,p:0};
-    if(d.resultado.toUpperCase().includes('CORTADA')) cp[n].c++;
-    const r=d.resultado.toUpperCase();
-    if(r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO')) cp[n].p++;
-  });
-  const cpL=Object.keys(cp);
-  criarChart('ch-cpos','bar',{
-    labels:cpL,
-    datasets:[
-      {label:'Cortes',data:cpL.map(k=>cp[k].c),backgroundColor:'rgba(239,68,68,.8)',borderRadius:4},
-      {label:'Pag. POS',data:cpL.map(k=>cp[k].p),backgroundColor:'rgba(34,197,94,.8)',borderRadius:4},
-    ]
-  },{plugins:{legend:{labels:{color:'#6a8db5',font:{size:11}}}},scales:{x:{ticks:{color:'#6a8db5',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6a8db5'},grid:{color:'rgba(255,255,255,.04)'}}}});
+    datasets:[{data:Object.values(tipos), backgroundColor:['rgba(0,194,224,.85)','rgba(79,142,247,.85)','rgba(168,85,247,.85)','rgba(34,197,94,.85)','rgba(245,158,11,.85)'], borderWidth:2, borderColor:'#102040'}]
+  },{plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}}});
+  const origs = {};
+  D.forEach(d=>{origs[d.origem]=(origs[d.origem]||0)+1;});
+  criarChart('ch-orig','doughnut',{
+    labels:Object.keys(origs),
+    datasets:[{data:Object.values(origs), backgroundColor:['rgba(0,194,224,.85)','rgba(168,85,247,.85)','rgba(251,146,60,.85)'], borderWidth:2, borderColor:'#102040'}]
+  },{cutout:'60%', plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}}});
 }
-
 function renderTblColab(D){
-  const cm={};
+  const cm = {};
   D.forEach(d=>{
-    if(!cm[d.equipe]) cm[d.equipe]={ex:0,ne:0,na:0,cortes:0,pos:0,ts:[]};
+    if(!cm[d.equipe]) cm[d.equipe]={ex:0,ne:0,na:0,cortes:0,pos:0,relig:0,restab:0};
     const c=cm[d.equipe];
     if(d.resultadoClass==='Executado') c.ex++;
     else if(d.resultadoClass==='Não Executado') c.ne++;
     else c.na++;
-    if(d.resultado.toUpperCase().includes('CORTADA')) c.cortes++;
-    const r=d.resultado.toUpperCase();
+    if(d.resultado.toUpperCase().includes('CORTAD')) c.cortes++;
+    const r = d.resultado.toUpperCase();
     if(r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO')) c.pos++;
-    if(d.tempo>0&&d.tempo<300) c.ts.push(d.tempo);
+    if(d.atividade==='Religação') c.relig++;
+    if(d.atividade==='Restabelecimento') c.restab++;
   });
-  $('lbl-colab').textContent=Object.keys(cm).length+' colaboradores';
-  const tb=$('tb-colab'); tb.innerHTML='';
+  $('lbl-colab').textContent = Object.keys(cm).length + ' colaboradores';
+  const tb = $('tb-colab'); tb.innerHTML = '';
   Object.entries(cm).sort((a,b)=>{
-    const pa=a[1].ex/(a[1].ex+a[1].ne+a[1].na);
-    const pb=b[1].ex/(b[1].ex+b[1].ne+b[1].na);
-    return pb-pa;
+    const ta=a[1].ex+a[1].ne+a[1].na, tb2=b[1].ex+b[1].ne+b[1].na;
+    return (b[1].ex/tb2)-(a[1].ex/ta);
   }).forEach(([nome,v])=>{
-    const tot=v.ex+v.ne+v.na;
-    const p=tot>0?v.ex/tot:0;
-    const pFmt=(p*100).toFixed(1)+'%';
-    const tm=v.ts.length?(v.ts.reduce((a,b)=>a+b,0)/v.ts.length).toFixed(0)+'min':'—';
-    const fc=p>=.7?'var(--verde)':p>=.5?'var(--amarelo)':'var(--vermelho)';
+    const tot=v.ex+v.ne+v.na, p=tot>0?v.ex/tot:0;
     const bl=p>=.7?'b-g':p>=.5?'b-y':'b-r';
     const st=p>=.7?'Ótimo':p>=.5?'Regular':'Atenção';
+    const fc=p>=.7?'var(--verde)':p>=.5?'var(--amarelo)':'var(--vermelho)';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700;max-width:180px">${nome}</td>
-<td>${tot}</td>
-<td style="color:var(--verde);font-weight:700">${v.ex}</td>
-<td style="color:var(--vermelho)">${v.ne}</td>
-<td style="color:var(--amarelo)">${v.na}</td>
-<td>
-  <div style="display:flex;align-items:center;gap:7px">
-    <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(p*100)}%;background:${fc}"></div></div>
-    <span style="font-weight:700;font-size:12px">${pFmt}</span>
-  </div>
-</td>
-<td>${v.cortes}</td><td>${v.pos}</td><td>${tm}</td>
-<td><span class="b ${bl}">${st}</span></td>`;
+    tr.innerHTML=`
+      <td style="font-weight:700;max-width:180px">${esc(nome)}</td>
+      <td>${tot}</td>
+      <td style="color:var(--verde);font-weight:700">${v.ex}</td>
+      <td style="color:var(--vermelho)">${v.ne}</td>
+      <td style="color:var(--amarelo)">${v.na}</td>
+      <td><div style="display:flex;align-items:center;gap:7px"><div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(p*100)}%;background:${fc}"></div></div><span style="font-weight:700;font-size:12px">${(p*100).toFixed(1)}%</span></div></td>
+      <td>${v.cortes}</td><td>${v.pos}</td><td>${v.relig}</td><td>${v.restab}</td>
+      <td><span class="b ${bl}">${st}</span></td>`;
     tb.appendChild(tr);
   });
 }
-
 function renderTblRes(D,tot){
   const res={};
-  D.forEach(d=>{ const k=d.resultado||'—'; res[k]=(res[k]||0)+1; });
+  D.forEach(d=>{const k=d.resultado||'—';res[k]=(res[k]||0)+1;});
   const tb=$('tb-res'); tb.innerHTML='';
   Object.entries(res).sort((a,b)=>b[1]-a[1]).forEach(([nome,qtd])=>{
     const rc=mapResultado(nome);
-    const bl=rc==='Executado'?'b-g':rc==='Não Atendida'?'b-y':'b-r';
+    const bl=rc==='Executado'?'b-g':rc==='Não Atendida'?'b-y':rc==='Pendente'?'b-a':'b-r';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${nome}</span></td>
-<td style="font-weight:700">${qtd}</td><td style="color:var(--muted)">${((qtd/tot)*100).toFixed(1)}%</td>`;
+    tr.innerHTML=`<td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${esc(nome)}</span></td>
+      <td style="font-weight:700">${qtd}</td><td style="color:var(--muted)">${((qtd/tot)*100).toFixed(1)}%</td>`;
     tb.appendChild(tr);
   });
 }
-
 function renderTblUlt(D){
   const tb=$('tb-ult'); tb.innerHTML='';
   D.slice(0,15).forEach(d=>{
     const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
-    const bt=d.tipo==='Corte'?'b-r':d.tipo==='Cobrança'?'b-a':'b-z';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-family:monospace;color:var(--accent);font-size:11px">${d.nrOS}</td>
-<td style="font-size:11px">${nomeAbrev(d.equipe)}</td>
-<td><span class="b ${bt}">${d.tipo}</span></td>
-<td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${(d.resultado||'—').slice(0,36)}</span></td>
-<td style="text-align:center">${d.tempo||'—'}</td>`;
+    tr.innerHTML=`<td style="font-family:monospace;color:var(--accent);font-size:11px">${esc(d.nrOS)}</td>
+      <td style="font-size:11px">${esc(d.equipe.split(' ').slice(0,2).join(' '))}</td>
+      <td><span class="b b-a">${esc(d.atividade)}</span></td>
+      <td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${esc((d.resultado||'—').slice(0,36))}</span></td>
+      <td style="text-align:center">${d.tempo||'—'}</td>`;
     tb.appendChild(tr);
   });
 }
 
-// ═══════════════════ PAGE JORNADA ═══════════════════
-function renderJornada(){
-  const filtColab=$('jf-colab').value;
-  const D=filtColab?ALL.filter(d=>d.equipe===filtColab):ALL;
+// ═══════════ RESTAB / RELIG ═══════════
+const ehRestabRelig = d => d.atividade==='Restabelecimento' || d.atividade==='Religação';
+function limparRelig(){
+  ['r-cidade','r-status','r-colab','r-res'].forEach(id=>$(id).value='');
+  renderRelig();
+}
+function renderRelig(){
+  const cid=$('r-cidade').value, st=$('r-status').value, col=$('r-colab').value, rs=$('r-res').value;
+  let D = ALL.filter(ehRestabRelig);
+  if(cid) D = D.filter(d=>d.municipio===cid);
+  if(st) D = D.filter(d=>(d.statusOS||'').toUpperCase().includes(st.toUpperCase()));
+  if(col) D = D.filter(d=>d.equipe===col);
+  if(rs) D = D.filter(d=>d.resultadoClass===rs);
+  const total = D.length;
+  const atraso = D.filter(d=>d.prazoStatus==='atrasado').length;
+  const urgente = D.filter(d=>d.prazoStatus==='urgente'||d.prazoStatus==='hoje').length;
+  const exec = D.filter(d=>d.resultadoClass==='Executado').length;
+  $('pr-total').textContent = total;
+  $('pr-atraso').textContent = atraso;
+  $('pr-urgente').textContent = urgente;
+  $('pr-exec').textContent = exec;
+  $('relig-update').textContent = 'Última atualização: ' + new Date().toLocaleString('pt-BR');
+  const cidades = {};
+  D.forEach(d=>{const k=d.municipio||'Não inf.';cidades[k]=(cidades[k]||0)+1;});
+  const cidArr = Object.entries(cidades).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  $('pr-cidades').innerHTML = cidArr.map(([n,q])=>`
+    <div class="pr-cidade ${q>total*0.5?'alerta':''}" onclick="drilldownRelig('Cidade: ${escAttr(n)}', d=>d.municipio==='${escAttr(n)}')">
+      <div class="nome">${esc(n)}</div><div class="qtd">${q}</div>
+    </div>`).join('') || '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px">Sem dados</div>';
+  const statusCount = {Planejada:0, Planejável:0, Despachada:0};
+  D.forEach(d=>{
+    const s = (d.statusOS||'').toUpperCase();
+    if(s.includes('PLANEJADA')) statusCount.Planejada++;
+    else if(s.includes('PLANEJÁVEL')||s.includes('PLANEJAVEL')) statusCount.Planejável++;
+    else if(s.includes('DESPACHADA')) statusCount.Despachada++;
+  });
+  $('pr-status').innerHTML = `
+    <div class="box planejada"><div class="nome">Planejada</div><div class="qtd">${statusCount.Planejada}</div></div>
+    <div class="box planejavel"><div class="nome">Planejável</div><div class="qtd">${statusCount.Planejável}</div></div>
+    <div class="box despachada"><div class="nome">Despachada</div><div class="qtd">${statusCount.Despachada}</div></div>`;
+  D.sort((a,b)=>{
+    const o = {atrasado:0,urgente:1,hoje:2,futuro:3,sem:4};
+    return (o[a.prazoStatus]||9)-(o[b.prazoStatus]||9);
+  });
+  $('relig-count').textContent = D.length+' OS';
+  const tb=$('tb-relig'); tb.innerHTML='';
+  D.slice(0,500).forEach(d=>{
+    const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="font-family:monospace;color:var(--accent);font-size:11px">${esc(d.nrOS)}</td>
+      <td style="font-size:11px">${esc(d.municipio||'—')}</td>
+      <td style="font-size:11px">${esc(d.equipe.split(' ').slice(0,2).join(' '))}</td>
+      <td style="font-size:11px">${esc(d.endereco||'—').slice(0,40)}</td>
+      <td><span class="b b-p" style="font-size:10px">${esc(d.atividade)}</span></td>
+      <td><span class="b ${bl}" style="border-radius:5px;font-size:10px;white-space:normal">${esc((d.resultado||'—').slice(0,30))}</span></td>
+      <td style="font-size:11px">${d.prazoDate?d.prazoDate.toLocaleString('pt-BR').slice(0,16):'—'}</td>
+      <td><span class="alerta-prazo ${corPrazo(d.prazoStatus)}">${labelPrazo(d.prazoStatus)}</span></td>
+      <td style="font-size:11px">${esc(d.statusOS||'—')}</td>
+      <td style="text-align:center;font-size:11px">${d.tempo||'—'}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function drilldownRelig(titulo, fn){
+  const D = ALL.filter(ehRestabRelig).filter(fn);
+  abrirModal(titulo, D, [
+    {k:'nrOS', l:'Nº OS'},{k:'municipio', l:'Cidade'},{k:'equipe', l:'Colaborador'},
+    {k:'endereco', l:'Endereço'},{k:'atividade', l:'Atividade'},{k:'resultado', l:'Resultado'},
+    {k:'statusOS', l:'Status OS'},
+    {k:'prazoStatus', l:'Prazo', fmt:v=>`<span class="alerta-prazo ${corPrazo(v)}">${labelPrazo(v)}</span>`},
+  ]);
+}
 
-  // Agrupa por colaborador e pega 1ª e última OS com horário real (não 16h00 ou 23h59 FIM DO DIA)
-  const cm={};
+// ═══════════ JORNADA ═══════════
+function acharFimDiaDoColab(equipe){
+  const regs = ALL.filter(d=>d.equipe===equipe && d.resultadoClass==='Não Atendida');
+  if(!regs.length) return null;
+  const comHora = regs.filter(d=>d.dtFim||d.dtInicio);
+  if(!comHora.length) return null;
+  comHora.sort((a,b)=>{
+    const ma = (a.dtFim||a.dtInicio).totalMin;
+    const mb = (b.dtFim||b.dtInicio).totalMin;
+    return mb-ma;
+  });
+  const reg = comHora[0];
+  const dt = reg.dtFim || reg.dtInicio;
+  return { totalMin: dt.totalMin, str: dt.str, hora: dt.hora, min: dt.min, reg };
+}
+
+function renderJornada(){
+  const filtColab = $('jf-colab').value;
+  const D = filtColab ? ALL.filter(d=>d.equipe===filtColab) : ALL;
+  const cm = {};
   D.forEach(d=>{
     if(!d.dtInicio) return;
-    const e=d.equipe;
-    if(!cm[e]) cm[e]={os:[]};
-    cm[e].os.push(d);
+    if(!cm[d.equipe]) cm[d.equipe]={os:[]};
+    cm[d.equipe].os.push(d);
   });
-
-  // Para cada colaborador calcula jornada
-  const jornadas=[];
+  const jornadas = [];
   Object.entries(cm).forEach(([nome,{os}])=>{
-    // Filtra OS com horário real (exclui FIM DO DIA que fica 16:00 ou 23:59)
-    const reais=os.filter(d=>{
-      if(!d.dtInicio) return false;
-      const m=d.dtInicio.totalMin;
-      // Exclui timestamps genéricos de "FIM DO DIA" (16:00:00 exato = 960, 23:59 = 1439)
-      if(d.resultadoClass==='Não Atendida') return false;
-      return true;
-    });
+    const reais = os.filter(d=>d.dtInicio && d.resultadoClass!=='Não Atendida');
     if(!reais.length) return;
-
-    const sorted=reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
-    const primeiraOS=sorted[0];
-    const ultimaOS=sorted[sorted.length-1];
-
-    const inicio=primeiraOS.dtInicio.totalMin;
-    const fimUltima=ultimaOS.dtFim?ultimaOS.dtFim.totalMin:ultimaOS.dtInicio.totalMin;
-
-    // Jornada efetiva = tempo entre 1ª baixa e última baixa
-    const jornadaEfetiva=Math.max(0,fimUltima-inicio);
-
-    // Tempo perdido = quanto sobrou até 17h depois da última baixa
-    const tempoPerdido=Math.max(0,HORA_FIM-fimUltima);
-
-    // Tempo antes da 1ª OS (chegou tarde?)
-    const atrasoInicio=Math.max(0,inicio-HORA_INI);
-
-    // % perda = tempo perdido / jornada disponível total
-    const pctPerda=(tempoPerdido/JORNADA)*100;
-    const pctAprov=((jornadaEfetiva/JORNADA)*100).toFixed(1);
-
+    const sorted = reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
+    const p = sorted[0], u = sorted[sorted.length-1];
+    const inicio = p.dtInicio.totalMin;
+    const fimUltima = u.dtFim ? u.dtFim.totalMin : u.dtInicio.totalMin;
+    const fimDia = acharFimDiaDoColab(nome);
+    const fimDiaMin = fimDia ? fimDia.totalMin : null;
+    const refFinal = fimDiaMin != null ? Math.max(fimDiaMin, fimUltima) : fimUltima;
+    const perdido = Math.max(0, HORA_FIM - refFinal);
+    const jef = Math.max(0, refFinal - inicio);
     jornadas.push({
-      nome,
-      primeiraOS, ultimaOS,
-      inicioMin: inicio,
-      fimMin: fimUltima,
-      jornadaEfetiva,
-      tempoPerdido,
-      atrasoInicio,
-      pctPerda: pctPerda.toFixed(1),
-      pctAprov,
-      totalOS: os.length,
-      osReais: reais.length,
+      nome, primeiraOS:p, ultimaOS:u,
+      inicioMin:inicio, fimMin:refFinal,
+      fimDiaMin, fimDia,
+      jornadaEfetiva:jef, tempoPerdido:perdido,
+      atrasoInicio:Math.max(0, inicio-HORA_INI),
+      pctPerda:((perdido/JORNADA)*100).toFixed(1),
+      pctAprov:((jef/JORNADA)*100).toFixed(1),
     });
   });
-
   jornadas.sort((a,b)=>b.tempoPerdido-a.tempoPerdido);
-
-  // KPIs jornada
-  const totalPerdido=jornadas.reduce((s,j)=>s+j.tempoPerdido,0);
-  const mediaPerdido=jornadas.length?Math.round(totalPerdido/jornadas.length):0;
-  const alertas=jornadas.filter(j=>j.tempoPerdido>60).length;
-  $('j-kpis').innerHTML=`
-<div class="kpi c-r"><div class="kpi-lbl">Tempo Total Perdido</div><div class="kpi-val">${minToHM(totalPerdido)}</div><div class="kpi-sub">Soma da equipe</div></div>
-<div class="kpi c-y"><div class="kpi-lbl">Média por Fiscal</div><div class="kpi-val">${minToHM(mediaPerdido)}</div><div class="kpi-sub">Após última OS</div></div>
-<div class="kpi c-r"><div class="kpi-lbl">Alertas</div><div class="kpi-val">${alertas}</div><div class="kpi-sub">+60min perdidos</div></div>
-<div class="kpi c-a"><div class="kpi-lbl">Fiscais Analisados</div><div class="kpi-val">${jornadas.length}</div><div class="kpi-sub">Com dados de horário</div></div>`;
-
-  // Timeline
-  const tc=$('timeline-container'); tc.innerHTML='';
+  const totalPerdido = jornadas.reduce((s,j)=>s+j.tempoPerdido,0);
+  const mediaPerdido = jornadas.length ? Math.round(totalPerdido/jornadas.length) : 0;
+  const alertas = jornadas.filter(j=>j.tempoPerdido>60).length;
+  const fimDiaCedo = jornadas.filter(j=>j.fimDiaMin != null && j.fimDiaMin < (16*60)).length;
+  $('j-kpis').innerHTML = `
+    <div class="kpi c-r"><div class="kpi-lbl">Tempo Total Perdido</div><div class="kpi-val">${minToHM(totalPerdido)}</div><div class="kpi-sub">Soma da equipe</div></div>
+    <div class="kpi c-y"><div class="kpi-lbl">Média por Colaborador</div><div class="kpi-val">${minToHM(mediaPerdido)}</div><div class="kpi-sub">Após última baixa</div></div>
+    <div class="kpi c-r"><div class="kpi-lbl">Alertas</div><div class="kpi-val">${alertas}</div><div class="kpi-sub">+60min perdidos</div></div>
+    <div class="kpi c-o"><div class="kpi-lbl">🚩 Fim do Dia cedo</div><div class="kpi-val">${fimDiaCedo}</div><div class="kpi-sub">Antes das 16h</div></div>
+    <div class="kpi c-a"><div class="kpi-lbl">Colaboradores</div><div class="kpi-val">${jornadas.length}</div><div class="kpi-sub">Com dados</div></div>`;
+  const tc = $('timeline-container'); tc.innerHTML='';
   const labels=['08h','09h','10h','11h','12h','13h','14h','15h','16h','17h'];
-  const labDiv=document.createElement('div');
-  labDiv.className='tl-labels';
-  labels.forEach(l=>{ const s=document.createElement('span'); s.textContent=l; labDiv.appendChild(s); });
+  const labDiv = document.createElement('div'); labDiv.className='tl-labels';
+  labels.forEach(l=>{const s=document.createElement('span');s.textContent=l;labDiv.appendChild(s);});
   tc.appendChild(labDiv);
-
-  jornadas.forEach(j=>{
-    const row=document.createElement('div'); row.className='tl-row';
-    const nameEl=document.createElement('div'); nameEl.className='tl-name';
-    nameEl.textContent=`${nomeAbrev(j.nome)}  ·  1ª OS: ${j.primeiraOS.dtInicio.str.split(' ')[1]}  ·  Última: ${j.fimMin<600?(Math.floor(j.fimMin/60)+':'+String(j.fimMin%60).padStart(2,'0')):'—'}  ·  Perdeu: ${minToHM(j.tempoPerdido)}`;
+  const toW = m=>(m/JORNADA*100).toFixed(2)+'%';
+  jornadas.slice(0,30).forEach(j=>{
+    const row = document.createElement('div'); row.className='tl-row';
+    const nameEl = document.createElement('div'); nameEl.className='tl-name';
+    const fimDiaStr = j.fimDiaMin!=null ? ` · 🚩 Fim do Dia: ${minToHHMM(j.fimDiaMin)}` : ' · 🚩 s/ Fim do Dia';
+    nameEl.textContent = `${j.nome.split(' ').slice(0,2).join(' ')} · 1ª OS: ${j.primeiraOS.dtInicio.str.split(' ')[1]}${fimDiaStr} · Perdeu: ${minToHM(j.tempoPerdido)}`;
     row.appendChild(nameEl);
-
-    const bar=document.createElement('div'); bar.className='timeline-bar';
-
-    // Função de conversão minuto → %
-    const toX=m=>((m-HORA_INI)/JORNADA*100).toFixed(2)+'%';
-    const toW=m=>(m/JORNADA*100).toFixed(2)+'%';
-
-    // Segmento: antes da 1ª OS (fundo mais escuro)
+    const bar = document.createElement('div'); bar.className='timeline-bar';
     if(j.atrasoInicio>0){
       const seg=document.createElement('div'); seg.className='tl-seg';
       seg.style.cssText=`left:0;width:${toW(j.atrasoInicio)};background:rgba(0,194,224,.25)`;
-      seg.title=`Inicio às ${Math.floor(j.inicioMin/60)}:${String(j.inicioMin%60).padStart(2,'0')} (+${j.atrasoInicio}min antes)`;
       bar.appendChild(seg);
     }
-
-    // Segmento: jornada efetiva (verde)
-    const inicioX=Math.max(0,(j.inicioMin-HORA_INI)/JORNADA*100);
+    const inicioX = Math.max(0,(j.inicioMin-HORA_INI)/JORNADA*100);
     const seg2=document.createElement('div'); seg2.className='tl-seg';
     seg2.style.cssText=`left:${inicioX.toFixed(2)}%;width:${toW(j.jornadaEfetiva)};background:rgba(34,197,94,.75)`;
-    seg2.title=`Trabalhou ${minToHM(j.jornadaEfetiva)}`;
     bar.appendChild(seg2);
-
-    // Segmento: tempo perdido (vermelho)
     if(j.tempoPerdido>0){
-      const fimX=((j.fimMin-HORA_INI)/JORNADA*100).toFixed(2);
+      const fimX = ((j.fimMin-HORA_INI)/JORNADA*100).toFixed(2);
       const seg3=document.createElement('div'); seg3.className='tl-seg';
       seg3.style.cssText=`left:${fimX}%;width:${toW(j.tempoPerdido)};background:rgba(239,68,68,.65)`;
-      seg3.title=`Tempo perdido: ${minToHM(j.tempoPerdido)}`;
       bar.appendChild(seg3);
     }
-
-    row.appendChild(bar);
-    tc.appendChild(row);
+    if(j.fimDiaMin!=null){
+      const flagX = Math.max(0,Math.min(100,((j.fimDiaMin-HORA_INI)/JORNADA*100)));
+      const flag = document.createElement('div');
+      flag.style.cssText = `position:absolute;left:${flagX}%;top:-2px;transform:translateX(-50%);font-size:14px;cursor:help`;
+      flag.title = `Fim do Dia: ${minToHHMM(j.fimDiaMin)}`;
+      flag.textContent = '🚩';
+      bar.appendChild(flag);
+    }
+    row.appendChild(bar); tc.appendChild(row);
   });
-
-  // Tabela jornada
-  const tb=$('tb-jornada'); tb.innerHTML='';
+  const tb = $('tb-jornada'); tb.innerHTML='';
   jornadas.forEach(j=>{
-    const iniH=`${Math.floor(j.inicioMin/60)}:${String(j.inicioMin%60).padStart(2,'0')}`;
-    const fimH=`${Math.floor(j.fimMin/60)}:${String(j.fimMin%60).padStart(2,'0')}`;
-    const alerta=j.tempoPerdido>120?'<span class="b b-r">⚠ CRITICO</span>':j.tempoPerdido>60?'<span class="b b-y">⚠ ATENÇÃO</span>':'<span class="b b-g">✔ OK</span>';
+    const iniH = minToHHMM(j.inicioMin);
+    const fimH = minToHHMM(j.fimMin);
+    const fd = j.fimDiaMin!=null ? minToHHMM(j.fimDiaMin) : '—';
+    let fdCls = 'fimdia-hora', fdIcon = '';
+    if(j.fimDiaMin!=null){
+      if(j.fimDiaMin < 15*60){ fdCls += ' cedo'; fdIcon='🔴'; }
+      else if(j.fimDiaMin < 16*60){ fdCls += ' cedo'; fdIcon='🟠'; }
+      else if(j.fimDiaMin >= 17*60){ fdCls += ' ok'; fdIcon='🟢'; }
+      else { fdIcon='🟡'; }
+    }
+    const alerta = j.tempoPerdido>120?'<span class="b b-r">⚠ CRÍTICO</span>':j.tempoPerdido>60?'<span class="b b-y">⚠ ATENÇÃO</span>':'<span class="b b-g">✔ OK</span>';
     const tr=document.createElement('tr');
     tr.innerHTML=`
-<td style="font-weight:700;min-width:160px">${nomeAbrev(j.nome)}</td>
-<td style="color:var(--accent);font-weight:700">${iniH}</td>
-<td style="color:var(--amarelo);font-weight:700">${fimH}</td>
-<td>${minToHM(j.jornadaEfetiva)}</td>
-<td style="color:var(--muted)">9h (540min)</td>
-<td style="color:var(--vermelho);font-weight:700">${minToHM(j.tempoPerdido)}</td>
-<td><span style="color:${j.pctPerda>22?'var(--vermelho)':j.pctPerda>11?'var(--amarelo)':'var(--verde)'};font-weight:700">${j.pctPerda}%</span></td>
-<td>
-  <div style="display:flex;align-items:center;gap:7px">
-    <div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,parseFloat(j.pctAprov))}%;background:var(--verde)"></div></div>
-    <span style="font-size:12px;font-weight:700">${j.pctAprov}%</span>
-  </div>
-</td>
-<td>${alerta}</td>`;
+      <td style="font-weight:700">${esc(j.nome)}</td>
+      <td style="color:var(--accent);font-weight:700">${iniH}</td>
+      <td style="color:var(--amarelo);font-weight:700">${fimH}</td>
+      <td><div class="fimdia-box"><span class="${fdCls}">${fd}</span>${fdIcon?`<span>${fdIcon}</span>`:''}</div></td>
+      <td>${minToHM(j.jornadaEfetiva)}</td>
+      <td style="color:var(--vermelho);font-weight:700">${minToHM(j.tempoPerdido)}</td>
+      <td><span style="color:${j.pctPerda>22?'var(--vermelho)':j.pctPerda>11?'var(--amarelo)':'var(--verde)'};font-weight:700">${j.pctPerda}%</span></td>
+      <td><div style="display:flex;align-items:center;gap:7px"><div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,parseFloat(j.pctAprov))}%;background:var(--verde)"></div></div><span style="font-size:12px;font-weight:700">${j.pctAprov}%</span></div></td>
+      <td>${alerta}</td>`;
     tb.appendChild(tr);
   });
-
-  // Chart barras tempo perdido
   criarChart('ch-jorn','bar',{
-    labels:jornadas.map(j=>nomeAbrev(j.nome)),
-    datasets:[
-      {label:'Tempo Perdido (min)',data:jornadas.map(j=>j.tempoPerdido),backgroundColor:jornadas.map(j=>j.tempoPerdido>120?'rgba(239,68,68,.8)':j.tempoPerdido>60?'rgba(245,158,11,.8)':'rgba(34,197,94,.6)'),borderRadius:4},
-    ]
-  },{plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y}min (${minToHM(ctx.parsed.y)})`}}},scales:{x:{ticks:{color:'#6a8db5',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6a8db5',callback:v=>v+'min'},grid:{color:'rgba(255,255,255,.04)'}}}});
+    labels: jornadas.map(j=>j.nome.split(' ').slice(0,2).join(' ')),
+    datasets:[{label:'Tempo Perdido (min)', data:jornadas.map(j=>j.tempoPerdido),
+      backgroundColor:jornadas.map(j=>j.tempoPerdido>120?'rgba(239,68,68,.8)':j.tempoPerdido>60?'rgba(245,158,11,.8)':'rgba(34,197,94,.6)'),
+      borderRadius:4}]
+  },{plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#6a8db5', font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'}}, y:{ticks:{color:'#6a8db5', callback:v=>v+'min'}, grid:{color:'rgba(255,255,255,.04)'}}}});
 }
 
-// ═══════════════════ PAGE FISCAL ═══════════════════
+// ═══════════ FISCAL / PRODUTIVIDADE ═══════════
 function renderFiscal(){
-  const colab=$('ff-colab').value;
-  const tipo=$('ff-tipo').value;
-  const res=$('ff-res').value;
-
+  const colab=$('ff-colab').value, tipo=$('ff-tipo').value, res=$('ff-res').value;
   if(!colab){ $('fiscal-vazio').style.display='block'; $('fiscal-content').style.display='none'; return; }
   $('fiscal-vazio').style.display='none';
   $('fiscal-content').style.display='block';
-
-  let D=ALL.filter(d=>d.equipe===colab);
-  if(tipo) D=D.filter(d=>d.tipo===tipo);
-  if(res) D=D.filter(d=>d.resultadoClass===res);
-
+  let D = ALL.filter(d=>d.equipe===colab);
+  if(tipo) D = D.filter(d=>d.atividade===tipo);
+  if(res) D = D.filter(d=>d.resultadoClass===res);
   const tot=D.length;
   const ex=D.filter(d=>d.resultadoClass==='Executado').length;
   const ne=D.filter(d=>d.resultadoClass==='Não Executado').length;
   const na=D.filter(d=>d.resultadoClass==='Não Atendida').length;
-
-  // jornada do fiscal
-  const reais=ALL.filter(d=>d.equipe===colab&&d.dtInicio&&d.resultadoClass!=='Não Atendida');
-  const sorted=reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
-  const primeiraOS=sorted[0];
-  const ultimaOS=sorted[sorted.length-1];
-
-  $('fn-nome').textContent=colab;
-  $('fn-meta').textContent=`${tot} OS no período${primeiraOS?` · 1ª: ${primeiraOS.dtInicio.str.split(' ')[1]} · Última: ${ultimaOS.dtFim?ultimaOS.dtFim.str.split(' ')[1]:ultimaOS.dtInicio.str.split(' ')[1]}`:''}`;
-
-  $('fn-kpis').innerHTML=`
-<div class="fk"><div class="fk-val" style="color:var(--verde)">${ex}</div><div class="fk-lbl">Executadas</div></div>
-<div class="fk"><div class="fk-val" style="color:var(--vermelho)">${ne}</div><div class="fk-lbl">Não Exec.</div></div>
-<div class="fk"><div class="fk-val" style="color:var(--amarelo)">${na}</div><div class="fk-lbl">Não Atend.</div></div>
-<div class="fk"><div class="fk-val" style="color:var(--accent)">${pct(ex,tot)}</div><div class="fk-lbl">Produtiv.</div></div>`;
-
-  // KPIs fiscal
-  const cortes=D.filter(d=>d.resultado.toUpperCase().includes('CORTADA')).length;
-  const pos=D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
-  const ts=D.filter(d=>d.tempo>0&&d.tempo<300).map(d=>d.tempo);
-  const tMed=ts.length?(ts.reduce((a,b)=>a+b,0)/ts.length).toFixed(1):'—';
-  const tMax=ts.length?Math.max(...ts):null;
-  const tMin=ts.length?Math.min(...ts):null;
-
-  let perdaHTML='—';
-  if(primeiraOS&&ultimaOS){
-    const fimM=ultimaOS.dtFim?ultimaOS.dtFim.totalMin:ultimaOS.dtInicio.totalMin;
-    const perdido=Math.max(0,HORA_FIM-fimM);
-    perdaHTML=`${minToHM(perdido)} (${((perdido/JORNADA)*100).toFixed(1)}% jornada)`;
+  const reais = ALL.filter(d=>d.equipe===colab && d.dtInicio && d.resultadoClass!=='Não Atendida');
+  const sorted = reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
+  const pOS=sorted[0], uOS=sorted[sorted.length-1];
+  const fimDia = acharFimDiaDoColab(colab);
+  $('fn-nome').textContent = colab;
+  $('fn-meta').textContent = `${tot} OS no período${pOS?` · 1ª: ${pOS.dtInicio.str.split(' ')[1]}${fimDia?` · 🚩 Fim do Dia: ${minToHHMM(fimDia.totalMin)}`:''}`:''}`;
+  $('fn-kpis').innerHTML = `
+    <div class="fk"><div class="fk-val" style="color:var(--verde)">${ex}</div><div class="fk-lbl">Executadas</div></div>
+    <div class="fk"><div class="fk-val" style="color:var(--vermelho)">${ne}</div><div class="fk-lbl">Não Exec.</div></div>
+    <div class="fk"><div class="fk-val" style="color:var(--amarelo)">${na}</div><div class="fk-lbl">Fim Dia</div></div>
+    <div class="fk"><div class="fk-val" style="color:var(--accent)">${pct(ex,tot)}</div><div class="fk-lbl">Produtiv.</div></div>`;
+  const cortes = D.filter(d=>d.resultado.toUpperCase().includes('CORTAD')).length;
+  const pos = D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
+  const ts = D.filter(d=>d.tempo>0 && d.tempo<300).map(d=>d.tempo);
+  const tMed = ts.length ? (ts.reduce((a,b)=>a+b,0)/ts.length).toFixed(1) : '—';
+  let perdaHTML = '—';
+  if(pOS){
+    const refFinal = fimDia ? Math.max(fimDia.totalMin, uOS.dtFim?uOS.dtFim.totalMin:uOS.dtInicio.totalMin) : (uOS.dtFim?uOS.dtFim.totalMin:uOS.dtInicio.totalMin);
+    const perdido = Math.max(0, HORA_FIM - refFinal);
+    perdaHTML = `${minToHM(perdido)} (${((perdido/JORNADA)*100).toFixed(1)}%)`;
   }
-
-  $('fis-kpis').innerHTML=`
-<div class="kpi c-a"><div class="kpi-lbl">Total OS</div><div class="kpi-val">${tot}</div></div>
-<div class="kpi c-g"><div class="kpi-lbl">% Execução</div><div class="kpi-val">${pct(ex,tot)}</div></div>
-<div class="kpi c-r"><div class="kpi-lbl">Cortes</div><div class="kpi-val">${cortes}</div></div>
-<div class="kpi c-g"><div class="kpi-lbl">Pag. POS</div><div class="kpi-val">${pos}</div></div>
-<div class="kpi c-a"><div class="kpi-lbl">T. Médio Exec.</div><div class="kpi-val">${tMed}${tMed!=='—'?' min':''}</div></div>
-<div class="kpi c-r"><div class="kpi-lbl">Tempo Perdido</div><div class="kpi-val" style="font-size:18px">${perdaHTML}</div></div>`;
-
-  // Charts fiscal
+  $('fis-kpis').innerHTML = `
+    <div class="kpi c-a"><div class="kpi-lbl">Total OS</div><div class="kpi-val">${tot}</div></div>
+    <div class="kpi c-g"><div class="kpi-lbl">% Execução</div><div class="kpi-val">${pct(ex,tot)}</div></div>
+    <div class="kpi c-r"><div class="kpi-lbl">Cortes</div><div class="kpi-val">${cortes}</div></div>
+    <div class="kpi c-g"><div class="kpi-lbl">Pag. POS</div><div class="kpi-val">${pos}</div></div>
+    <div class="kpi c-a"><div class="kpi-lbl">T. Médio Exec.</div><div class="kpi-val">${tMed}${tMed!=='—'?' min':''}</div></div>
+    <div class="kpi c-r"><div class="kpi-lbl">Tempo Perdido</div><div class="kpi-val" style="font-size:18px">${perdaHTML}</div></div>
+    <div class="kpi c-o"><div class="kpi-lbl">🚩 Fim do Dia</div><div class="kpi-val" style="font-size:22px">${fimDia?minToHHMM(fimDia.totalMin):'—'}</div><div class="kpi-sub">${fimDia?'Registrado na planilha':'Não informado'}</div></div>`;
   criarChart('ch-fis-res','doughnut',{
-    labels:['Executado','Não Exec.','Não Atend.'],
-    datasets:[{data:[ex,ne,na],backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)','rgba(245,158,11,.85)'],borderWidth:2,borderColor:'#102040'}]
-  },{cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'#6a8db5',font:{size:11},padding:8}}}});
-
-  const tipos={};
-  D.forEach(d=>{ tipos[d.tipo]=(tipos[d.tipo]||0)+1; });
+    labels:['Executado','Não Exec.','Fim Dia'],
+    datasets:[{data:[ex,ne,na], backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)','rgba(245,158,11,.85)'], borderWidth:2, borderColor:'#102040'}]
+  },{cutout:'60%', plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}}});
+  const tipos = {};
+  D.forEach(d=>{tipos[d.atividade]=(tipos[d.atividade]||0)+1;});
   criarChart('ch-fis-tipo','pie',{
     labels:Object.keys(tipos),
-    datasets:[{data:Object.values(tipos),backgroundColor:['rgba(0,194,224,.85)','rgba(79,142,247,.85)','rgba(168,85,247,.85)'],borderWidth:2,borderColor:'#102040'}]
-  },{plugins:{legend:{position:'bottom',labels:{color:'#6a8db5',font:{size:11},padding:8}}}});
-
-  // Tempo médio por tipo
-  const tmTipo={};
-  D.filter(d=>d.tempo>0&&d.tempo<300).forEach(d=>{
-    if(!tmTipo[d.tipo]) tmTipo[d.tipo]={soma:0,n:0};
-    tmTipo[d.tipo].soma+=d.tempo; tmTipo[d.tipo].n++;
+    datasets:[{data:Object.values(tipos), backgroundColor:['rgba(0,194,224,.85)','rgba(79,142,247,.85)','rgba(168,85,247,.85)','rgba(34,197,94,.85)','rgba(245,158,11,.85)'], borderWidth:2, borderColor:'#102040'}]
+  },{plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}}});
+  const tmTipo = {};
+  D.filter(d=>d.tempo>0 && d.tempo<300).forEach(d=>{
+    if(!tmTipo[d.atividade]) tmTipo[d.atividade]={soma:0,n:0};
+    tmTipo[d.atividade].soma += d.tempo; tmTipo[d.atividade].n++;
   });
-  const tmL=Object.keys(tmTipo);
+  const tmL = Object.keys(tmTipo);
   criarChart('ch-fis-tempo','bar',{
     labels:tmL,
-    datasets:[{label:'T. Médio (min)',data:tmL.map(k=>(tmTipo[k].soma/tmTipo[k].n).toFixed(1)),backgroundColor:'rgba(79,142,247,.8)',borderRadius:4}]
-  },{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6a8db5'}},y:{ticks:{color:'#6a8db5'},grid:{color:'rgba(255,255,255,.04)'}}}});
-
-  // Tempo records
-  const osComTempo=D.filter(d=>d.tempo>0&&d.tempo<300).sort((a,b)=>a.tempo-b.tempo);
-  const maiRapida=osComTempo[0];
-  const maiDemorada=osComTempo[osComTempo.length-1];
-  $('fis-tempo-cards').innerHTML=`
-<div class="tempo-card"><h4>⚡ OS Mais Rápida</h4><div class="val">${maiRapida?maiRapida.tempo+'min':'—'}</div><div class="sub">${maiRapida?maiRapida.nrOS+' · '+maiRapida.resultado.slice(0,30):'—'}</div></div>
-<div class="tempo-card"><h4>🐢 OS Mais Demorada</h4><div class="val">${maiDemorada?maiDemorada.tempo+'min':'—'}</div><div class="sub">${maiDemorada?maiDemorada.nrOS+' · '+maiDemorada.resultado.slice(0,30):'—'}</div></div>
-<div class="tempo-card"><h4>📊 Tempo Médio</h4><div class="val">${tMed}${tMed!=='—'?' min':''}</div><div class="sub">${ts.length} OS com tempo registrado</div></div>
-<div class="tempo-card"><h4>⏱ 1ª Baixa do Dia</h4><div class="val">${primeiraOS?primeiraOS.dtInicio.str.split(' ')[1]:'—'}</div><div class="sub">${primeiraOS?'OS '+primeiraOS.nrOS:'sem dado'}</div></div>
-<div class="tempo-card"><h4>🔚 Última Baixa</h4><div class="val">${ultimaOS?((ultimaOS.dtFim||ultimaOS.dtInicio).str.split(' ')[1]):'—'}</div><div class="sub">${ultimaOS?'OS '+ultimaOS.nrOS:'sem dado'}</div></div>`;
-
-  // Tabela OS fiscal
-  $('fis-os-count').textContent=`${D.length} OS`;
-  const tb=$('tb-fis'); tb.innerHTML='';
+    datasets:[{label:'T. Médio (min)', data:tmL.map(k=>(tmTipo[k].soma/tmTipo[k].n).toFixed(1)), backgroundColor:'rgba(79,142,247,.8)', borderRadius:4}]
+  },{plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#6a8db5'}}, y:{ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}}}});
+  const osComTempo = D.filter(d=>d.tempo>0 && d.tempo<300).sort((a,b)=>a.tempo-b.tempo);
+  const maiR = osComTempo[0], maiD = osComTempo[osComTempo.length-1];
+  $('fis-tempo-cards').innerHTML = `
+    <div class="tempo-card"><h4>⚡ Mais Rápida</h4><div class="val">${maiR?maiR.tempo+'min':'—'}</div><div class="sub">${esc(maiR?maiR.nrOS:'—')}</div></div>
+    <div class="tempo-card"><h4>🐢 Mais Demorada</h4><div class="val">${maiD?maiD.tempo+'min':'—'}</div><div class="sub">${esc(maiD?maiD.nrOS:'—')}</div></div>
+    <div class="tempo-card"><h4>📊 Tempo Médio</h4><div class="val">${tMed}${tMed!=='—'?' min':''}</div><div class="sub">${ts.length} OS medidas</div></div>
+    <div class="tempo-card"><h4>⏱ 1ª Baixa</h4><div class="val">${pOS?pOS.dtInicio.str.split(' ')[1]:'—'}</div><div class="sub">${esc(pOS?pOS.nrOS:'—')}</div></div>
+    <div class="tempo-card"><h4>🚩 Fim do Dia</h4><div class="val">${fimDia?minToHHMM(fimDia.totalMin):'—'}</div><div class="sub">${fimDia?'OS '+esc(fimDia.reg.nrOS):'sem registro'}</div></div>`;
+  $('fis-os-count').textContent = D.length+' OS';
+  const tb = $('tb-fis'); tb.innerHTML='';
   D.forEach((d,i)=>{
     const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
-    const bt=d.tipo==='Corte'?'b-r':d.tipo==='Cobrança'?'b-a':'b-z';
     const tr=document.createElement('tr');
     tr.innerHTML=`
-<td style="color:var(--muted)">${i+1}</td>
-<td style="font-family:monospace;color:var(--accent);font-size:11px">${d.nrOS}</td>
-<td><span class="b ${bt}">${d.tipo}</span></td>
-<td style="color:var(--muted);font-size:11px">${d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-'}</td>
-<td style="color:var(--accent)">${d.dtInicio?d.dtInicio.str.split(' ')[1]:'—'}</td>
-<td style="color:var(--amarelo)">${d.dtFim?d.dtFim.str.split(' ')[1]:'—'}</td>
-<td style="text-align:center;font-weight:700">${d.tempo||'—'}</td>
-<td><span class="b ${bl}" style="border-radius:5px;font-size:10px;white-space:normal">${d.resultado.slice(0,35)}</span></td>
-<td style="color:var(--muted);font-size:11px;max-width:160px">${d.nota?d.nota.slice(0,50):'-'}</td>
-<td style="font-size:11px">${d.bairro||'-'}</td>`;
+      <td style="color:var(--muted)">${i+1}</td>
+      <td style="font-family:monospace;color:var(--accent);font-size:11px">${esc(d.nrOS)}</td>
+      <td><span class="b b-a">${esc(d.atividade)}</span></td>
+      <td style="color:var(--muted);font-size:11px">${d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-'}</td>
+      <td style="color:var(--accent)">${d.dtInicio?d.dtInicio.str.split(' ')[1]:'—'}</td>
+      <td style="color:var(--amarelo)">${d.dtFim?d.dtFim.str.split(' ')[1]:'—'}</td>
+      <td style="text-align:center;font-weight:700">${d.tempo||'—'}</td>
+      <td><span class="b ${bl}" style="border-radius:5px;font-size:10px">${esc((d.resultado||'—').slice(0,35))}</span></td>
+      <td style="font-size:11px">${esc(d.bairro||'-')}</td>`;
     tb.appendChild(tr);
   });
 }
 
-// ═══════════════════ PAGE DETALHES ═══════════════════
+// ═══════════ GESTÃO COLABORADORES ═══════════
+function renderGestao(){
+  const cfg = carregarCollabConfig();
+  const nomes = {};
+  const fonte = BASE_ORIGINAL.length ? BASE_ORIGINAL : ALL;
+  fonte.forEach(d=>{
+    const orig = d.equipe;
+    const final = cfg.aliases[orig] || orig;
+    if(!nomes[final]) nomes[final] = {originais:[], count:0};
+    if(!nomes[final].originais.includes(orig)) nomes[final].originais.push(orig);
+    nomes[final].count++;
+  });
+  cfg.adicionados.forEach(nome=>{
+    if(!nomes[nome]) nomes[nome] = {originais:[nome], count:0, manual:true};
+  });
+  const lista = Object.entries(nomes).sort((a,b)=>b[1].count-a[1].count);
+  $('gest-empty').style.display = lista.length ? 'none':'block';
+  const grid = $('gest-grid');
+  grid.innerHTML = lista.map(([nome,info])=>{
+    const excl = cfg.excluidos.includes(nome);
+    const alias = info.originais.length>1;
+    return `<div class="gest-card ${excl?'excluido':''}">
+      <div class="gest-nome">
+        ${esc(nome)}
+        ${alias?`<span class="b b-a" style="margin-left:6px">${info.originais.length} originais</span>`:''}
+        ${info.manual?`<span class="b b-p" style="margin-left:6px">manual</span>`:''}
+      </div>
+      <div class="gest-count">${info.count} OS</div>
+      <button class="btn-sm btn-o" onclick="renomearColab('${escAttr(nome)}')">✏️</button>
+      <button class="btn-sm ${excl?'btn-g':'btn-r'}" onclick="toggleExcluirColab('${escAttr(nome)}')">${excl?'↺':'✕'}</button>
+    </div>`;
+  }).join('');
+}
+function renomearColab(nomeAtual){
+  const novo = prompt(`Renomear "${nomeAtual}" para:\n(use o mesmo nome para mesclar duplicados)`, nomeAtual);
+  if(!novo || novo === nomeAtual) return;
+  const cfg = carregarCollabConfig();
+  cfg.aliases[nomeAtual] = novo;
+  salvarCollabConfig(cfg);
+  recarregarComConfig();
+  toast(`"${nomeAtual}" → "${novo}"`);
+}
+function toggleExcluirColab(nome){
+  const cfg = carregarCollabConfig();
+  const idx = cfg.excluidos.indexOf(nome);
+  if(idx>=0) cfg.excluidos.splice(idx,1);
+  else cfg.excluidos.push(nome);
+  salvarCollabConfig(cfg);
+  recarregarComConfig();
+  toast(idx>=0?`"${nome}" restaurado`:`"${nome}" excluído`);
+}
+function adicionarColab(){
+  const nome = prompt('Nome do novo colaborador:');
+  if(!nome) return;
+  const cfg = carregarCollabConfig();
+  if(!cfg.adicionados.includes(nome)) cfg.adicionados.push(nome);
+  salvarCollabConfig(cfg);
+  recarregarComConfig();
+  toast(`"${nome}" adicionado`);
+}
+function resetarColabConfig(){
+  if(!confirm('Restaurar configuração padrão (perde renomeações e exclusões)?')) return;
+  localStorage.removeItem(LS_COLLAB);
+  recarregarComConfig();
+  toast('Configuração restaurada');
+}
+function recarregarComConfig(){
+  const fonte = BASE_ORIGINAL.length ? BASE_ORIGINAL : ALL.map(d=>({...d}));
+  ALL = aplicarCollabConfig(fonte.slice());
+  FILT = [...ALL];
+  init();
+  renderGestao();
+}
+
+// ═══════════ HISTÓRICO ═══════════
+function renderHistorico(){
+  const hist = carregarHistorico();
+  const ativo = localStorage.getItem(LS_ATIVO);
+  const grid = $('hist-grid');
+  $('hist-vazio').style.display = hist.length ? 'none':'block';
+  grid.innerHTML = hist.map(h=>`
+    <div class="hist-card ${h.id===ativo?'active':''}" onclick="abrirPeriodo('${h.id}')">
+      <button class="hist-del" onclick="excluirPeriodo('${h.id}',event)" title="Excluir">×</button>
+      <div class="hist-periodo">${h.periodo||'—'}</div>
+      <div class="hist-meta">📄 ${esc(h.nomeArquivo||'—')}<br>🕐 ${new Date(h.dataImport).toLocaleString('pt-BR')}</div>
+      <div class="hist-stats">
+        <span>Total: <b>${h.total||0}</b></span>
+        <span>Exec: <b>${h.exec||0}</b></span>
+        <span>Fim: <b>${h.fimDia||0}</b></span>
+      </div>
+    </div>`).join('');
+  const tam = estimarTamanho(hist);
+  $('hist-info').textContent = `${hist.length} período(s) salvos · ~${(tam/1024).toFixed(0)} KB de ~5000 KB`;
+}
+function renderHistQuick(){
+  const hist = carregarHistorico();
+  const el = $('hist-quick');
+  if(!hist.length){ el.innerHTML=''; return; }
+  el.innerHTML = `<div style="font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">📅 Períodos salvos</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+      ${hist.slice(0,6).map(h=>`<button class="btn btn-o" onclick="event.stopPropagation();abrirPeriodo('${h.id}')">📂 ${h.periodo} (${h.total})</button>`).join('')}
+    </div>`;
+}
+
+// ═══════════ AUDITORIA ═══════════
+function renderAuditoria(){
+  const D = ALL;
+  const problemas = [];
+  D.forEach(d=>{
+    if(!d.nrOS) problemas.push({os:'—',p:'Sem Nº OS',d:d.equipe});
+    if(!d.equipe) problemas.push({os:d.nrOS,p:'Sem colaborador',d:'—'});
+    if(!d.resultado) problemas.push({os:d.nrOS,p:'Sem resultado',d:d.equipe});
+    if(!d.dtInicio) problemas.push({os:d.nrOS,p:'Sem data início',d:d.equipe});
+    if(d.resultadoClass==='Pendente') problemas.push({os:d.nrOS,p:'Resultado não classificado',d:d.resultado});
+    if(d.dtInicio && d.dtFim && d.dtFim.totalMin < d.dtInicio.totalMin)
+      problemas.push({os:d.nrOS,p:'Data fim < início',d:`${d.dtInicio.str} → ${d.dtFim.str}`});
+  });
+  const semRes = D.filter(d=>!d.resultado).length;
+  const semData = D.filter(d=>!d.dtInicio).length;
+  const semEquipe = D.filter(d=>!d.equipe).length;
+  const semClass = D.filter(d=>d.resultadoClass==='Pendente').length;
+  $('aud-kpis').innerHTML = `
+    <div class="kpi c-r"><div class="kpi-lbl">Sem Resultado</div><div class="kpi-val">${semRes}</div></div>
+    <div class="kpi c-y"><div class="kpi-lbl">Sem Data</div><div class="kpi-val">${semData}</div></div>
+    <div class="kpi c-o"><div class="kpi-lbl">Sem Equipe</div><div class="kpi-val">${semEquipe}</div></div>
+    <div class="kpi c-p"><div class="kpi-lbl">Sem Classificação</div><div class="kpi-val">${semClass}</div></div>
+    <div class="kpi c-a"><div class="kpi-lbl">Total Problemas</div><div class="kpi-val">${problemas.length}</div></div>`;
+  $('aud-count').textContent = problemas.length+' inconsistências';
+  const tb=$('tb-aud'); tb.innerHTML='';
+  problemas.slice(0,200).forEach(p=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-family:monospace;color:var(--accent);font-size:11px">${esc(p.os)}</td>
+      <td style="color:var(--vermelho);font-weight:700">${esc(p.p)}</td>
+      <td style="font-size:11px;color:var(--muted)">${esc(p.d)}</td>`;
+    tb.appendChild(tr);
+  });
+  const atvs = {};
+  D.forEach(d=>{
+    if(!atvs[d.atividade]) atvs[d.atividade]={t:0,e:0};
+    atvs[d.atividade].t++;
+    if(d.resultadoClass==='Executado') atvs[d.atividade].e++;
+  });
+  const tbA=$('tb-atv'); tbA.innerHTML='';
+  Object.entries(atvs).sort((a,b)=>b[1].t-a[1].t).forEach(([k,v])=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:700">${esc(k)}</td><td>${v.t}</td>
+      <td style="color:var(--verde)">${v.e}</td><td>${pct(v.e,v.t)}</td>`;
+    tbA.appendChild(tr);
+  });
+}
+
+// ═══════════ DETALHES ═══════════
 function limparDetalhes(){
   ['df-colab','df-tipo','df-res'].forEach(id=>$(id).value='');
   $('df-busca').value='';
   renderDetalhes();
 }
-
 function renderDetalhes(){
   const c=$('df-colab').value, t=$('df-tipo').value, r=$('df-res').value;
-  const busca=$('df-busca').value.toLowerCase();
-  const D=ALL.filter(d=>{
-    if(c&&d.equipe!==c) return false;
-    if(t&&d.tipo!==t) return false;
-    if(r&&d.resultadoClass!==r) return false;
-    if(busca&&!d.nrOS.includes(busca)&&!d.endereco.toLowerCase().includes(busca)&&
-       !d.resultado.toLowerCase().includes(busca)&&!d.equipe.toLowerCase().includes(busca)) return false;
+  const busca = $('df-busca').value.toLowerCase();
+  const D = ALL.filter(d=>{
+    if(c && d.equipe!==c) return false;
+    if(t && d.atividade!==t) return false;
+    if(r && d.resultadoClass!==r) return false;
+    if(busca && !d.nrOS.includes(busca) && !d.endereco.toLowerCase().includes(busca) &&
+       !d.resultado.toLowerCase().includes(busca) && !d.equipe.toLowerCase().includes(busca) &&
+       !d.bairro.toLowerCase().includes(busca)) return false;
     return true;
   });
-  $('det-count').textContent=`${D.length} OS exibidas`;
+  $('det-count').textContent = D.length+' OS exibidas';
   const tb=$('tb-det'); tb.innerHTML='';
   D.slice(0,300).forEach(d=>{
     const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
-    const bt=d.tipo==='Corte'?'b-r':d.tipo==='Cobrança'?'b-a':'b-z';
-    const mob=d.mobile==='Sim'?'<span class="b b-g">Sim</span>':'<span class="b b-z">Não</span>';
     const tr=document.createElement('tr');
     tr.innerHTML=`
-<td style="font-family:monospace;color:var(--accent);font-size:11px;white-space:nowrap">${d.nrOS}</td>
-<td style="font-size:11px;min-width:130px">${d.equipe}</td>
-<td><span class="b ${bt}">${d.tipo}</span></td>
-<td style="font-size:11px;color:var(--muted);white-space:nowrap">${d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-'}</td>
-<td style="font-size:11px;color:var(--accent)">${d.dtInicio?d.dtInicio.str.split(' ')[1]:'—'}</td>
-<td style="font-size:11px;color:var(--amarelo)">${d.dtFim?d.dtFim.str.split(' ')[1]:'—'}</td>
-<td style="text-align:center;font-weight:700">${d.tempo||'—'}</td>
-<td style="font-size:11px">${d.codTSS}</td>
-<td style="font-size:11px;max-width:180px">${d.descTSS.slice(0,40)}</td>
-<td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${d.resultado.slice(0,35)}</span></td>
-<td style="font-size:10px;color:var(--muted);max-width:160px">${(d.nota||'').slice(0,45)}</td>
-<td style="font-size:11px">${d.endereco}</td>
-<td style="font-size:11px">${d.bairro}</td>
-<td style="font-size:11px;color:var(--muted)">${d.pde}</td>
-<td style="font-size:11px">${d.statusOS}</td>
-<td>${mob}</td>`;
+      <td style="font-family:monospace;color:var(--accent);font-size:11px;white-space:nowrap">${esc(d.nrOS)}</td>
+      <td style="font-size:11px;min-width:130px">${esc(d.equipe)}</td>
+      <td><span class="b b-a">${esc(d.atividade)}</span></td>
+      <td style="font-size:11px;color:var(--muted)">${d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-'}</td>
+      <td style="font-size:11px;color:var(--accent)">${d.dtInicio?d.dtInicio.str.split(' ')[1]:'—'}</td>
+      <td style="font-size:11px;color:var(--amarelo)">${d.dtFim?d.dtFim.str.split(' ')[1]:'—'}</td>
+      <td style="text-align:center;font-weight:700">${d.tempo||'—'}</td>
+      <td><span class="b ${bl}" style="border-radius:5px;font-size:10px">${esc((d.resultado||'—').slice(0,30))}</span></td>
+      <td style="font-size:10px;color:var(--muted);max-width:160px">${esc((d.nota||'').slice(0,45))}</td>
+      <td style="font-size:11px">${esc(d.endereco)}</td>
+      <td style="font-size:11px">${esc(d.bairro)}</td>
+      <td style="font-size:11px">${esc(d.municipio)}</td>
+      <td style="font-size:11px">${esc(d.statusOS)}</td>`;
     tb.appendChild(tr);
   });
 }
 
-// ═══════════════════ CHARTS ═══════════════════
-function criarChart(id,tipo,data,opts){
+// ═══════════ MODAL ═══════════
+function abrirModal(titulo, D, colunas){
+  $('modal-title').textContent = titulo;
+  $('modal-sub').textContent = D.length+' OS encontradas';
+  $('modal-thead').innerHTML = '<tr>'+colunas.map(c=>`<th>${esc(c.l)}</th>`).join('')+'</tr>';
+  const tb=$('modal-tbody'); tb.innerHTML='';
+  D.slice(0,500).forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = colunas.map(c=>{
+      const v = d[c.k];
+      if(c.fmt) return `<td>${c.fmt(v,d)}</td>`;
+      if(c.k==='resultado'){
+        const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
+        return `<td><span class="b ${bl}" style="border-radius:5px;font-size:10px">${esc((v||'—').slice(0,35))}</span></td>`;
+      }
+      if(c.k==='atividade') return `<td><span class="b b-a">${esc(v||'—')}</span></td>`;
+      if(c.k==='nrOS') return `<td style="font-family:monospace;color:var(--accent);font-size:11px">${esc(v)}</td>`;
+      return `<td style="font-size:11px">${esc(v||'—')}</td>`;
+    }).join('');
+    tb.appendChild(tr);
+  });
+  $('modal-bg').classList.add('on');
+}
+function closeModal(){ $('modal-bg').classList.remove('on'); }
+function drilldown(titulo, fn){
+  const D = ALL.filter(fn);
+  abrirModal(titulo, D, [
+    {k:'nrOS', l:'Nº OS'},{k:'equipe', l:'Colaborador'},{k:'municipio', l:'Cidade'},
+    {k:'atividade', l:'Atividade'},{k:'resultado', l:'Resultado'},{k:'bairro', l:'Bairro'},
+    {k:'dtInicio', l:'Data', fmt:v=>v?v.str.split(' ')[0]:'—'},
+    {k:'statusOS', l:'Status'},
+  ]);
+}
+
+// ═══════════ CHARTS ═══════════
+function criarChart(id, tipo, data, opts){
   if(CHARTS[id]) CHARTS[id].destroy();
-  const ctx=$(id);
-  if(!ctx) return;
-  CHARTS[id]=new Chart(ctx.getContext('2d'),{
-    type:tipo, data,
-    options:{
-      responsive:true,maintainAspectRatio:false,animation:{duration:350},
-      plugins:{...opts?.plugins},
-      ...opts,
-    }
+  const ctx = $(id); if(!ctx) return;
+  CHARTS[id] = new Chart(ctx.getContext('2d'), {
+    type: tipo, data,
+    options: {responsive:true, maintainAspectRatio:false, animation:{duration:350}, ...opts}
   });
 }
 
-// ═══════════════════ TABS ═══════════════════
-function showPage(id,el){
+// ═══════════ TABS ═══════════
+function showPage(id, el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   el.classList.add('active');
   $('page-'+id).classList.add('on');
+  if(id==='metas') renderMetas();
   if(id==='fiscal') renderFiscal();
   if(id==='detalhes') renderDetalhes();
+  if(id==='historico') renderHistorico();
+  if(id==='auditoria') renderAuditoria();
+  if(id==='relig') renderRelig();
+  if(id==='jornada') renderJornada();
+  if(id==='gestao') renderGestao();
 }
 
-// ═══════════════════ EXPORTAR ═══════════════════
+// ═══════════ EXPORTAR ═══════════
 function exportar(){
   if(!ALL.length){ toast('Carregue um arquivo primeiro!',false); return; }
-  const wb=XLSX.utils.book_new();
-
-  // Aba resumo
-  const res=[];
-  res.push(['RELATÓRIO DE GESTÃO — CORTE & COBRANÇA']);
-  res.push(['OCMS - Divisão de Manutenção Serv. Operacionais - São Mateus']);
-  res.push(['Gerado em:',(new Date()).toLocaleString('pt-BR')]);
+  const wb = XLSX.utils.book_new();
+  const res = [];
+  res.push(['RELATÓRIO DE GESTÃO — CORTE, COBRANÇA & SERVIÇOS']);
+  res.push(['SABESP · Santo André ATC 72']);
+  res.push(['Gerado em:', new Date().toLocaleString('pt-BR')]);
   res.push([]);
   res.push(['RESUMO GERAL']);
-  res.push(['Total OS','Executadas','Não Exec.','Não Atend.','% Produtividade']);
-  const tot=ALL.length,ex=ALL.filter(d=>d.resultadoClass==='Executado').length;
-  const ne=ALL.filter(d=>d.resultadoClass==='Não Executado').length,na=ALL.filter(d=>d.resultadoClass==='Não Atendida').length;
+  res.push(['Total OS','Executadas','Não Exec.','Fim Dia','% Execução']);
+  const tot=ALL.length, ex=ALL.filter(d=>d.resultadoClass==='Executado').length;
+  const ne=ALL.filter(d=>d.resultadoClass==='Não Executado').length, na=ALL.filter(d=>d.resultadoClass==='Não Atendida').length;
   res.push([tot,ex,ne,na,pct(ex,tot)]);
   res.push([]);
-  res.push(['JORNADA POR COLABORADOR']);
-  res.push(['Colaborador','1ª Baixa','Última Baixa','Jornada Efetiva','Tempo Perdido (min)','% Perda','% Aproveitamento']);
-
-  const colabs=[...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
+  res.push(['METAS']);
+  const metas = carregarMetas();
+  res.push(['Meta Equipe', metas.geral||0]);
+  res.push(['Dias úteis', metas.diasUteis||22]);
+  res.push(['Realizado', ex]);
+  res.push(['% da Meta', metas.geral?pct(ex,metas.geral):'—']);
+  res.push([]);
+  res.push(['METAS POR COLABORADOR']);
+  res.push(['Colaborador','Meta','Realizado','% Atingido','Probabilidade']);
+  const colabs = [...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
+  const porColab = {};
+  ALL.filter(d=>d.resultadoClass==='Executado').forEach(d=>{ porColab[d.equipe]=(porColab[d.equipe]||0)+1; });
+  const diasSet = new Set();
+  ALL.forEach(d=>{ if(d.dtInicio?.dateStr) diasSet.add(d.dtInicio.dateStr); });
+  const diasComDados = Math.max(1, diasSet.size);
   colabs.forEach(nome=>{
-    const reais=ALL.filter(d=>d.equipe===nome&&d.dtInicio&&d.resultadoClass!=='Não Atendida');
-    if(!reais.length){ res.push([nome,'—','—','—','—','—','—']); return; }
-    const sorted=reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
-    const p=sorted[0],u=sorted[sorted.length-1];
-    const fimM=u.dtFim?u.dtFim.totalMin:u.dtInicio.totalMin;
-    const jef=Math.max(0,fimM-p.dtInicio.totalMin);
-    const perdido=Math.max(0,HORA_FIM-fimM);
-    res.push([nome,p.dtInicio.str.split(' ')[1],(u.dtFim||u.dtInicio).str.split(' ')[1],minToHM(jef),perdido,((perdido/JORNADA)*100).toFixed(1)+'%',((jef/JORNADA)*100).toFixed(1)+'%']);
+    const realizado = porColab[nome]||0;
+    const meta = metas.fiscais[nome]||0;
+    const prob = calcProbabilidade(realizado, meta, diasComDados, metas.diasUteis||22);
+    res.push([nome, meta||'—', realizado, meta?pct(realizado,meta):'—', meta?prob+'%':'—']);
   });
-
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(res),'Resumo Executivo');
-
-  // Aba detalhamento
-  const hdr=['Nº OS','Colaborador','Tipo','Data','Hora Início','Hora Fim','Tempo (min)','Resultado','Detalhe','Endereço','Bairro','Código TSS','Desc TSS','Status OS','Mobile'];
-  const rows=ALL.map(d=>[
-    d.nrOS,d.equipe,d.tipo,
+  res.push([]);
+  res.push(['JORNADA + FIM DO DIA']);
+  res.push(['Colaborador','1ª Baixa','Última Baixa','🚩 Fim do Dia','Tempo Perdido (min)']);
+  colabs.forEach(nome=>{
+    const reais = ALL.filter(d=>d.equipe===nome && d.dtInicio && d.resultadoClass!=='Não Atendida');
+    if(!reais.length){ res.push([nome,'—','—','—','—']); return; }
+    const sorted = reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
+    const p=sorted[0], u=sorted[sorted.length-1];
+    const fimUlt = u.dtFim?u.dtFim.totalMin:u.dtInicio.totalMin;
+    const fimDia = acharFimDiaDoColab(nome);
+    const refFinal = fimDia ? Math.max(fimDia.totalMin, fimUlt) : fimUlt;
+    const perdido = Math.max(0, HORA_FIM - refFinal);
+    res.push([nome, p.dtInicio.str.split(' ')[1], (u.dtFim||u.dtInicio).str.split(' ')[1],
+      fimDia?minToHHMM(fimDia.totalMin):'—', perdido]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(res), 'Resumo + Metas');
+  const hdr = ['Nº OS','Colaborador','Atividade','Origem','Data','Início','Fim','Tempo','Resultado Original','Resultado Classificado','Prazo','Nota','Endereço','Bairro','Município','Status OS'];
+  const rows = ALL.map(d=>[
+    d.nrOS, d.equipe, d.atividade, d.origem,
     d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-',
     d.dtInicio?d.dtInicio.str.split(' ')[1]:'-',
     d.dtFim?d.dtFim.str.split(' ')[1]:'-',
-    d.tempo,d.resultado,d.nota,
-    d.endereco,d.bairro,d.codTSS,d.descTSS,d.statusOS,d.mobile
+    d.tempo, d.resultado, d.resultadoClass,
+    labelPrazo(d.prazoStatus), d.nota, d.endereco, d.bairro, d.municipio, d.statusOS
   ]);
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([hdr,...rows]),'Detalhamento OS');
-
-  XLSX.writeFile(wb,'Relatorio_Corte_Cobranca.xlsx');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([hdr, ...rows]), 'Detalhamento OS');
+  const rr = ALL.filter(ehRestabRelig);
+  const hdrRR = ['Nº OS','Cidade','Colaborador','Endereço','Atividade','Resultado','Prazo','Status OS'];
+  const rowsRR = rr.map(d=>[d.nrOS, d.municipio, d.equipe, d.endereco, d.atividade, d.resultado, labelPrazo(d.prazoStatus), d.statusOS]);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([hdrRR, ...rowsRR]), 'Restab_Relig');
+  XLSX.writeFile(wb, 'Relatorio_Gestao_Operacional.xlsx');
   toast('Relatório exportado!');
 }
+
+// ═══════════ STARTUP ═══════════
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderHistQuick();
+  const id = localStorage.getItem(LS_ATIVO);
+  if(id){
+    const hist = carregarHistorico();
+    const h = hist.find(x=>x.id===id);
+    if(h && confirm(`Carregar último período (${h.periodo}) com ${h.total} OS?`)) abrirPeriodo(id);
+  }
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
 </script>
 </body>
 </html>
