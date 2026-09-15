@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — acompanhamento de serviços </title>
+<title>Dashboard — acompanhamento de serviços</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -31,6 +31,10 @@ header{background:var(--bg2);border-bottom:1px solid var(--borda);padding:14px 2
 .btn-r{background:var(--vermelho);color:#fff}.btn-r:hover{background:#dc2626}
 .btn-sm{padding:4px 10px;font-size:11px;border-radius:6px;border:none;cursor:pointer;font-weight:700}
 #file-input{display:none}
+.toggle-acum{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--card);border:1px solid var(--borda);border-radius:20px;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);transition:.15s}
+.toggle-acum:hover{border-color:var(--accent);color:var(--texto)}
+.toggle-acum input{accent-color:var(--verde);cursor:pointer}
+.toggle-acum.on{color:#4ade80;border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.08)}
 .tabs{display:flex;gap:2px;padding:0 28px;background:var(--bg2);border-bottom:1px solid var(--borda);overflow-x:auto}
 .tab{padding:11px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -120,6 +124,18 @@ tr:hover td{background:rgba(255,255,255,.025)}
 .hist-stats span b{color:var(--accent)}
 .hist-del{position:absolute;top:8px;right:8px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:5px}
 .hist-del:hover{background:rgba(239,68,68,.2);color:var(--vermelho)}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:18px}
+.plan-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:16px;position:relative;cursor:pointer;transition:.15s}
+.plan-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.plan-card.active{border-color:var(--verde);background:linear-gradient(135deg,#102040,#0d2a1e)}
+.plan-icon{font-size:28px;margin-bottom:8px}.plan-name{font-size:15px;font-weight:800;color:var(--white);padding-right:50px;word-break:break-word}
+.plan-desc{font-size:11px;color:var(--muted);margin-top:5px;min-height:30px;line-height:1.4}
+.plan-meta{font-size:10px;color:var(--muted);margin-top:10px;line-height:1.6}.plan-actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.plan-actions .btn-sm{padding:5px 9px}.plan-del{position:absolute;top:8px;right:8px}
+.plan-empty{padding:35px;text-align:center;color:var(--muted);border:1px dashed var(--borda);border-radius:var(--r)}
+.plan-modal-form{display:grid;gap:12px;padding:20px}.plan-modal-form label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}.plan-modal-form input,.plan-modal-form textarea{width:100%;min-width:0;background:var(--card);border:1px solid var(--borda);color:var(--texto);padding:9px 11px;border-radius:8px;font-size:12px;font-family:inherit}.plan-modal-form textarea{min-height:90px;resize:vertical}
+@media(max-width:900px){.plan-grid{grid-template-columns:1fr}}
+
 .painel-relig{background:linear-gradient(135deg,#0a1e38 0%,#0d1e35 100%);border:1px solid var(--borda);border-radius:var(--r);padding:22px 24px;margin-bottom:18px}
 .painel-relig h2{font-size:22px;font-weight:800;color:var(--white);margin-bottom:4px;letter-spacing:.5px}
 .painel-relig .sub{font-size:12px;color:var(--muted);margin-bottom:20px}
@@ -170,46 +186,82 @@ tr:hover td{background:rgba(255,255,255,.025)}
 .fimdia-hora{font-family:monospace;font-weight:800;color:var(--amarelo)}
 .fimdia-hora.cedo{color:var(--vermelho)}
 .fimdia-hora.ok{color:var(--verde)}
-/* META CARDS */
 .meta-hero{background:linear-gradient(135deg,#0a1e38 0%,#102040 100%);border:2px solid var(--accent);border-radius:var(--r);padding:22px 24px;margin-bottom:18px;position:relative;overflow:hidden}
 .meta-hero::before{content:'';position:absolute;top:-50%;right:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(0,194,224,.15),transparent 70%);pointer-events:none}
 .meta-hero h2{font-size:22px;font-weight:800;color:var(--white);margin-bottom:6px;display:flex;align-items:center;gap:10px}
 .meta-hero .sub{font-size:12px;color:var(--muted);margin-bottom:16px}
-.meta-inputs{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px}
+.meta-inputs{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px;margin-bottom:20px}
 .meta-input{background:rgba(0,0,0,.25);border:1px solid var(--borda2);border-radius:10px;padding:14px 16px}
 .meta-input label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
 .meta-input input{background:transparent;border:none;border-bottom:2px solid var(--accent);color:var(--white);font-size:28px;font-weight:900;width:100%;padding:4px 0;outline:none;text-align:left}
 .meta-input input:focus{border-bottom-color:var(--verde)}
 .meta-input .hint{font-size:10px;color:var(--muted);margin-top:6px}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.team-box{background:rgba(0,0,0,.35);border-radius:12px;padding:22px;text-align:center;border:2px solid var(--borda2);position:relative;overflow:hidden}
+.team-box.realizado{border-color:var(--verde);background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(0,0,0,.35))}
+.team-box.meta{border-color:var(--amarelo);background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(0,0,0,.35))}
+.team-box .lbl{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.team-box.realizado .lbl{color:#86efac}
+.team-box.meta .lbl{color:#fcd34d}
+.team-box .num{font-size:48px;font-weight:900;line-height:1;color:var(--white)}
+.team-box.realizado .num{color:#4ade80}
+.team-box.meta .num{color:#fbbf24}
+.team-box .sub{font-size:11px;color:var(--muted);margin-top:8px}
+.big-bar{background:rgba(0,0,0,.4);border-radius:16px;padding:6px;height:38px;position:relative;margin-bottom:14px;border:1px solid var(--borda2)}
+.big-bar-fill{height:100%;border-radius:12px;background:linear-gradient(90deg,var(--verde),#4ade80);transition:width .6s ease;position:relative;min-width:0}
+.big-bar-fill.aviso{background:linear-gradient(90deg,var(--amarelo),#fbbf24)}
+.big-bar-fill.critico{background:linear-gradient(90deg,var(--vermelho),#f87171)}
+.big-bar-mark{position:absolute;top:-6px;bottom:-6px;width:3px;background:#fff;border-radius:2px;box-shadow:0 0 12px rgba(255,255,255,.6)}
+.big-bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:700}
+.big-bar-pct{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:900;color:var(--white);text-shadow:0 2px 4px rgba(0,0,0,.6);z-index:2}
+.status-banner{border-radius:12px;padding:18px 22px;display:flex;align-items:center;gap:16px;margin-bottom:18px;border:2px solid;font-weight:800}
+.status-banner.ok{background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.05));border-color:var(--verde);color:#86efac}
+.status-banner.warn{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.05));border-color:var(--amarelo);color:#fcd34d}
+.status-banner.crit{background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.05));border-color:var(--vermelho);color:#fca5a5}
+.status-banner .icon{font-size:38px;flex-shrink:0}
+.status-banner .txt{flex:1;font-size:15px;line-height:1.5}
+.status-banner .txt b{font-size:20px;display:block;margin-bottom:3px}
+.prod-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.prod-tag{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#86efac;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700}
+.prod-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(34,197,94,.15);color:#4ade80}
+.auto-badge{display:inline-flex;align-items:center;padding:1px 6px;border-radius:12px;font-size:9px;font-weight:800;background:rgba(34,197,94,.15);color:#4ade80;margin-left:6px}
 .gauge-wrap{position:relative;display:flex;justify-content:center;align-items:center}
-.meta-tbl input{width:70px;padding:4px 8px;background:var(--bg);border:1px solid var(--borda);color:var(--texto);border-radius:6px;font-size:12px;font-weight:700;text-align:center;outline:none;font-family:inherit}
+.meta-tbl input{width:80px;padding:4px 8px;background:var(--bg);border:1px solid var(--borda);color:var(--texto);border-radius:6px;font-size:12px;font-weight:700;text-align:center;outline:none;font-family:inherit}
 .meta-tbl input:focus{border-color:var(--accent)}
+.meta-tbl input.auto-input{color:#4ade80;border-color:rgba(34,197,94,.4);border-style:dashed}
 @media(max-width:900px){
-.row2,.row3,.row-half,.pr-grid,.pr-cidades,.pr-status,.meta-inputs{grid-template-columns:1fr}
+.row2,.row3,.row-half,.pr-grid,.pr-cidades,.pr-status,.meta-inputs,.team-grid{grid-template-columns:1fr}
 .kpi-grid{grid-template-columns:repeat(2,1fr)}
 main{padding:14px}header{padding:12px 14px}.tabs{padding:0 14px}
-select,input{min-width:120px;font-size:11px}}
+select,input{min-width:120px;font-size:11px}
+.team-box .num{font-size:38px}
+}
 </style>
 </head>
 <body>
 
-<div class="loader" id="loader"><div class="spin"></div><span style="color:var(--muted);font-size:13px">Processando arquivo...</span></div>
+<div class="loader" id="loader"><div class="spin"></div><span style="color:var(--muted);font-size:13px" id="loader-msg">Processando arquivo...</span></div>
 <div class="toast" id="toast"></div>
 
 <header>
   <div class="logo">
     <div class="logo-box"></div>
     <div>
-      <h1>Dashboard · acompanhamento de serviços </h1>
-      <p>SABESP </p>
+      <h1>Dashboard · acompanhamento de serviços</h1>
+      <p>SABESP</p>
     </div>
   </div>
   <div class="hbtns">
     <div class="chip">Período: <b id="chip-data">—</b></div>
     <div class="chip">Total OS: <b id="chip-total">—</b></div>
-    <button class="btn btn-o" onclick="document.getElementById('file-input').click()">📂 Nova Planilha</button>
+    <label class="toggle-acum on" id="lbl-acumular" title="Quando ativo, novas planilhas somam à base atual em vez de substituir">
+      <input type="checkbox" id="chk-acumular" checked>
+      🔗 Acumular
+    </label>
+    <button class="btn btn-o" onclick="document.getElementById('file-input').click()">📂 Nova(s) Planilha(s)</button>
+    <button class="btn btn-r" onclick="limparBase()" title="Zera todos os dados carregados">🗑 Limpar Base</button>
     <button class="btn btn-g" onclick="exportar()">⬇ Exportar Excel</button>
-    <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFile(event)">
+    <input type="file" id="file-input" accept=".xlsx,.xls" multiple onchange="handleFile(event)">
   </div>
 </header>
 
@@ -220,7 +272,7 @@ select,input{min-width:120px;font-size:11px}}
   <div class="tab" onclick="showPage('jornada',this)">⏱ Jornada</div>
   <div class="tab" onclick="showPage('fiscal',this)">👤 Produtividade</div>
   <div class="tab" onclick="showPage('gestao',this)">👥 Colaboradores</div>
-  <div class="tab" onclick="showPage('historico',this)">📅 Histórico</div>
+  <div class="tab" onclick="showPage('planilhas',this)">📚 Planilhas Salvas</div>
   <div class="tab" onclick="showPage('detalhes',this)">📋 Detalhes</div>
 </div>
 
@@ -230,16 +282,16 @@ select,input{min-width:120px;font-size:11px}}
   ondragleave="this.classList.remove('drag')"
   ondrop="event.preventDefault();this.classList.remove('drag');handleDrop(event)">
   <div style="font-size:52px;margin-bottom:16px">📊</div>
-  <h2>Arraste ou selecione o arquivo Excel</h2>
-  <p>Importe o arquivo do GeoCall / WFM.<br>O dashboard atualiza automaticamente.</p>
-  <button class="btn btn-p" onclick="event.stopPropagation();document.getElementById('file-input').click()">Selecionar .xlsx</button>
-  <small>Compatível com: Planilha do GeoCall / WFM</small>
+  <h2>Arraste ou selecione as planilhas</h2>
+  <p>Pode selecionar <b>várias planilhas ao mesmo tempo</b>.<br>Os dados serão somados (dedupe automático).</p>
+  <button class="btn btn-p" onclick="event.stopPropagation();document.getElementById('file-input').click()">Selecionar .xlsx (múltiplos)</button>
+  <small>Compatível com: GeoCall / WFM</small>
   <div id="hist-quick" style="margin-top:24px"></div>
+  <div id="plan-quick" style="margin-top:24px"></div>
 </div>
 
 <main id="main">
 
-  <!-- GERAL -->
   <div class="page on" id="page-geral">
     <div class="filtros">
       <div class="fg"><label>Colaborador / Equipe</label>
@@ -272,7 +324,7 @@ select,input{min-width:120px;font-size:11px}}
       <div class="kpi c-a"><div class="kpi-lbl">% Execução</div><div class="kpi-val" id="k-prod">—</div><div class="kpi-sub">Exec / Total</div></div>
       <div class="kpi c-r" onclick="drilldown('Cortes', d=>d.resultado.toUpperCase().includes('CORTAD'))"><div class="kpi-lbl">Cortes</div><div class="kpi-val" id="k-corte">—</div><div class="kpi-sub">Cortada + Suprimida</div></div>
       <div class="kpi c-g" onclick="drilldown('Pagamentos POS', d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO')})"><div class="kpi-lbl">Pagamentos POS</div><div class="kpi-val" id="k-pos">—</div><div class="kpi-sub">Confirmados</div></div>
-      <div class="kpi c-p"><div class="kpi-lbl">T. Médio Exec.</div><div class="kpi-val" id="k-tmed">—</div><div class="kpi-sub">min por OS</div></div>
+      <div class="kpi c-p" onclick="drilldown('Produtivos (contam meta)', d=>d.produtivo)"><div class="kpi-lbl">✅ Produtivos</div><div class="kpi-val" id="k-produtivos">—</div><div class="kpi-sub">Contam para meta</div></div>
     </div>
     <div class="row2">
       <div class="cc"><div class="cc-title">Produtividade por Colaborador</div><div class="cc-sub">Executadas vs Não Executadas</div><div class="ch-wrap" style="height:260px"><canvas id="ch-colab"></canvas></div></div>
@@ -286,7 +338,7 @@ select,input{min-width:120px;font-size:11px}}
     <div class="tbl-wrap">
       <div class="tbl-head"><h3>📋 Desempenho por Colaborador</h3><span id="lbl-colab"></span></div>
       <div class="tbl-scroll"><table>
-        <thead><tr><th>Colaborador</th><th>Total</th><th>Exec.</th><th>Não Exec.</th>
+        <thead><tr><th>Colaborador</th><th>Total</th><th>Exec.</th><th>Produtivos ✅</th>
         <th>Fim Dia</th><th>% Exec.</th><th>Cortes</th><th>POS</th>
         <th>Relig.</th><th>Restab.</th><th>Status</th></tr></thead>
         <tbody id="tb-colab"></tbody>
@@ -295,7 +347,7 @@ select,input{min-width:120px;font-size:11px}}
     <div class="row-half">
       <div class="tbl-wrap" style="margin-bottom:0">
         <div class="tbl-head"><h3>🔍 Resultados Detalhados</h3></div>
-        <div class="tbl-scroll"><table><thead><tr><th>Resultado</th><th>Qtd</th><th>%</th></tr></thead><tbody id="tb-res"></tbody></table></div>
+        <div class="tbl-scroll"><table><thead><tr><th>Resultado</th><th>Qtd</th><th>%</th><th>Conta Meta</th></tr></thead><tbody id="tb-res"></tbody></table></div>
       </div>
       <div class="tbl-wrap" style="margin-bottom:0">
         <div class="tbl-head"><h3>📝 Últimas OS</h3><span>Top 15</span></div>
@@ -304,63 +356,73 @@ select,input{min-width:120px;font-size:11px}}
     </div>
   </div>
 
-  <!-- METAS -->
   <div class="page" id="page-metas">
     <div class="meta-hero">
-      <h2>🎯 Painel de Metas & Evolução</h2>
-      <div class="sub">Defina a meta de serviços executados. O sistema projeta se você vai bater até o fim do mês, calcula a probabilidade e mostra quem está no ritmo.</div>
+      <h2>🎯 Painel de Metas Automáticas</h2>
+      <div class="sub">Defina a <b>meta diária por fiscal</b> e os <b>dias úteis</b>. O sistema soma os produtivos da equipe toda e calcula automaticamente.</div>
       <div class="meta-inputs">
         <div class="meta-input">
-          <label>🎯 Meta da Equipe (mês)</label>
-          <input type="number" id="meta-geral" min="0" step="10" placeholder="0" onchange="setMetaGeral(this.value)">
-          <div class="hint">Quantidade total de OS executadas que a equipe deve bater no mês</div>
+          <label>🎯 Meta diária por Fiscal</label>
+          <input type="number" id="meta-diaria" min="0" step="1" placeholder="0" onchange="setMetaDiaria(this.value)">
+          <div class="hint">Produtivos esperados por fiscal/dia</div>
         </div>
         <div class="meta-input">
           <label>📅 Dias úteis do mês</label>
           <input type="number" id="meta-dias" min="1" max="31" value="22" onchange="setDiasUteis(this.value)">
-          <div class="hint">Base de cálculo para projeção e ritmo necessário</div>
+          <div class="hint">Base para cálculo da meta do mês</div>
         </div>
       </div>
+      <div class="team-grid">
+        <div class="team-box realizado">
+          <div class="lbl">✅ SOMA DA EQUIPE (Produtivos)</div>
+          <div class="num" id="team-realizado">—</div>
+          <div class="sub" id="team-realizado-sub">produtivos já feitos</div>
+        </div>
+        <div class="team-box meta">
+          <div class="lbl">🎯 META 60% (Equipe)</div>
+          <div class="num" id="team-meta60">—</div>
+          <div class="sub" id="team-meta60-sub">para bater a meta</div>
+        </div>
+      </div>
+      <div class="big-bar-labels">
+        <span>Progresso até a meta 60%</span>
+        <span id="big-bar-pct">0%</span>
+      </div>
+      <div class="big-bar">
+        <div class="big-bar-fill" id="big-bar-fill" style="width:0%"></div>
+        <div class="big-bar-mark" id="big-bar-mark" style="left:60%"></div>
+        <div class="big-bar-pct" id="big-bar-pct-overlay">0%</div>
+      </div>
+      <div class="status-banner warn" id="status-banner">
+        <div class="icon">⏳</div>
+        <div class="txt"><b>AGUARDANDO DADOS</b>Importe uma planilha para calcular</div>
+      </div>
+      <div style="margin-top:16px">
+        <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📌 Serviços que contam para a meta</div>
+        <div class="prod-list" id="prod-list-hero"></div>
+      </div>
     </div>
-
     <div class="kpi-grid" id="meta-kpis"></div>
-
     <div class="row2">
-      <div class="cc">
-        <div class="cc-title">📈 Evolução Acumulada vs Ritmo Necessário</div>
-        <div class="cc-sub">Realizado dia a dia · Linha tracejada = ritmo ideal para bater a meta</div>
-        <div class="ch-wrap" style="height:300px"><canvas id="ch-meta-evol"></canvas></div>
-      </div>
-      <div class="cc">
-        <div class="cc-title">🎯 Progresso da Meta</div>
-        <div class="cc-sub">Quanto já foi realizado do total</div>
-        <div class="ch-wrap gauge-wrap" style="height:300px"><canvas id="ch-meta-gauge"></canvas></div>
-      </div>
+      <div class="cc"><div class="cc-title">📈 Evolução Acumulada da Equipe vs Ritmo</div><div class="cc-sub">Produtivos dia a dia · Linha tracejada = ritmo p/ meta a 60%</div><div class="ch-wrap" style="height:300px"><canvas id="ch-meta-evol"></canvas></div></div>
+      <div class="cc"><div class="cc-title">🎯 Progresso da Meta (60%)</div><div class="cc-sub">Soma da equipe vs valor necessário</div><div class="ch-wrap gauge-wrap" style="height:300px"><canvas id="ch-meta-gauge"></canvas></div></div>
     </div>
-
     <div class="cc" style="margin-bottom:14px">
       <div class="cc-title">📊 Realizado × Meta × Projeção por Colaborador</div>
-      <div class="cc-sub">Top 15 colaboradores por produção</div>
+      <div class="cc-sub">Top 15 colaboradores por produtivos</div>
       <div class="ch-wrap" style="height:300px"><canvas id="ch-meta-barras"></canvas></div>
     </div>
-
     <div class="tbl-wrap">
       <div class="tbl-head">
-        <h3>👥 Metas por Colaborador</h3>
+        <h3>👥 Metas por Colaborador <span style="font-size:10px;color:var(--muted);font-weight:normal;text-transform:none">— digite para sobrescrever a meta automática</span></h3>
         <span id="meta-count"></span>
       </div>
       <div class="tbl-scroll meta-tbl">
         <table>
           <thead><tr>
-            <th>Colaborador</th>
-            <th>🎯 Meta (mês)</th>
-            <th>Realizado</th>
-            <th>% Atingido</th>
-            <th>Média/dia</th>
-            <th>Projeção fim mês</th>
-            <th>Falta</th>
-            <th>Probabilidade</th>
-            <th>Status</th>
+            <th>Colaborador</th><th>🎯 Meta</th><th>✅ Produtivos</th>
+            <th>% Real</th><th>% da Meta (60%)</th><th>Média/dia</th>
+            <th>Projeção</th><th>Falta</th><th>Prob.</th><th>Status</th>
           </tr></thead>
           <tbody id="tb-metas"></tbody>
         </table>
@@ -368,39 +430,25 @@ select,input{min-width:120px;font-size:11px}}
     </div>
   </div>
 
-  <!-- RESTAB / RELIG -->
   <div class="page" id="page-relig">
     <div class="filtros">
-      <div class="fg"><label>Cidade</label>
-        <select id="r-cidade" onchange="renderRelig()"><option value="">Todas</option></select></div>
-      <div class="fg"><label>Status</label>
-        <select id="r-status" onchange="renderRelig()">
-          <option value="">Todos</option>
-          <option>Planejada</option><option>Planejável</option><option>Despachada</option>
-        </select></div>
-      <div class="fg"><label>Colaborador</label>
-        <select id="r-colab" onchange="renderRelig()"><option value="">Todos</option></select></div>
-      <div class="fg"><label>Resultado</label>
-        <select id="r-res" onchange="renderRelig()">
-          <option value="">Todos</option>
-          <option value="Executado">Executado</option>
-          <option value="Não Executado">Não Executado</option>
-          <option value="Pendente">Pendente</option>
-        </select></div>
+      <div class="fg"><label>Cidade</label><select id="r-cidade" onchange="renderRelig()"><option value="">Todas</option></select></div>
+      <div class="fg"><label>Status</label><select id="r-status" onchange="renderRelig()">
+        <option value="">Todos</option><option>Planejada</option><option>Planejável</option><option>Despachada</option></select></div>
+      <div class="fg"><label>Colaborador</label><select id="r-colab" onchange="renderRelig()"><option value="">Todos</option></select></div>
+      <div class="fg"><label>Resultado</label><select id="r-res" onchange="renderRelig()">
+        <option value="">Todos</option><option value="Executado">Executado</option>
+        <option value="Não Executado">Não Executado</option><option value="Pendente">Pendente</option></select></div>
       <button class="btn btn-o" style="align-self:flex-end" onclick="limparRelig()">✕ Limpar</button>
     </div>
     <div class="painel-relig">
       <h2>PRIMARIZAÇÃO — ACOMPANHAMENTO RELIG/RESTAB</h2>
       <div class="sub" id="relig-update">Última atualização: —</div>
       <div class="pr-grid">
-        <div class="pr-box destaque" onclick="drilldownRelig('Total OS', ()=>true)">
-          <div class="lbl">Total de OS</div><div class="val" id="pr-total">—</div></div>
-        <div class="pr-box vermelho" onclick="drilldownRelig('Em Atraso', d=>d.prazoStatus==='atrasado')">
-          <div class="lbl">🔴 Em Atraso</div><div class="val" id="pr-atraso">—</div></div>
-        <div class="pr-box vermelho" onclick="drilldownRelig('Atrasando <24h', d=>d.prazoStatus==='urgente'||d.prazoStatus==='hoje')">
-          <div class="lbl">⚠ Atrasando &lt;24h</div><div class="val" id="pr-urgente">—</div></div>
-        <div class="pr-box destaque" onclick="drilldownRelig('Executadas', d=>d.resultadoClass==='Executado')">
-          <div class="lbl">✔ Executadas</div><div class="val" id="pr-exec">—</div></div>
+        <div class="pr-box destaque" onclick="drilldownRelig('Total OS', ()=>true)"><div class="lbl">Total de OS</div><div class="val" id="pr-total">—</div></div>
+        <div class="pr-box vermelho" onclick="drilldownRelig('Em Atraso', d=>d.prazoStatus==='atrasado')"><div class="lbl">🔴 Em Atraso</div><div class="val" id="pr-atraso">—</div></div>
+        <div class="pr-box vermelho" onclick="drilldownRelig('Atrasando <24h', d=>d.prazoStatus==='urgente'||d.prazoStatus==='hoje')"><div class="lbl">⚠ Atrasando &lt;24h</div><div class="val" id="pr-urgente">—</div></div>
+        <div class="pr-box destaque" onclick="drilldownRelig('Executadas', d=>d.resultadoClass==='Executado')"><div class="lbl">✔ Executadas</div><div class="val" id="pr-exec">—</div></div>
       </div>
       <div class="pr-cidades" id="pr-cidades"></div>
       <div class="pr-status" id="pr-status"></div>
@@ -416,7 +464,6 @@ select,input{min-width:120px;font-size:11px}}
     </div>
   </div>
 
-  <!-- JORNADA -->
   <div class="page" id="page-jornada">
     <div class="filtros">
       <div class="fg"><label>Colaborador</label>
@@ -438,11 +485,9 @@ select,input{min-width:120px;font-size:11px}}
     <div class="tbl-wrap">
       <div class="tbl-head"><h3>📊 Resumo de Jornada com Hora do Fim do Dia</h3><span>Base: 08h–17h (540min)</span></div>
       <div class="tbl-scroll"><table>
-        <thead><tr>
-          <th>Colaborador</th><th>1ª Baixa</th><th>Última Baixa</th>
-          <th>🚩 Fim do Dia</th><th>Jornada Efetiva</th>
-          <th>Tempo Perdido</th><th>% Perda</th><th>% Aproveit.</th><th>Alerta</th>
-        </tr></thead>
+        <thead><tr><th>Colaborador</th><th>1ª Baixa</th><th>Última Baixa</th>
+        <th>🚩 Fim do Dia</th><th>Jornada Efetiva</th><th>Tempo Perdido</th>
+        <th>% Perda</th><th>% Aproveit.</th><th>Alerta</th></tr></thead>
         <tbody id="tb-jornada"></tbody>
       </table></div>
     </div>
@@ -453,7 +498,6 @@ select,input{min-width:120px;font-size:11px}}
     </div>
   </div>
 
-  <!-- FISCAL / PRODUTIVIDADE -->
   <div class="page" id="page-fiscal">
     <div class="filtros">
       <div class="fg"><label>Selecionar Colaborador</label>
@@ -465,15 +509,13 @@ select,input{min-width:120px;font-size:11px}}
         </select></div>
       <div class="fg"><label>Resultado</label>
         <select id="ff-res" onchange="renderFiscal()">
-          <option value="">Todos</option>
-          <option value="Executado">Executado</option>
-          <option value="Não Executado">Não Executado</option>
-          <option value="Não Atendida">Não Atendida</option>
+          <option value="">Todos</option><option value="Executado">Executado</option>
+          <option value="Não Executado">Não Executado</option><option value="Não Atendida">Não Atendida</option>
         </select></div>
     </div>
     <div id="fiscal-vazio" style="text-align:center;padding:60px;color:var(--muted)">
       <div style="font-size:48px;margin-bottom:12px">👤</div>
-      <p>Selecione um colaborador para ver a análise completa de produtividade</p>
+      <p>Selecione um colaborador para ver a análise completa</p>
     </div>
     <div id="fiscal-content" style="display:none">
       <div class="fiscal-hero">
@@ -492,22 +534,22 @@ select,input{min-width:120px;font-size:11px}}
         <div class="tbl-head"><h3>📋 Todas as OS</h3><span id="fis-os-count"></span></div>
         <div class="tbl-scroll"><table>
           <thead><tr><th>#</th><th>Nº OS</th><th>Atividade</th><th>Data</th>
-          <th>Início</th><th>Fim</th><th>Tempo</th>
-          <th>Resultado</th><th>Bairro</th></tr></thead>
+          <th>Início</th><th>Fim</th><th>Tempo</th><th>Resultado</th>
+          <th>Produtivo</th><th>Bairro</th></tr></thead>
           <tbody id="tb-fis"></tbody>
         </table></div>
       </div>
     </div>
   </div>
 
-  <!-- GESTÃO COLABORADORES -->
   <div class="page" id="page-gestao">
     <div class="cc" style="margin-bottom:14px">
       <div class="cc-title">👥 Gerenciar Colaboradores</div>
-      <div class="cc-sub">Renomeie para mesclar duplicados, exclua colaboradores inativos ou adicione manualmente. As alterações são gravadas no navegador e aplicadas em todas as telas.</div>
+      <div class="cc-sub">Catálogo <b>permanente</b>: os nomes ficam gravados mesmo se você subir novas planilhas. Renomeie para mesclar, exclua ou adicione manualmente.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-p" onclick="adicionarColab()">➕ Adicionar Colaborador</button>
         <button class="btn btn-o" onclick="resetarColabConfig()">↺ Restaurar Padrão</button>
+        <button class="btn btn-o" onclick="limparCatalogo()">🗑 Limpar Catálogo</button>
       </div>
     </div>
     <div id="gest-empty" style="text-align:center;padding:40px;color:var(--muted);display:none">
@@ -516,11 +558,10 @@ select,input{min-width:120px;font-size:11px}}
     <div class="gest-grid" id="gest-grid"></div>
   </div>
 
-  <!-- HISTÓRICO -->
   <div class="page" id="page-historico">
     <div class="cc" style="margin-bottom:14px">
       <div class="cc-title">📅 Histórico de Períodos Importados</div>
-      <div class="cc-sub">Cada importação fica gravada no navegador. Clique para reabrir, ou exclua com ×.</div>
+      <div class="cc-sub">Cada importação fica gravada no navegador. Clique para reabrir ou exclua com ×.</div>
       <div id="hist-info" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
     </div>
     <div class="hist-grid" id="hist-grid"></div>
@@ -530,22 +571,19 @@ select,input{min-width:120px;font-size:11px}}
     </div>
   </div>
 
-  <!-- AUDITORIA -->
-  <div class="page" id="page-auditoria">
-    <div class="kpi-grid" id="aud-kpis"></div>
-    <div class="row-half">
-      <div class="tbl-wrap" style="margin-bottom:0">
-        <div class="tbl-head"><h3>🚨 Inconsistências Detectadas</h3><span id="aud-count"></span></div>
-        <div class="tbl-scroll"><table><thead><tr><th>Nº OS</th><th>Problema</th><th>Detalhe</th></tr></thead><tbody id="tb-aud"></tbody></table></div>
-      </div>
-      <div class="tbl-wrap" style="margin-bottom:0">
-        <div class="tbl-head"><h3>📊 Resumo por Atividade</h3></div>
-        <div class="tbl-scroll"><table><thead><tr><th>Atividade</th><th>Total</th><th>Exec.</th><th>%</th></tr></thead><tbody id="tb-atv"></tbody></table></div>
+  <div class="page" id="page-planilhas">
+    <div class="cc" style="margin-bottom:14px">
+      <div class="cc-title">📚 Planilhas Salvas — Standby</div>
+      <div class="cc-sub">As planilhas originais ficam armazenadas neste navegador. Clique em <b>Abrir</b> para carregar a planilha diretamente no dashboard, sem precisar fazer upload novamente.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn btn-p" onclick="document.getElementById('file-input').click()">➕ Salvar nova planilha</button>
+        <button class="btn btn-o" onclick="renderPlanilhas()">↻ Atualizar lista</button>
       </div>
     </div>
+    <div id="plan-info" style="font-size:11px;color:var(--muted);margin-bottom:10px"></div>
+    <div class="plan-grid" id="plan-grid"></div>
   </div>
 
-  <!-- DETALHES -->
   <div class="page" id="page-detalhes">
     <div class="filtros">
       <div class="fg"><label>Colaborador</label>
@@ -557,10 +595,12 @@ select,input{min-width:120px;font-size:11px}}
         </select></div>
       <div class="fg"><label>Resultado</label>
         <select id="df-res" onchange="renderDetalhes()">
-          <option value="">Todos</option>
-          <option value="Executado">Executado</option>
-          <option value="Não Executado">Não Executado</option>
-          <option value="Não Atendida">Não Atendida</option>
+          <option value="">Todos</option><option value="Executado">Executado</option>
+          <option value="Não Executado">Não Executado</option><option value="Não Atendida">Não Atendida</option>
+        </select></div>
+      <div class="fg"><label>Só produtivos</label>
+        <select id="df-prod" onchange="renderDetalhes()">
+          <option value="">Todos</option><option value="sim">Sim, só produtivos</option>
         </select></div>
       <div class="fg"><label>Buscar</label>
         <input type="text" id="df-busca" placeholder="Nº OS, endereço, bairro..." oninput="renderDetalhes()" style="min-width:200px"></div>
@@ -571,7 +611,7 @@ select,input{min-width:120px;font-size:11px}}
       <div class="tbl-scroll"><table>
         <thead><tr><th>Nº OS</th><th>Colaborador</th><th>Atividade</th>
         <th>Data</th><th>Início</th><th>Fim</th><th>Tempo</th>
-        <th>Resultado</th><th>Nota</th>
+        <th>Resultado</th><th>Produtivo</th><th>Nota</th>
         <th>Endereço</th><th>Bairro</th><th>Município</th><th>Status OS</th></tr></thead>
         <tbody id="tb-det"></tbody>
       </table></div>
@@ -597,26 +637,71 @@ select,input{min-width:120px;font-size:11px}}
 let ALL = [], FILT = [], BASE_ORIGINAL = [];
 const CHARTS = {};
 const HORA_INI = 8*60, HORA_FIM = 17*60, JORNADA = HORA_FIM-HORA_INI;
-const LS_KEY = 'sabesp_dashboard_v7_historico';
-const LS_ATIVO = 'sabesp_dashboard_v7_ativo';
-const LS_COLLAB = 'sabesp_dashboard_v7_collab_config';
-const LS_METAS = 'sabesp_dashboard_v7_metas';
+const LS_KEY = 'sabesp_dashboard_v11_historico';
+const LS_ATIVO = 'sabesp_dashboard_v11_ativo';
+const LS_COLLAB = 'sabesp_dashboard_v11_collab_config';
+const LS_METAS = 'sabesp_dashboard_v11_metas';
+const LS_CATALOGO = 'sabesp_dashboard_v11_catalogo';
+  const DB_PLANILHAS = 'sabesp_dashboard_planilhas_v1';
+  const DB_PLANILHAS_STORE = 'planilhas';
+  let PLAN_DB_PROMISE = null;
+
+// ═══════════ PRODUTIVOS ═══════════
+const PRODUTIVOS = [
+  'CLIENTE EFETUOU PGTO VIA POS',
+  'CLIENTE APRESENTOU AS FATURAS PAGAS',
+  'CORTADA LIGAÇÃO DE AGUA POR DEBITO DIF',
+  'CORTADA LIGAÇÃO DE AGUA POR DEBITO OP',
+  'PAGAMENTO EFETIVADO VIA POS',
+  'RELIGAÇÃO DE AGUA DEB OP',
+  'RESTABELECIDA LIGAÇÃO DE AGUA DIF',
+  'RESTABELECIDA LIGAÇÃO DE AGUA OP',
+  'SUPRIMIDA LIGAÇÃO DE AGUA POR DEBITO OP',
+  'VISTORIADO LOCAL E IDENTIFICADA SITUAÇÃO',
+];
+function normalizarTexto(s){
+  return String(s||'').toUpperCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\s+/g,' ').trim();
+}
+const PRODUTIVOS_NORM = PRODUTIVOS.map(normalizarTexto);
+function classificarProdutivo(resultado){
+  const r = normalizarTexto(resultado);
+  if(!r) return false;
+  return PRODUTIVOS_NORM.some(p => r === p || r.includes(p));
+}
+const META_THRESHOLD = 0.6;
+
+// ═══════════ FORMATTAÇÃO BR ═══════════
+// Formata número no padrão brasileiro: 1.234,56
+const fBR = (n, dec=0) => {
+  if(n==null || isNaN(n)) return '—';
+  return Number(n).toLocaleString('pt-BR', {
+    minimumFractionDigits: dec,
+    maximumFractionDigits: dec,
+  });
+};
+const fBRk = (n) => n==null || isNaN(n) ? '—' : Number(n).toLocaleString('pt-BR'); // inteiro
 
 // ═══════════ UTILS ═══════════
 const $ = id=>document.getElementById(id);
-const fmt = n=> n==null ? '—' : Number(n).toLocaleString('pt-BR');
-const pct = (a,b)=> b>0 ? ((a/b)*100).toFixed(1)+'%' : '0%';
-const minToHM = m=>{const h=Math.floor(m/60),mi=m%60;return `${h}h${mi>0?mi+'min':''}`;};
-const minToHHMM = m=>{const h=Math.floor(m/60),mi=m%60;return `${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;};
+const fmt = n=> n==null || isNaN(n) ? '—' : Number(n).toLocaleString('pt-BR');
+const pct = (a,b)=> b>0 ? fBR((a/b)*100, 1)+'%' : '0%';
+const minToHM = m=>{const h=Math.floor(m/60),mi=Math.round(m%60);return `${h}h${mi>0?mi+'min':''}`;};
+const minToHHMM = m=>{const h=Math.floor(m/60),mi=Math.round(m%60);return `${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;};
 const esc = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const escAttr = s => String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
 
 function toast(msg, ok=true){
   const el=$('toast'); el.textContent=(ok?'✅ ':'❌ ')+msg;
   el.style.background=ok?'var(--verde)':'var(--vermelho)';
-  el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),4200);
+  el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),4500);
 }
-function loader(v){ $('loader').classList.toggle('on',v); }
+function loader(v, msg){ 
+  if(msg) $('loader-msg').textContent = msg;
+  $('loader').classList.toggle('on',v); 
+}
+function modoAcumular(){ return $('chk-acumular').checked; }
 
 function parseHoraBR(val){
   if(!val) return null;
@@ -660,189 +745,21 @@ function calcPrazoStatus(prazo){
 const labelPrazo = s => ({atrasado:'🔴 ATRASADO',urgente:'🟠 <6H',hoje:'🟡 <24H',futuro:'🟢 OK',sem:'⚪ SEM PRAZO'}[s]||'⚪');
 const corPrazo = s => ({atrasado:'ap-atrasado',urgente:'ap-urgente',hoje:'ap-hoje',futuro:'ap-futuro',sem:'ap-sem'}[s]||'ap-sem');
 
-// ═══════════ METAS ═══════════
-function carregarMetas(){
-  try{
-    return JSON.parse(localStorage.getItem(LS_METAS)||'{"geral":0,"diasUteis":22,"fiscais":{}}');
-  }catch(e){ return {geral:0, diasUteis:22, fiscais:{}}; }
+// ═══════════ CATÁLOGO PERMANENTE ═══════════
+function carregarCatalogo(){
+  try{ return JSON.parse(localStorage.getItem(LS_CATALOGO)||'[]'); }catch(e){ return []; }
 }
-function salvarMetas(m){
-  try{ localStorage.setItem(LS_METAS, JSON.stringify(m)); }catch(e){}
+function salvarCatalogo(arr){ try{ localStorage.setItem(LS_CATALOGO, JSON.stringify(arr)); }catch(e){} }
+function atualizarCatalogo(dados){
+  const cat = new Set(carregarCatalogo());
+  dados.forEach(d=>{ if(d.equipe) cat.add(d.equipe); });
+  salvarCatalogo([...cat].sort());
 }
-function setMetaGeral(v){
-  const m = carregarMetas();
-  m.geral = parseInt(v)||0;
-  salvarMetas(m);
-  renderMetas();
-}
-function setDiasUteis(v){
-  const m = carregarMetas();
-  m.diasUteis = parseInt(v)||22;
-  salvarMetas(m);
-  renderMetas();
-}
-function setMetaFiscal(nome, v){
-  const m = carregarMetas();
-  const val = parseInt(v)||0;
-  if(val>0) m.fiscais[nome] = val;
-  else delete m.fiscais[nome];
-  salvarMetas(m);
-  renderMetas();
-}
-
-// Calcula probabilidade de bater a meta até o fim do mês
-// baseado no ritmo atual vs ritmo necessário nos dias restantes
-function calcProbabilidade(atual, meta, diasComDados, diasUteis){
-  if(!meta || meta<=0) return 0;
-  if(atual >= meta) return 99;
-  const diasRestantes = Math.max(1, diasUteis - diasComDados);
-  const ritmoAtual = atual / Math.max(1, diasComDados);
-  const ritmoNecessario = (meta - atual) / diasRestantes;
-  if(ritmoNecessario <= 0) return 99;
-  const ratio = ritmoAtual / ritmoNecessario;
-  // Curva: ratio 1 → 60%, ratio 1.5 → 90%, ratio 0.5 → 30%
-  let prob = Math.min(99, Math.round(ratio * 60));
-  return Math.max(0, prob);
-}
-
-function renderMetas(){
-  const metas = carregarMetas();
-  const diasUteis = metas.diasUteis || 22;
-  $('meta-geral').value = metas.geral || '';
-  $('meta-dias').value = diasUteis;
-
-  // Produção de executadas
-  const execs = ALL.filter(d=>d.resultadoClass==='Executado');
-  const porColab = {};
-  execs.forEach(d=>{ porColab[d.equipe] = (porColab[d.equipe]||0)+1; });
-  const totalExec = execs.length;
-
-  // Dias com dados
-  const diasSet = new Set();
-  ALL.forEach(d=>{ if(d.dtInicio?.dateStr) diasSet.add(d.dtInicio.dateStr); });
-  const diasComDados = Math.max(1, diasSet.size);
-
-  const mediaDiaria = totalExec / diasComDados;
-  const projecao = mediaDiaria * diasUteis;
-  const metaGeral = metas.geral || 0;
-  const progresso = metaGeral > 0 ? totalExec/metaGeral : 0;
-  const prob = calcProbabilidade(totalExec, metaGeral, diasComDados, diasUteis);
-  const falta = Math.max(0, metaGeral - totalExec);
-
-  // KPIs
-  $('meta-kpis').innerHTML = `
-    <div class="kpi c-a"><div class="kpi-lbl">🎯 Meta Equipe</div><div class="kpi-val">${metaGeral?fmt(metaGeral):'—'}</div><div class="kpi-sub">${metaGeral?'definida':'clique para definir'}</div></div>
-    <div class="kpi c-g"><div class="kpi-lbl">✅ Realizado</div><div class="kpi-val">${fmt(totalExec)}</div><div class="kpi-sub">${metaGeral?pct(totalExec,metaGeral)+' da meta':'sem meta'}</div></div>
-    <div class="kpi c-p"><div class="kpi-lbl">📈 Projeção Fim Mês</div><div class="kpi-val">${fmt(Math.round(projecao))}</div><div class="kpi-sub">${diasComDados} dias c/ dados · ${diasUteis} úteis</div></div>
-    <div class="kpi ${prob>=80?'c-g':prob>=50?'c-y':'c-r'}"><div class="kpi-lbl">🎲 Probabilidade</div><div class="kpi-val">${prob}%</div><div class="kpi-sub">de bater a meta</div></div>
-    <div class="kpi c-o"><div class="kpi-lbl">⏳ Falta</div><div class="kpi-val">${metaGeral>0?fmt(falta):'—'}</div><div class="kpi-sub">${metaGeral>totalExec?'para atingir':'meta batida!'}</div></div>
-    <div class="kpi c-a"><div class="kpi-lbl">📊 Média Diária</div><div class="kpi-val">${mediaDiaria.toFixed(1)}</div><div class="kpi-sub">OS executadas/dia</div></div>
-  `;
-
-  // Gráfico evolução acumulada
-  const porDia = {};
-  execs.forEach(d=>{ if(d.dtInicio?.dateStr){ porDia[d.dtInicio.dateStr] = (porDia[d.dtInicio.dateStr]||0)+1; } });
-  const datas = Object.keys(porDia).sort();
-  let acum = 0;
-  const serieReal = datas.map(dt=>{ acum += porDia[dt]; return acum; });
-  const ritmo = metaGeral > 0 ? metaGeral / diasUteis : 0;
-  const serieMeta = datas.map((_,i)=>(i+1)*ritmo);
-
-  criarChart('ch-meta-evol','line',{
-    labels: datas.map(d=>d.slice(5).split('-').reverse().join('/')),
-    datasets:[
-      {label:'Realizado Acumulado', data:serieReal, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.15)', tension:.3, fill:true, borderWidth:3, pointRadius:4, pointBackgroundColor:'#22c55e', pointBorderColor:'#fff'},
-      {label:'Meta (ritmo ideal)', data:serieMeta, borderColor:'#f59e0b', borderDash:[6,4], borderWidth:2, pointRadius:0, fill:false},
-    ]
-  },{
-    plugins:{legend:{labels:{color:'#6a8db5', font:{size:12}}},
-             tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}`}}},
-    scales:{
-      x:{ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}},
-      y:{ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}, beginAtZero:true}
-    }
-  });
-
-  // Gauge
-  const restante = Math.max(0, metaGeral - totalExec);
-  criarChart('ch-meta-gauge','doughnut',{
-    labels:['Realizado','Falta'],
-    datasets:[{
-      data:[totalExec, restante],
-      backgroundColor:['#22c55e','rgba(239,68,68,.25)'],
-      borderWidth:3,
-      borderColor:'#102040',
-      hoverOffset:8
-    }]
-  },{
-    cutout:'72%',
-    plugins:{
-      legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:12}},
-      tooltip:{callbacks:{label:ctx=>{
-        const v = ctx.parsed;
-        return `${ctx.label}: ${v}`;
-      }}}
-    }
-  });
-
-  // Tabela por colaborador
-  const nomes = [...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
-  const tb = $('tb-metas'); tb.innerHTML = '';
-  const dadosFiscais = [];
-
-  nomes.forEach(nome=>{
-    const realizado = porColab[nome] || 0;
-    const meta = metas.fiscais[nome] || 0;
-    const p = meta>0 ? realizado/meta : 0;
-    const proj = (realizado / diasComDados) * diasUteis;
-    const faltaColab = Math.max(0, meta - realizado);
-    const probC = calcProbabilidade(realizado, meta, diasComDados, diasUteis);
-
-    dadosFiscais.push({nome, realizado, meta, proj, prob:probC, p, falta:faltaColab});
-
-    let st, bl;
-    if(meta===0){ st='— sem meta'; bl='b-z'; }
-    else if(p>=1){ st='✅ Batida'; bl='b-g'; }
-    else if(probC>=80){ st='🟢 No ritmo'; bl='b-g'; }
-    else if(probC>=50){ st='🟡 Atenção'; bl='b-y'; }
-    else { st='🔴 Dificuldade'; bl='b-r'; }
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="font-weight:700">${esc(nome.split(' ').slice(0,2).join(' '))}</td>
-      <td><input type="number" min="0" step="1" value="${meta||''}" placeholder="0"
-           onchange="setMetaFiscal('${escAttr(nome)}', this.value)"></td>
-      <td style="color:var(--verde);font-weight:800;font-size:14px">${realizado}</td>
-      <td><div style="display:flex;align-items:center;gap:7px">
-        <div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,p*100)}%;background:${p>=1?'var(--verde)':p>=0.5?'var(--amarelo)':'var(--vermelho)'}"></div></div>
-        <span style="font-weight:700;font-size:12px">${meta>0?(p*100).toFixed(0)+'%':'—'}</span></div></td>
-      <td>${(realizado/diasComDados).toFixed(1)}/dia</td>
-      <td style="color:var(--accent);font-weight:700">${Math.round(proj)}</td>
-      <td>${faltaColab>0?faltaColab:'—'}</td>
-      <td><span style="color:${probC>=80?'var(--verde)':probC>=50?'var(--amarelo)':'var(--vermelho)'};font-weight:800">${meta>0?probC+'%':'—'}</span></td>
-      <td><span class="b ${bl}" style="border-radius:5px">${st}</span></td>
-    `;
-    tb.appendChild(tr);
-  });
-
-  $('meta-count').textContent = nomes.length + ' colaboradores';
-
-  // Barras Realizado × Meta × Projeção
-  const top = dadosFiscais.filter(d=>d.meta>0||d.realizado>0).sort((a,b)=>b.realizado-a.realizado).slice(0,15);
-  criarChart('ch-meta-barras','bar',{
-    labels: top.map(d=>d.nome.split(' ').slice(0,2).join(' ')),
-    datasets:[
-      {label:'Realizado', data:top.map(d=>d.realizado), backgroundColor:'rgba(34,197,94,.85)', borderRadius:4},
-      {label:'Meta', data:top.map(d=>d.meta), backgroundColor:'rgba(245,158,11,.65)', borderRadius:4},
-      {label:'Projeção', data:top.map(d=>Math.round(d.proj)), backgroundColor:'rgba(0,194,224,.55)', borderRadius:4},
-    ]
-  },{
-    plugins:{legend:{labels:{color:'#6a8db5', font:{size:12}}}},
-    scales:{
-      x:{ticks:{color:'#6a8db5', font:{size:10}}, grid:{display:false}},
-      y:{ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}, beginAtZero:true}
-    }
-  });
+function limparCatalogo(){
+  if(!confirm('Apagar catálogo de colaboradores vistos?')) return;
+  localStorage.removeItem(LS_CATALOGO);
+  recarregarComConfig();
+  toast('Catálogo limpo');
 }
 
 // ═══════════ CONFIG COLABORADOR ═══════════
@@ -850,9 +767,7 @@ function carregarCollabConfig(){
   try{ return JSON.parse(localStorage.getItem(LS_COLLAB)||'{"aliases":{},"excluidos":[],"adicionados":[]}'); }
   catch(e){ return {aliases:{},excluidos:[],adicionados:[]}; }
 }
-function salvarCollabConfig(cfg){
-  try{ localStorage.setItem(LS_COLLAB, JSON.stringify(cfg)); }catch(e){}
-}
+function salvarCollabConfig(cfg){ try{ localStorage.setItem(LS_COLLAB, JSON.stringify(cfg)); }catch(e){} }
 function aplicarCollabConfig(dados){
   const cfg = carregarCollabConfig();
   return dados.map(d=>{
@@ -860,6 +775,238 @@ function aplicarCollabConfig(dados){
     const renomeado = cfg.aliases[orig] || orig;
     return {...d, equipe: renomeado, _equipeOrig: orig};
   }).filter(d=>!cfg.excluidos.includes(d.equipe));
+}
+
+// ═══════════ METAS ═══════════
+function carregarMetas(){
+  try{
+    const m = JSON.parse(localStorage.getItem(LS_METAS)||'{}');
+    return {
+      metaDiaria: m.metaDiaria||0,
+      diasUteis: m.diasUteis||22,
+      fiscaisOverride: m.fiscaisOverride||{},
+    };
+  }catch(e){
+    return {metaDiaria:0, diasUteis:22, fiscaisOverride:{}};
+  }
+}
+function salvarMetas(m){ try{ localStorage.setItem(LS_METAS, JSON.stringify(m)); }catch(e){} }
+function setMetaDiaria(v){ const m=carregarMetas(); m.metaDiaria=parseFloat(v)||0; salvarMetas(m); renderMetas(); }
+function setDiasUteis(v){ const m=carregarMetas(); m.diasUteis=parseInt(v)||22; salvarMetas(m); renderMetas(); }
+function setMetaFiscal(nome, v){
+  const m = carregarMetas();
+  const val = parseInt(v)||0;
+  if(val>0) m.fiscaisOverride[nome]=val; else delete m.fiscaisOverride[nome];
+  salvarMetas(m); renderMetas();
+}
+function diasTrabalhados(dados){
+  const set = new Set();
+  dados.forEach(d=>{ if(d.dtInicio?.dateStr) set.add(d.dtInicio.dateStr); });
+  return Math.max(1, set.size);
+}
+function calcProbabilidade(atual, metaTotal, diasTrab, diasUteis){
+  if(!metaTotal || metaTotal<=0) return 0;
+  const meta60 = metaTotal * META_THRESHOLD;
+  if(atual >= meta60) return 99;
+  const diasRestantes = Math.max(1, diasUteis - diasTrab);
+  const ritmoAtual = atual / Math.max(1, diasTrab);
+  const ritmoNecessario = (meta60 - atual) / diasRestantes;
+  if(ritmoNecessario <= 0) return 99;
+  const ratio = ritmoAtual / ritmoNecessario;
+  return Math.max(0, Math.min(99, Math.round(ratio * 60)));
+}
+
+function renderMetas(){
+  const metas = carregarMetas();
+  const diasUteis = metas.diasUteis || 22;
+  const metaDiaria = metas.metaDiaria || 0;
+
+  const el = $('prod-list-hero');
+  if(el) el.innerHTML = PRODUTIVOS.map(p=>`<span class="prod-tag">✅ ${esc(p)}</span>`).join('');
+
+  const produtivos = ALL.filter(d=>d.produtivo);
+  const porColab = {};
+  produtivos.forEach(d=>{ porColab[d.equipe] = (porColab[d.equipe]||0)+1; });
+  const totalEquipe = produtivos.length;
+
+  const fiscaisAtivos = new Set(ALL.map(d=>d.equipe).filter(Boolean));
+  const nFiscais = Math.max(1, fiscaisAtivos.size);
+  const diasTrab = diasTrabalhados(ALL);
+  const diasRestantes = Math.max(0, diasUteis - diasTrab);
+
+  const metaEquipeTotal = Math.round(metaDiaria * diasUteis * nFiscais);
+  const metaEquipe60 = Math.ceil(metaEquipeTotal * META_THRESHOLD);
+  const metaFiscalAuto = Math.round(metaDiaria * diasUteis);
+  const metaFiscal60 = Math.ceil(metaFiscalAuto * META_THRESHOLD);
+
+  $('meta-diaria').value = metaDiaria || '';
+  $('meta-dias').value = diasUteis;
+
+  $('team-realizado').textContent = fBRk(totalEquipe);
+  $('team-realizado-sub').textContent = `${nFiscais} fiscais · ${diasTrab} dias trabalhados`;
+  $('team-meta60').textContent = metaEquipe60 ? fBRk(metaEquipe60) : '—';
+  $('team-meta60-sub').textContent = metaEquipeTotal
+    ? `de ${fBRk(metaEquipeTotal)} total (60%)`
+    : 'defina meta diária';
+
+  const percBarra = metaEquipe60 > 0 ? Math.min(100, (totalEquipe / metaEquipe60) * 100) : 0;
+  const percExibido = metaEquipe60 > 0 ? fBR((totalEquipe / metaEquipe60) * 100, 1) : '0,0';
+  const barFill = $('big-bar-fill');
+  barFill.style.width = percBarra + '%';
+  barFill.classList.remove('aviso','critico');
+  if(percBarra >= 70 && percBarra < 100) barFill.classList.add('aviso');
+  else if(percBarra < 70) barFill.classList.add('critico');
+  $('big-bar-pct').textContent = percExibido + '%';
+  $('big-bar-pct-overlay').textContent = percExibido + '%';
+
+  const sb = $('status-banner');
+  const batida = metaEquipe60 > 0 && totalEquipe >= metaEquipe60;
+  const falta = Math.max(0, metaEquipe60 - totalEquipe);
+  const prob = calcProbabilidade(totalEquipe, metaEquipeTotal, diasTrab, diasUteis);
+  const mediaDiaria = totalEquipe / diasTrab;
+  const projecao = mediaDiaria * diasUteis;
+
+  if(!metaDiaria){
+    sb.className = 'status-banner warn';
+    sb.innerHTML = `<div class="icon">⚙️</div><div class="txt"><b>DEFINA A META DIÁRIA</b>Preencha o campo acima para o sistema calcular</div>`;
+  } else if(batida){
+    sb.className = 'status-banner ok';
+    sb.innerHTML = `<div class="icon">🏆</div><div class="txt"><b>META BATIDA! 🎉</b>A equipe atingiu <b style="display:inline">${fBRk(totalEquipe)}</b> produtivos = ${percExibido}% da meta de 60% (${fBRk(metaEquipe60)}). Excedente: <b style="display:inline">${totalEquipe - metaEquipe60 >= 0 ? '+' : ''}${fBRk(totalEquipe - metaEquipe60)}</b></div>`;
+  } else if(prob >= 70){
+    sb.className = 'status-banner ok';
+    sb.innerHTML = `<div class="icon">🟢</div><div class="txt"><b>NO RITMO — ${prob}% de chance</b>Faltam <b style="display:inline">${fBRk(falta)}</b> produtivos para bater a meta de 60%. Média necessária: <b style="display:inline">${fBR(falta/Math.max(1,diasRestantes), 1)}/dia</b></div>`;
+  } else if(prob >= 40){
+    sb.className = 'status-banner warn';
+    sb.innerHTML = `<div class="icon">🟡</div><div class="txt"><b>ATENÇÃO — ${prob}% de chance</b>Faltam <b style="display:inline">${fBRk(falta)}</b> produtivos. Média necessária: <b style="display:inline">${fBR(falta/Math.max(1,diasRestantes), 1)}/dia</b></div>`;
+  } else {
+    sb.className = 'status-banner crit';
+    sb.innerHTML = `<div class="icon">🔴</div><div class="txt"><b>DIFICULDADE — ${prob}% de chance</b>Faltam <b style="display:inline">${fBRk(falta)}</b> produtivos. Aumente o ritmo para bater a meta de 60%</div>`;
+  }
+
+  $('meta-kpis').innerHTML = `
+    <div class="kpi c-a"><div class="kpi-lbl">🎯 Meta Equipe Total</div><div class="kpi-val">${metaEquipeTotal?fBRk(metaEquipeTotal):'—'}</div><div class="kpi-sub">${metaDiaria?`${metaDiaria} × ${diasUteis} × ${nFiscais} fiscais`:'sem meta'}</div></div>
+    <div class="kpi c-p"><div class="kpi-lbl">🏁 Meta 60% (batida)</div><div class="kpi-val">${metaEquipe60?fBRk(metaEquipe60):'—'}</div><div class="kpi-sub">valor necessário</div></div>
+    <div class="kpi c-g"><div class="kpi-lbl">✅ Soma da Equipe</div><div class="kpi-val">${fBRk(totalEquipe)}</div><div class="kpi-sub">produtivos totais</div></div>
+    <div class="kpi ${batida?'c-g':prob>=50?'c-y':'c-r'}"><div class="kpi-lbl">${batida?'🏆 BATIDA':'🎲 Probabilidade'}</div><div class="kpi-val">${batida?'SIM':prob+'%'}</div><div class="kpi-sub">${batida?'meta atingida':'de bater a meta'}</div></div>
+    <div class="kpi c-o"><div class="kpi-lbl">⏳ Falta p/ 60%</div><div class="kpi-val">${fBRk(falta)}</div><div class="kpi-sub">${batida?'meta já batida!':'produtivos restantes'}</div></div>
+    <div class="kpi c-a"><div class="kpi-lbl">📊 Média Diária Equipe</div><div class="kpi-val">${fBR(mediaDiaria, 1)}</div><div class="kpi-sub">produtivos/dia</div></div>
+    <div class="kpi c-p"><div class="kpi-lbl">📈 Projeção Fim Mês</div><div class="kpi-val">${fBRk(Math.round(projecao))}</div><div class="kpi-sub">se mantiver o ritmo</div></div>
+    <div class="kpi c-y"><div class="kpi-lbl">📅 Dias Restantes</div><div class="kpi-val">${diasRestantes}</div><div class="kpi-sub">de ${diasUteis} úteis</div></div>
+  `;
+
+  // Evolução
+  const porDia = {};
+  produtivos.forEach(d=>{ if(d.dtInicio?.dateStr){ porDia[d.dtInicio.dateStr] = (porDia[d.dtInicio.dateStr]||0)+1; } });
+  const datas = Object.keys(porDia).sort();
+  let acum = 0;
+  const serieReal = datas.map(dt=>{ acum += porDia[dt]; return acum; });
+  const ritmo = metaEquipe60 > 0 ? metaEquipe60 / diasUteis : 0;
+  const serieMeta = datas.map((_,i)=>(i+1)*ritmo);
+
+  criarChart('ch-meta-evol','line',{
+    labels: datas.map(d=>d.slice(5).split('-').reverse().join('/')),
+    datasets:[
+      {label:'Soma da Equipe', data:serieReal, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.15)', tension:.3, fill:true, borderWidth:3, pointRadius:4, pointBackgroundColor:'#22c55e', pointBorderColor:'#fff'},
+      {label:'Ritmo p/ 60%', data:serieMeta, borderColor:'#f59e0b', borderDash:[6,4], borderWidth:2, pointRadius:0, fill:false},
+    ]
+  },{
+    plugins:{legend:{labels:{color:'#6a8db5', font:{size:12}}},
+             tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fBR(ctx.parsed.y, 1)}`}}},
+    scales:{
+      x:{ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}},
+      y:{ticks:{color:'#6a8db5', callback:v=>fBR(v,0)}, grid:{color:'rgba(255,255,255,.04)'}, beginAtZero:true}
+    }
+  });
+
+  const dentroMeta = Math.min(totalEquipe, metaEquipe60);
+  const restante = Math.max(0, metaEquipe60 - totalEquipe);
+  const gaugeCor = batida ? '#22c55e' : percBarra >= 70 ? '#f59e0b' : '#00c2e0';
+  criarChart('ch-meta-gauge','doughnut',{
+    labels:['Produtivos equipe','Falta p/ 60%'],
+    datasets:[{
+      data:[dentroMeta, restante],
+      backgroundColor:[gaugeCor,'rgba(239,68,68,.2)'],
+      borderWidth:3, borderColor:'#102040', hoverOffset:8
+    }]
+  },{
+    cutout:'72%',
+    plugins:{
+      legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:12}},
+      tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fBRk(ctx.parsed)}`}}
+    }
+  });
+
+  const nomes = [...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
+  const tb = $('tb-metas'); tb.innerHTML = '';
+  const dadosFiscais = [];
+
+  nomes.forEach(nome=>{
+    const realizado = porColab[nome] || 0;
+    const override = metas.fiscaisOverride[nome] || 0;
+    const metaF = override > 0 ? override : metaFiscalAuto;
+    const meta60F = Math.ceil(metaF * META_THRESHOLD);
+    const pRealF = metaF > 0 ? realizado/metaF : 0;
+    const pEscalF = meta60F > 0 ? Math.min(1, realizado/meta60F) : 0;
+    const projF = (realizado / diasTrab) * diasUteis;
+    const faltaF = Math.max(0, meta60F - realizado);
+    const probF = calcProbabilidade(realizado, metaF, diasTrab, diasUteis);
+    const batidaF = metaF > 0 && realizado >= meta60F;
+    const isOverride = override > 0;
+
+    dadosFiscais.push({nome, realizado, meta:metaF, proj:projF, prob:probF, p:pRealF, falta:faltaF});
+
+    let st, bl;
+    if(metaF<=0){ st='— sem meta'; bl='b-z'; }
+    else if(batidaF){ st='🏆 Batida'; bl='b-g'; }
+    else if(probF>=80){ st='🟢 No ritmo'; bl='b-g'; }
+    else if(probF>=50){ st='🟡 Atenção'; bl='b-y'; }
+    else { st='🔴 Dificuldade'; bl='b-r'; }
+
+    const corBarra = batidaF?'var(--verde)':pEscalF>=0.7?'var(--amarelo)':'var(--roxo)';
+    const inputClass = isOverride ? '' : 'auto-input';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:700">${esc(nome.split(' ').slice(0,2).join(' '))}</td>
+      <td>
+        <input type="number" min="0" step="1" value="${isOverride?override:''}" placeholder="${metaFiscalAuto||0}"
+               class="${inputClass}" title="${isOverride?'Meta manual':'Meta automática: '+metaFiscalAuto}"
+               onchange="setMetaFiscal('${escAttr(nome)}', this.value)">
+        ${isOverride?'<span class="auto-badge">manual</span>':'<span class="auto-badge">auto</span>'}
+      </td>
+      <td style="color:var(--verde);font-weight:800;font-size:14px">${fBRk(realizado)}</td>
+      <td>${metaF>0?fBR(pRealF*100, 1)+'%':'—'}</td>
+      <td><div style="display:flex;align-items:center;gap:7px">
+        <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(pEscalF*100)}%;background:${corBarra}"></div></div>
+        <span style="font-weight:700;font-size:12px">${metaF>0?fBR(pEscalF*100, 0)+'%':'—'}</span></div></td>
+      <td>${fBR(realizado/diasTrab, 1)}/dia</td>
+      <td style="color:var(--accent);font-weight:700">${fBRk(Math.round(projF))}</td>
+      <td>${faltaF>0?fBRk(faltaF):'—'}</td>
+      <td><span style="color:${probF>=80?'var(--verde)':probF>=50?'var(--amarelo)':'var(--vermelho)'};font-weight:800">${metaF>0?probF+'%':'—'}</span></td>
+      <td><span class="b ${bl}" style="border-radius:5px">${st}</span></td>
+    `;
+    tb.appendChild(tr);
+  });
+
+  $('meta-count').textContent = nomes.length + ' colaboradores · Meta auto por fiscal: ' + fBRk(metaFiscalAuto) + ' (60% = ' + fBRk(metaFiscal60) + ')';
+
+  const top = dadosFiscais.filter(d=>d.meta>0||d.realizado>0).sort((a,b)=>b.realizado-a.realizado).slice(0,15);
+  criarChart('ch-meta-barras','bar',{
+    labels: top.map(d=>d.nome.split(' ').slice(0,2).join(' ')),
+    datasets:[
+      {label:'Produtivos', data:top.map(d=>d.realizado), backgroundColor:'rgba(34,197,94,.85)', borderRadius:4},
+      {label:'Meta', data:top.map(d=>d.meta), backgroundColor:'rgba(245,158,11,.65)', borderRadius:4},
+      {label:'Meta 60%', data:top.map(d=>Math.ceil(d.meta*META_THRESHOLD)), backgroundColor:'rgba(168,85,247,.55)', borderRadius:4},
+      {label:'Projeção', data:top.map(d=>Math.round(d.proj)), backgroundColor:'rgba(0,194,224,.55)', borderRadius:4},
+    ]
+  },{
+    plugins:{legend:{labels:{color:'#6a8db5', font:{size:12}}},
+             tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fBRk(ctx.parsed.y)}`}}},
+    scales:{
+      x:{ticks:{color:'#6a8db5', font:{size:10}}, grid:{display:false}},
+      y:{ticks:{color:'#6a8db5', callback:v=>fBRk(v)}, grid:{color:'rgba(255,255,255,.04)'}, beginAtZero:true}
+    }
+  });
 }
 
 // ═══════════ CLASSIFICAÇÕES ═══════════
@@ -870,7 +1017,7 @@ function mapResultado(res){
   const exec=['CORTADA','SUPRIMIDA','RELIGAD','FSR AVALIADO','PAGAMENTO EFETIVADO',
     'EFETUOU PGTO','RESTABELECIDA','RESTABELECIDO','INFORMOU PAGAMENTO','CORRIGIDO CORTE',
     'REATIVADA','REATIVADO','TELEVISIONADA','LAVAGEM','REPARO','TROCA','PROLONGAMENTO',
-    'TRANSFORMAÇÃO','INCLUSÃO','CLIENTE APRESENTOU','INTERLIGAÇÃO','CONCLU'];
+    'TRANSFORMAÇÃO','INCLUSÃO','CLIENTE APRESENTOU','INTERLIGAÇÃO','CONCLU','VISTORIADO'];
   if(exec.some(e=>r.includes(e))) return 'Executado';
   if(r.includes('PENDENTE')||r.includes('PROGRAMAD')) return 'Pendente';
   return 'Não Executado';
@@ -951,12 +1098,174 @@ function extrair(wb){
       atividade: mapAtividade(codTSS,descTSS,familia),
       origem: mapOrigem(familia,descTSS,nota),
       prazoDate, prazoStatus,
+      produtivo: classificarProdutivo(resultado),
     });
   }
   return dados;
 }
 
-// ═══════════ LOCALSTORAGE ═══════════
+// ═══════════ PLANILHAS SALVAS — INDEXEDDB ═══════════
+function abrirPlanilhasDB(){
+  if(PLAN_DB_PROMISE) return PLAN_DB_PROMISE;
+  PLAN_DB_PROMISE = new Promise((resolve,reject)=>{
+    if(!window.indexedDB){ reject(new Error('IndexedDB não disponível neste navegador.')); return; }
+    const req = indexedDB.open(DB_PLANILHAS,1);
+    req.onupgradeneeded = e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains(DB_PLANILHAS_STORE)){
+        const store=db.createObjectStore(DB_PLANILHAS_STORE,{keyPath:'id'});
+        store.createIndex('updatedAt','updatedAt',{unique:false});
+        store.createIndex('nome','nome',{unique:false});
+      }
+    };
+    req.onsuccess=e=>resolve(e.target.result);
+    req.onerror=()=>reject(req.error||new Error('Falha ao abrir armazenamento das planilhas.'));
+  });
+  return PLAN_DB_PROMISE;
+}
+function idbRequest(req){
+  return new Promise((resolve,reject)=>{ req.onsuccess=()=>resolve(req.result); req.onerror=()=>reject(req.error); });
+}
+async function listarPlanilhas(){
+  try{
+    const db=await abrirPlanilhasDB();
+    const tx=db.transaction(DB_PLANILHAS_STORE,'readonly');
+    const req=tx.objectStore(DB_PLANILHAS_STORE).getAll();
+    const arr=await idbRequest(req);
+    return (arr||[]).sort((a,b)=>new Date(b.updatedAt||b.createdAt||0)-new Date(a.updatedAt||a.createdAt||0));
+  }catch(e){ console.error(e); return []; }
+}
+async function obterPlanilha(id){
+  const db=await abrirPlanilhasDB();
+  const tx=db.transaction(DB_PLANILHAS_STORE,'readonly');
+  return idbRequest(tx.objectStore(DB_PLANILHAS_STORE).get(id));
+}
+async function salvarPlanilhaArquivo(file,dados){
+  try{
+    const db=await abrirPlanilhasDB();
+    const agora=new Date().toISOString();
+    const nomeBase=String(file.name||'Planilha').replace(/\.(xlsx|xls)$/i,'');
+    const item={
+      id:'plan_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
+      nome:nomeBase,
+      descricao:`Planilha GeoCall/WFM importada em ${new Date().toLocaleString('pt-BR')}.`,
+      arquivo:file.name,
+      mime:file.type||'application/octet-stream',
+      blob:file,
+      tamanho:file.size||0,
+      totalOS:dados.length||0,
+      periodo:periodoDosDados(dados),
+      createdAt:agora,
+      updatedAt:agora,
+      ultimoAcesso:null
+    };
+    const tx=db.transaction(DB_PLANILHAS_STORE,'readwrite');
+    await idbRequest(tx.objectStore(DB_PLANILHAS_STORE).put(item));
+    return item;
+  }catch(e){
+    console.error('Não foi possível salvar a planilha original:',e);
+    return null;
+  }
+}
+function periodoDosDados(dados){
+  const cont={};
+  (dados||[]).forEach(d=>{if(d.dtInicio?.dateStr){const p=d.dtInicio.dateStr.slice(0,7);cont[p]=(cont[p]||0)+1;}});
+  return Object.entries(cont).sort((a,b)=>b[1]-a[1])[0]?.[0]||new Date().toISOString().slice(0,7);
+}
+async function atualizarPlanilhaMeta(id,patch){
+  try{
+    const item=await obterPlanilha(id); if(!item) return;
+    Object.assign(item,patch,{updatedAt:new Date().toISOString()});
+    const db=await abrirPlanilhasDB();
+    const tx=db.transaction(DB_PLANILHAS_STORE,'readwrite');
+    await idbRequest(tx.objectStore(DB_PLANILHAS_STORE).put(item));
+  }catch(e){console.error(e);}
+}
+async function excluirPlanilha(id,ev){
+  if(ev) ev.stopPropagation();
+  const item=await obterPlanilha(id).catch(()=>null);
+  if(!item) return;
+  if(!confirm(`Excluir a planilha salva "${item.nome}"?\n\nO arquivo original será removido do armazenamento deste navegador.`)) return;
+  try{
+    const db=await abrirPlanilhasDB();
+    const tx=db.transaction(DB_PLANILHAS_STORE,'readwrite');
+    await idbRequest(tx.objectStore(DB_PLANILHAS_STORE).delete(id));
+    if(localStorage.getItem('sabesp_dashboard_v11_planilha_ativa')===id) localStorage.removeItem('sabesp_dashboard_v11_planilha_ativa');
+    await renderPlanilhas(); renderPlanQuick();
+    toast('Planilha removida do standby');
+  }catch(e){toast('Erro ao excluir planilha: '+e.message,false);}
+}
+async function editarPlanilha(id,ev){
+  if(ev) ev.stopPropagation();
+  const item=await obterPlanilha(id).catch(()=>null); if(!item) return;
+  const novoNome=prompt('Nome da planilha:',item.nome);
+  if(novoNome===null) return;
+  const novaDesc=prompt('Descrição da planilha:',item.descricao||'');
+  if(novaDesc===null) return;
+  await atualizarPlanilhaMeta(id,{nome:novoNome.trim()||item.nome,descricao:novaDesc.trim()});
+  await renderPlanilhas(); renderPlanQuick();
+  toast('Nome e descrição atualizados');
+}
+async function abrirPlanilhaSalva(id,ev){
+  if(ev) ev.stopPropagation();
+  try{
+    const item=await obterPlanilha(id);
+    if(!item||!item.blob){toast('Arquivo original não encontrado.',false);return;}
+    loader(true,`Abrindo "${item.nome}"...`);
+    const buffer=await item.blob.arrayBuffer();
+    const wb=XLSX.read(buffer,{type:'array',cellDates:true});
+    const dados=extrair(wb);
+    if(!dados.length) throw new Error('Nenhuma OS encontrada nesta planilha.');
+    // Ao escolher uma planilha salva, ela vira a base ativa. Não acumula automaticamente.
+    const vistos=new Set(), dadosNovos=[];
+    dados.forEach(d=>{
+      const key=(d.nrOS||'')+'|'+(d.dtInicio?.dateStr||'');
+      if(d.nrOS && vistos.has(key)) return;
+      vistos.add(key); dadosNovos.push(d);
+    });
+    BASE_ORIGINAL=dadosNovos.slice();
+    ALL=aplicarCollabConfig(dadosNovos.slice());
+    FILT=[...ALL];
+    atualizarCatalogo(dadosNovos);
+    await atualizarPlanilhaMeta(id,{totalOS:dadosNovos.length,periodo:periodoDosDados(dadosNovos),ultimoAcesso:new Date().toISOString()});
+    try{localStorage.setItem('sabesp_dashboard_v11_planilha_ativa',id);}catch(e){}
+    salvarPeriodo(item.arquivo||item.nome,dadosNovos);
+    init();
+    renderPlanilhas(); renderPlanQuick();
+    toast(`"${item.nome}" carregada diretamente · ${dadosNovos.length} OS`);
+  }catch(e){console.error(e);toast('Erro ao abrir planilha: '+e.message,false);}
+  finally{loader(false);}
+}
+async function renderPlanilhas(){
+  const grid=$('plan-grid'); if(!grid) return;
+  const arr=await listarPlanilhas();
+  const ativo=localStorage.getItem('sabesp_dashboard_v11_planilha_ativa');
+  $('plan-info').textContent=`${arr.length} planilha(s) salva(s) neste navegador · o arquivo original permanece disponível para reabertura`;
+  if(!arr.length){grid.innerHTML='<div class="plan-empty" style="grid-column:1/-1"><div style="font-size:42px;margin-bottom:10px">📭</div><b>Nenhuma planilha salva ainda.</b><br><span style="font-size:11px">Importe uma .xlsx ou .xls para ela aparecer aqui.</span></div>';return;}
+  grid.innerHTML=arr.map(p=>{
+    const dt=p.updatedAt||p.createdAt;
+    const kb=p.tamanho?fBR(p.tamanho/1024,0)+' KB':'tamanho não informado';
+    return `<div class="plan-card ${p.id===ativo?'active':''}" onclick="abrirPlanilhaSalva('${escAttr(p.id)}')">
+      <button class="hist-del plan-del" onclick="excluirPlanilha('${escAttr(p.id)}',event)" title="Excluir">×</button>
+      <div class="plan-icon">📊</div>
+      <div class="plan-name">${esc(p.nome||p.arquivo||'Planilha')}</div>
+      <div class="plan-desc">${esc(p.descricao||'Sem descrição.')}</div>
+      <div class="plan-meta">📄 ${esc(p.arquivo||'—')}<br>📅 ${dt?new Date(dt).toLocaleString('pt-BR'):'—'}<br>📦 ${kb} · ${fBRk(p.totalOS||0)} OS · ${esc(p.periodo||'—')}</div>
+      <div class="plan-actions">
+        <button class="btn btn-p" onclick="abrirPlanilhaSalva('${escAttr(p.id)}',event)">▶ Abrir agora</button>
+        <button class="btn btn-o" onclick="editarPlanilha('${escAttr(p.id)}',event)">✏️ Editar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+async function renderPlanQuick(){
+  const el=$('plan-quick'); if(!el) return;
+  const arr=(await listarPlanilhas()).slice(0,6);
+  if(!arr.length){el.innerHTML='';return;}
+  el.innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">📚 Planilhas em standby</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">${arr.map(p=>`<button class="btn btn-o" onclick="event.stopPropagation();abrirPlanilhaSalva('${escAttr(p.id)}')">📊 ${esc(p.nome||p.arquivo)}${p.totalOS?` (${fBRk(p.totalOS)})`:''}</button>`).join('')}</div>`;
+}
+
+// ═══════════ HISTÓRICO EM LOCALSTORAGE ═══════════
 function serializarReg(d){
   return {
     nrOS:d.nrOS, equipe:d.equipe, codTSS:d.codTSS, descTSS:d.descTSS,
@@ -968,6 +1277,7 @@ function serializarReg(d){
     atividade:d.atividade, origem:d.origem,
     prazoISO: d.prazoDate ? d.prazoDate.toISOString() : null,
     prazoStatus: d.prazoStatus,
+    produtivo: d.produtivo || false,
     _equipeOrig: d._equipeOrig || d.equipe,
   };
 }
@@ -999,10 +1309,11 @@ function salvarPeriodo(nomeArquivo, dados){
   const ex = dados.filter(d=>d.resultadoClass==='Executado').length;
   const ne = dados.filter(d=>d.resultadoClass==='Não Executado').length;
   const na = dados.filter(d=>d.resultadoClass==='Não Atendida').length;
+  const prod = dados.filter(d=>d.produtivo).length;
   const item = {
     id, periodo, nomeArquivo,
     dataImport: new Date().toISOString(),
-    total: tot, exec: ex, naoExec: ne, fimDia: na,
+    total: tot, exec: ex, naoExec: ne, fimDia: na, produtivos: prod,
     registros: comp,
   };
   let hist = carregarHistorico();
@@ -1026,6 +1337,7 @@ function abrirPeriodo(id){
   if(!h){ toast('Período não encontrado',false); return; }
   ALL = (h.registros||[]).map(desserializarReg);
   ALL = aplicarCollabConfig(ALL);
+  BASE_ORIGINAL = (h.registros||[]).map(desserializarReg);
   try{ localStorage.setItem(LS_ATIVO, id); }catch(e){}
   init();
   toast(`Período ${h.periodo} carregado (${ALL.length} OS)`);
@@ -1036,34 +1348,119 @@ function excluirPeriodo(id, ev){
   let hist = carregarHistorico().filter(x=>x.id!==id);
   salvarHistorico(hist);
   renderHistorico(); renderHistQuick();
+  renderPlanQuick();
+  renderPlanilhas();
   toast('Período excluído');
 }
 
-// ═══════════ HANDLE FILE ═══════════
-function handleDrop(e){ const f=e.dataTransfer.files[0]; if(f) processFile(f); }
-function handleFile(e){ const f=e.target.files[0]; if(f) processFile(f); }
+// ═══════════ LIMPAR BASE ═══════════
+function limparBase(){
+  if(!BASE_ORIGINAL.length && !ALL.length){ toast('Não há dados para limpar', false); return; }
+  if(!confirm(`Tem certeza? Isso vai apagar ${ALL.length} OS carregadas (o histórico fica intacto).`)) return;
+  BASE_ORIGINAL = [];
+  ALL = [];
+  FILT = [];
+  $('main').classList.remove('on');
+  $('tabs').style.display = 'none';
+  $('upload-zone').style.display = 'block';
+  $('chip-data').textContent = '—';
+  $('chip-total').textContent = '—';
+  try{ localStorage.removeItem(LS_ATIVO); }catch(e){}
+  toast('Base limpa');
+}
 
-function processFile(file){
-  loader(true);
-  const reader = new FileReader();
-  reader.onload = e=>{
+// ═══════════ HANDLE FILES ═══════════
+function handleDrop(e){
+  const files = Array.from(e.dataTransfer.files||[]).filter(f=>/\.(xlsx|xls)$/i.test(f.name));
+  if(files.length) processFiles(files);
+}
+function handleFile(e){
+  const files = Array.from(e.target.files||[]);
+  if(files.length) processFiles(files);
+  e.target.value = '';
+}
+async function processFiles(files){
+  const validos=Array.from(files||[]).filter(f=>/\.(xlsx|xls)$/i.test(f.name));
+  if(!validos.length){toast('Selecione arquivos .xlsx ou .xls.',false);return;}
+  loader(true,`Processando ${validos.length} arquivo(s)...`);
+  const todosDados=[]; const nomesArquivos=[]; let concluidos=0; let erros=0;
+  for(const file of validos){
     try{
-      const wb = XLSX.read(e.target.result,{type:'binary',cellDates:true});
-      const dados = extrair(wb);
-      if(!dados.length) throw new Error('Nenhuma OS encontrada. Verifique se o arquivo é do GeoCall/WFM.');
-      BASE_ORIGINAL = dados.slice();
-      ALL = aplicarCollabConfig([...dados]);
-      FILT = [...ALL];
-      const id = salvarPeriodo(file.name, dados);
-      init();
-      toast(`${dados.length} OS carregadas!${id?' Salvo no histórico.':' (só em memória)'}`);
-    }catch(err){
-      toast('Erro: '+err.message,false);
-      console.error(err);
+      const buffer=await file.arrayBuffer();
+      const wb=XLSX.read(buffer,{type:'array',cellDates:true});
+      const dados=extrair(wb);
+      if(dados.length){
+        todosDados.push(...dados); nomesArquivos.push(file.name);
+        const salvo=await salvarPlanilhaArquivo(file,dados);
+        if(!salvo) console.warn('Planilha processada, mas não salva no standby:',file.name);
+      }else erros++;
+    }catch(err){erros++;console.error('Erro em',file.name,err);}
+    concluidos++; loader(true,`Processando... ${concluidos}/${validos.length}`);
+  }
+  finalizarImportacao(todosDados,nomesArquivos,erros);
+  await renderPlanilhas(); await renderPlanQuick();
+}
+function finalizarImportacao(dados, nomesArquivos, erros){
+  try{
+    if(!dados.length) throw new Error('Nenhuma OS encontrada nos arquivos selecionados.');
+
+    // Dedupe interno entre os arquivos desta importação
+    const vistosNovos = new Set();
+    const dadosNovos = [];
+    dados.forEach(d=>{
+      const key = (d.nrOS||'') + '|' + (d.dtInicio?.dateStr||'');
+      if(d.nrOS && vistosNovos.has(key)) return;
+      vistosNovos.add(key);
+      dadosNovos.push(d);
+    });
+    const dupInternos = dados.length - dadosNovos.length;
+
+    let dadosFinais, msg;
+
+    if(modoAcumular() && BASE_ORIGINAL.length > 0){
+      // MODO ACUMULAR: soma com a base atual, deduplicando
+      const vistos = new Set();
+      BASE_ORIGINAL.forEach(d=>{
+        const key = (d.nrOS||'') + '|' + (d.dtInicio?.dateStr||'');
+        vistos.add(key);
+      });
+      const realmenteNovos = [];
+      let jaExistiam = 0;
+      dadosNovos.forEach(d=>{
+        const key = (d.nrOS||'') + '|' + (d.dtInicio?.dateStr||'');
+        if(vistos.has(key)){ jaExistiam++; return; }
+        vistos.add(key);
+        realmenteNovos.push(d);
+      });
+      dadosFinais = [...BASE_ORIGINAL, ...realmenteNovos];
+      const antes = BASE_ORIGINAL.length;
+      msg = `+${realmenteNovos.length} OS adicionadas · ${jaExistiam} já existiam · Total: ${antes} → ${dadosFinais.length}`;
+    } else {
+      // MODO SUBSTITUIR
+      dadosFinais = dadosNovos;
+      msg = `${dadosNovos.length} OS carregadas`;
     }
-    loader(false);
-  };
-  reader.readAsBinaryString(file);
+
+    if(dupInternos > 0) msg += ` · ${dupInternos} dup. nos arquivos`;
+    if(erros > 0) msg += ` · ${erros} erro(s)`;
+
+    BASE_ORIGINAL = dadosFinais.slice();
+    ALL = aplicarCollabConfig([...dadosFinais]);
+    FILT = [...ALL];
+    atualizarCatalogo(dadosFinais);
+
+    const nomeCombinado = nomesArquivos.length === 1
+      ? nomesArquivos[0]
+      : `${nomesArquivos.length} arquivos: ${nomesArquivos.slice(0,3).join(', ')}${nomesArquivos.length>3?'...':''}`;
+
+    salvarPeriodo(nomeCombinado, dadosFinais);
+    init();
+    toast(msg);
+  }catch(err){
+    toast('Erro: '+err.message, false);
+    console.error(err);
+  }
+  loader(false);
 }
 
 // ═══════════ INIT ═══════════
@@ -1088,6 +1485,7 @@ function init(){
   $('main').classList.add('on');
 
   renderGeral(); renderMetas(); renderRelig(); renderJornada(); renderHistorico();
+  renderPlanilhas(); renderPlanQuick();
 }
 
 // ═══════════ GERAL ═══════════
@@ -1113,16 +1511,15 @@ function renderGeral(){
   const na = D.filter(d=>d.resultadoClass==='Não Atendida').length;
   const cortes = D.filter(d=>d.resultado.toUpperCase().includes('CORTAD')).length;
   const pos = D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
-  const ts = D.filter(d=>d.tempo>0 && d.tempo<300).map(d=>d.tempo);
-  const tmed = ts.length ? (ts.reduce((a,b)=>a+b,0)/ts.length).toFixed(1) : '—';
-  $('k-tot').textContent=fmt(tot);
-  $('k-ex').textContent=fmt(ex); $('k-ex-s').textContent=pct(ex,tot)+' do total';
-  $('k-ne').textContent=fmt(ne); $('k-ne-s').textContent=pct(ne,tot)+' do total';
-  $('k-na').textContent=fmt(na);
+  const produtivos = D.filter(d=>d.produtivo).length;
+  $('k-tot').textContent=fBRk(tot);
+  $('k-ex').textContent=fBRk(ex); $('k-ex-s').textContent=pct(ex,tot)+' do total';
+  $('k-ne').textContent=fBRk(ne); $('k-ne-s').textContent=pct(ne,tot)+' do total';
+  $('k-na').textContent=fBRk(na);
   $('k-prod').textContent=pct(ex,tot);
-  $('k-corte').textContent=fmt(cortes);
-  $('k-pos').textContent=fmt(pos);
-  $('k-tmed').textContent=tmed+(tmed!=='—'?' min':'');
+  $('k-corte').textContent=fBRk(cortes);
+  $('k-pos').textContent=fBRk(pos);
+  $('k-produtivos').textContent=fBRk(produtivos);
   renderChartsGeral(D,tot,ex,ne,na);
   renderTblColab(D); renderTblRes(D,tot); renderTblUlt(D);
 }
@@ -1145,39 +1542,40 @@ function renderChartsGeral(D,tot,ex,ne,na){
       {label:'Não Exec.', data:co.map(([,v])=>v.ne), backgroundColor:'rgba(239,68,68,.6)', borderRadius:4},
       {label:'Fim Dia', data:co.map(([,v])=>v.na), backgroundColor:'rgba(245,158,11,.5)', borderRadius:4},
     ]
-  },{indexAxis:'y', scales:{x:{stacked:true, ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}}, y:{stacked:true, ticks:{color:'#dde6f5', font:{size:10}}, grid:{display:false}}}, plugins:{legend:{labels:{color:'#6a8db5', font:{size:11}}}}});
+  },{indexAxis:'y', scales:{x:{stacked:true, ticks:{color:'#6a8db5', callback:v=>fBRk(v)}, grid:{color:'rgba(255,255,255,.04)'}}, y:{stacked:true, ticks:{color:'#dde6f5', font:{size:10}}, grid:{display:false}}}, plugins:{legend:{labels:{color:'#6a8db5', font:{size:11}}}}});
   criarChart('ch-dnut','doughnut',{
     labels:['Executado','Não Executado','Fim do Dia'],
     datasets:[{data:[ex,ne,na], backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)','rgba(245,158,11,.85)'], borderWidth:2, borderColor:'#102040'}]
-  },{cutout:'65%', plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:10}}}});
+  },{cutout:'65%', plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:10}}, tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fBRk(ctx.parsed)}`}}}});
   const imp = {};
   D.filter(d=>d.resultadoClass==='Não Executado').forEach(d=>{const k=d.resultado||'Outro'; imp[k]=(imp[k]||0)+1;});
   const impArr = Object.entries(imp).sort((a,b)=>b[1]-a[1]).slice(0,8);
   criarChart('ch-imp','bar',{
     labels: impArr.map(([k])=>k.length>25?k.slice(0,23)+'…':k),
     datasets:[{data:impArr.map(([,v])=>v), backgroundColor:'rgba(245,158,11,.75)', borderRadius:4}]
-  },{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#6a8db5', font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'}}, y:{ticks:{color:'#dde6f5', font:{size:10}}, grid:{display:false}}}});
+  },{indexAxis:'y', plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>fBRk(ctx.parsed.x)}}}, scales:{x:{ticks:{color:'#6a8db5', font:{size:10}, callback:v=>fBRk(v)}, grid:{color:'rgba(255,255,255,.04)'}}, y:{ticks:{color:'#dde6f5', font:{size:10}}, grid:{display:false}}}});
   const tipos = {};
   D.forEach(d=>{tipos[d.atividade]=(tipos[d.atividade]||0)+1;});
   criarChart('ch-tipo','pie',{
     labels:Object.keys(tipos),
     datasets:[{data:Object.values(tipos), backgroundColor:['rgba(0,194,224,.85)','rgba(79,142,247,.85)','rgba(168,85,247,.85)','rgba(34,197,94,.85)','rgba(245,158,11,.85)'], borderWidth:2, borderColor:'#102040'}]
-  },{plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}}});
+  },{plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}, tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fBRk(ctx.parsed)}`}}}});
   const origs = {};
   D.forEach(d=>{origs[d.origem]=(origs[d.origem]||0)+1;});
   criarChart('ch-orig','doughnut',{
     labels:Object.keys(origs),
     datasets:[{data:Object.values(origs), backgroundColor:['rgba(0,194,224,.85)','rgba(168,85,247,.85)','rgba(251,146,60,.85)'], borderWidth:2, borderColor:'#102040'}]
-  },{cutout:'60%', plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}}});
+  },{cutout:'60%', plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}, tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fBRk(ctx.parsed)}`}}}});
 }
 function renderTblColab(D){
   const cm = {};
   D.forEach(d=>{
-    if(!cm[d.equipe]) cm[d.equipe]={ex:0,ne:0,na:0,cortes:0,pos:0,relig:0,restab:0};
+    if(!cm[d.equipe]) cm[d.equipe]={ex:0,ne:0,na:0,prod:0,cortes:0,pos:0,relig:0,restab:0};
     const c=cm[d.equipe];
     if(d.resultadoClass==='Executado') c.ex++;
     else if(d.resultadoClass==='Não Executado') c.ne++;
     else c.na++;
+    if(d.produtivo) c.prod++;
     if(d.resultado.toUpperCase().includes('CORTAD')) c.cortes++;
     const r = d.resultado.toUpperCase();
     if(r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO')) c.pos++;
@@ -1197,12 +1595,12 @@ function renderTblColab(D){
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td style="font-weight:700;max-width:180px">${esc(nome)}</td>
-      <td>${tot}</td>
-      <td style="color:var(--verde);font-weight:700">${v.ex}</td>
-      <td style="color:var(--vermelho)">${v.ne}</td>
-      <td style="color:var(--amarelo)">${v.na}</td>
-      <td><div style="display:flex;align-items:center;gap:7px"><div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(p*100)}%;background:${fc}"></div></div><span style="font-weight:700;font-size:12px">${(p*100).toFixed(1)}%</span></div></td>
-      <td>${v.cortes}</td><td>${v.pos}</td><td>${v.relig}</td><td>${v.restab}</td>
+      <td>${fBRk(tot)}</td>
+      <td style="color:var(--verde);font-weight:700">${fBRk(v.ex)}</td>
+      <td style="color:#4ade80;font-weight:800">${fBRk(v.prod)} ✅</td>
+      <td style="color:var(--amarelo)">${fBRk(v.na)}</td>
+      <td><div style="display:flex;align-items:center;gap:7px"><div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(p*100)}%;background:${fc}"></div></div><span style="font-weight:700;font-size:12px">${fBR(p*100, 1)}%</span></div></td>
+      <td>${fBRk(v.cortes)}</td><td>${fBRk(v.pos)}</td><td>${fBRk(v.relig)}</td><td>${fBRk(v.restab)}</td>
       <td><span class="b ${bl}">${st}</span></td>`;
     tb.appendChild(tr);
   });
@@ -1213,10 +1611,12 @@ function renderTblRes(D,tot){
   const tb=$('tb-res'); tb.innerHTML='';
   Object.entries(res).sort((a,b)=>b[1]-a[1]).forEach(([nome,qtd])=>{
     const rc=mapResultado(nome);
+    const prod = classificarProdutivo(nome);
     const bl=rc==='Executado'?'b-g':rc==='Não Atendida'?'b-y':rc==='Pendente'?'b-a':'b-r';
     const tr=document.createElement('tr');
     tr.innerHTML=`<td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${esc(nome)}</span></td>
-      <td style="font-weight:700">${qtd}</td><td style="color:var(--muted)">${((qtd/tot)*100).toFixed(1)}%</td>`;
+      <td style="font-weight:700">${fBRk(qtd)}</td><td style="color:var(--muted)">${fBR((qtd/tot)*100, 1)}%</td>
+      <td>${prod?'<span class="prod-badge">✅ SIM</span>':'<span style="color:var(--muted)">—</span>'}</td>`;
     tb.appendChild(tr);
   });
 }
@@ -1229,7 +1629,7 @@ function renderTblUlt(D){
       <td style="font-size:11px">${esc(d.equipe.split(' ').slice(0,2).join(' '))}</td>
       <td><span class="b b-a">${esc(d.atividade)}</span></td>
       <td><span class="b ${bl}" style="border-radius:5px;white-space:normal;font-size:10px">${esc((d.resultado||'—').slice(0,36))}</span></td>
-      <td style="text-align:center">${d.tempo||'—'}</td>`;
+      <td style="text-align:center">${d.tempo?fBRk(d.tempo):'—'}</td>`;
     tb.appendChild(tr);
   });
 }
@@ -1251,17 +1651,17 @@ function renderRelig(){
   const atraso = D.filter(d=>d.prazoStatus==='atrasado').length;
   const urgente = D.filter(d=>d.prazoStatus==='urgente'||d.prazoStatus==='hoje').length;
   const exec = D.filter(d=>d.resultadoClass==='Executado').length;
-  $('pr-total').textContent = total;
-  $('pr-atraso').textContent = atraso;
-  $('pr-urgente').textContent = urgente;
-  $('pr-exec').textContent = exec;
+  $('pr-total').textContent = fBRk(total);
+  $('pr-atraso').textContent = fBRk(atraso);
+  $('pr-urgente').textContent = fBRk(urgente);
+  $('pr-exec').textContent = fBRk(exec);
   $('relig-update').textContent = 'Última atualização: ' + new Date().toLocaleString('pt-BR');
   const cidades = {};
   D.forEach(d=>{const k=d.municipio||'Não inf.';cidades[k]=(cidades[k]||0)+1;});
   const cidArr = Object.entries(cidades).sort((a,b)=>b[1]-a[1]).slice(0,5);
   $('pr-cidades').innerHTML = cidArr.map(([n,q])=>`
     <div class="pr-cidade ${q>total*0.5?'alerta':''}" onclick="drilldownRelig('Cidade: ${escAttr(n)}', d=>d.municipio==='${escAttr(n)}')">
-      <div class="nome">${esc(n)}</div><div class="qtd">${q}</div>
+      <div class="nome">${esc(n)}</div><div class="qtd">${fBRk(q)}</div>
     </div>`).join('') || '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px">Sem dados</div>';
   const statusCount = {Planejada:0, Planejável:0, Despachada:0};
   D.forEach(d=>{
@@ -1271,14 +1671,14 @@ function renderRelig(){
     else if(s.includes('DESPACHADA')) statusCount.Despachada++;
   });
   $('pr-status').innerHTML = `
-    <div class="box planejada"><div class="nome">Planejada</div><div class="qtd">${statusCount.Planejada}</div></div>
-    <div class="box planejavel"><div class="nome">Planejável</div><div class="qtd">${statusCount.Planejável}</div></div>
-    <div class="box despachada"><div class="nome">Despachada</div><div class="qtd">${statusCount.Despachada}</div></div>`;
+    <div class="box planejada"><div class="nome">Planejada</div><div class="qtd">${fBRk(statusCount.Planejada)}</div></div>
+    <div class="box planejavel"><div class="nome">Planejável</div><div class="qtd">${fBRk(statusCount.Planejável)}</div></div>
+    <div class="box despachada"><div class="nome">Despachada</div><div class="qtd">${fBRk(statusCount.Despachada)}</div></div>`;
   D.sort((a,b)=>{
     const o = {atrasado:0,urgente:1,hoje:2,futuro:3,sem:4};
     return (o[a.prazoStatus]||9)-(o[b.prazoStatus]||9);
   });
-  $('relig-count').textContent = D.length+' OS';
+  $('relig-count').textContent = fBRk(D.length)+' OS';
   const tb=$('tb-relig'); tb.innerHTML='';
   D.slice(0,500).forEach(d=>{
     const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
@@ -1293,7 +1693,7 @@ function renderRelig(){
       <td style="font-size:11px">${d.prazoDate?d.prazoDate.toLocaleString('pt-BR').slice(0,16):'—'}</td>
       <td><span class="alerta-prazo ${corPrazo(d.prazoStatus)}">${labelPrazo(d.prazoStatus)}</span></td>
       <td style="font-size:11px">${esc(d.statusOS||'—')}</td>
-      <td style="text-align:center;font-size:11px">${d.tempo||'—'}</td>`;
+      <td style="text-align:center;font-size:11px">${d.tempo?fBRk(d.tempo):'—'}</td>`;
     tb.appendChild(tr);
   });
 }
@@ -1322,7 +1722,6 @@ function acharFimDiaDoColab(equipe){
   const dt = reg.dtFim || reg.dtInicio;
   return { totalMin: dt.totalMin, str: dt.str, hora: dt.hora, min: dt.min, reg };
 }
-
 function renderJornada(){
   const filtColab = $('jf-colab').value;
   const D = filtColab ? ALL.filter(d=>d.equipe===filtColab) : ALL;
@@ -1363,9 +1762,9 @@ function renderJornada(){
   $('j-kpis').innerHTML = `
     <div class="kpi c-r"><div class="kpi-lbl">Tempo Total Perdido</div><div class="kpi-val">${minToHM(totalPerdido)}</div><div class="kpi-sub">Soma da equipe</div></div>
     <div class="kpi c-y"><div class="kpi-lbl">Média por Colaborador</div><div class="kpi-val">${minToHM(mediaPerdido)}</div><div class="kpi-sub">Após última baixa</div></div>
-    <div class="kpi c-r"><div class="kpi-lbl">Alertas</div><div class="kpi-val">${alertas}</div><div class="kpi-sub">+60min perdidos</div></div>
-    <div class="kpi c-o"><div class="kpi-lbl">🚩 Fim do Dia cedo</div><div class="kpi-val">${fimDiaCedo}</div><div class="kpi-sub">Antes das 16h</div></div>
-    <div class="kpi c-a"><div class="kpi-lbl">Colaboradores</div><div class="kpi-val">${jornadas.length}</div><div class="kpi-sub">Com dados</div></div>`;
+    <div class="kpi c-r"><div class="kpi-lbl">Alertas</div><div class="kpi-val">${fBRk(alertas)}</div><div class="kpi-sub">+60min perdidos</div></div>
+    <div class="kpi c-o"><div class="kpi-lbl">🚩 Fim do Dia cedo</div><div class="kpi-val">${fBRk(fimDiaCedo)}</div><div class="kpi-sub">Antes das 16h</div></div>
+    <div class="kpi c-a"><div class="kpi-lbl">Colaboradores</div><div class="kpi-val">${fBRk(jornadas.length)}</div><div class="kpi-sub">Com dados</div></div>`;
   const tc = $('timeline-container'); tc.innerHTML='';
   const labels=['08h','09h','10h','11h','12h','13h','14h','15h','16h','17h'];
   const labDiv = document.createElement('div'); labDiv.className='tl-labels';
@@ -1425,8 +1824,8 @@ function renderJornada(){
       <td><div class="fimdia-box"><span class="${fdCls}">${fd}</span>${fdIcon?`<span>${fdIcon}</span>`:''}</div></td>
       <td>${minToHM(j.jornadaEfetiva)}</td>
       <td style="color:var(--vermelho);font-weight:700">${minToHM(j.tempoPerdido)}</td>
-      <td><span style="color:${j.pctPerda>22?'var(--vermelho)':j.pctPerda>11?'var(--amarelo)':'var(--verde)'};font-weight:700">${j.pctPerda}%</span></td>
-      <td><div style="display:flex;align-items:center;gap:7px"><div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,parseFloat(j.pctAprov))}%;background:var(--verde)"></div></div><span style="font-size:12px;font-weight:700">${j.pctAprov}%</span></div></td>
+      <td><span style="color:${j.pctPerda>22?'var(--vermelho)':j.pctPerda>11?'var(--amarelo)':'var(--verde)'};font-weight:700">${fBR(parseFloat(j.pctPerda), 1)}%</span></td>
+      <td><div style="display:flex;align-items:center;gap:7px"><div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,parseFloat(j.pctAprov))}%;background:var(--verde)"></div></div><span style="font-size:12px;font-weight:700">${fBR(parseFloat(j.pctAprov), 1)}%</span></div></td>
       <td>${alerta}</td>`;
     tb.appendChild(tr);
   });
@@ -1435,7 +1834,7 @@ function renderJornada(){
     datasets:[{label:'Tempo Perdido (min)', data:jornadas.map(j=>j.tempoPerdido),
       backgroundColor:jornadas.map(j=>j.tempoPerdido>120?'rgba(239,68,68,.8)':j.tempoPerdido>60?'rgba(245,158,11,.8)':'rgba(34,197,94,.6)'),
       borderRadius:4}]
-  },{plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#6a8db5', font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'}}, y:{ticks:{color:'#6a8db5', callback:v=>v+'min'}, grid:{color:'rgba(255,255,255,.04)'}}}});
+  },{plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>`${fBRk(ctx.parsed.y)} min (${minToHM(ctx.parsed.y)})`}}}, scales:{x:{ticks:{color:'#6a8db5', font:{size:10}}, grid:{color:'rgba(255,255,255,.04)'}}, y:{ticks:{color:'#6a8db5', callback:v=>fBRk(v)+'min'}, grid:{color:'rgba(255,255,255,.04)'}}}});
 }
 
 // ═══════════ FISCAL / PRODUTIVIDADE ═══════════
@@ -1451,6 +1850,7 @@ function renderFiscal(){
   const ex=D.filter(d=>d.resultadoClass==='Executado').length;
   const ne=D.filter(d=>d.resultadoClass==='Não Executado').length;
   const na=D.filter(d=>d.resultadoClass==='Não Atendida').length;
+  const prod=D.filter(d=>d.produtivo).length;
   const reais = ALL.filter(d=>d.equipe===colab && d.dtInicio && d.resultadoClass!=='Não Atendida');
   const sorted = reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
   const pOS=sorted[0], uOS=sorted[sorted.length-1];
@@ -1458,38 +1858,39 @@ function renderFiscal(){
   $('fn-nome').textContent = colab;
   $('fn-meta').textContent = `${tot} OS no período${pOS?` · 1ª: ${pOS.dtInicio.str.split(' ')[1]}${fimDia?` · 🚩 Fim do Dia: ${minToHHMM(fimDia.totalMin)}`:''}`:''}`;
   $('fn-kpis').innerHTML = `
-    <div class="fk"><div class="fk-val" style="color:var(--verde)">${ex}</div><div class="fk-lbl">Executadas</div></div>
-    <div class="fk"><div class="fk-val" style="color:var(--vermelho)">${ne}</div><div class="fk-lbl">Não Exec.</div></div>
-    <div class="fk"><div class="fk-val" style="color:var(--amarelo)">${na}</div><div class="fk-lbl">Fim Dia</div></div>
+    <div class="fk"><div class="fk-val" style="color:var(--verde)">${fBRk(ex)}</div><div class="fk-lbl">Executadas</div></div>
+    <div class="fk"><div class="fk-val" style="color:#4ade80">${fBRk(prod)}</div><div class="fk-lbl">✅ Produtivos</div></div>
+    <div class="fk"><div class="fk-val" style="color:var(--vermelho)">${fBRk(ne)}</div><div class="fk-lbl">Não Exec.</div></div>
+    <div class="fk"><div class="fk-val" style="color:var(--amarelo)">${fBRk(na)}</div><div class="fk-lbl">Fim Dia</div></div>
     <div class="fk"><div class="fk-val" style="color:var(--accent)">${pct(ex,tot)}</div><div class="fk-lbl">Produtiv.</div></div>`;
   const cortes = D.filter(d=>d.resultado.toUpperCase().includes('CORTAD')).length;
   const pos = D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
   const ts = D.filter(d=>d.tempo>0 && d.tempo<300).map(d=>d.tempo);
-  const tMed = ts.length ? (ts.reduce((a,b)=>a+b,0)/ts.length).toFixed(1) : '—';
+  const tMed = ts.length ? (ts.reduce((a,b)=>a+b,0)/ts.length) : null;
   let perdaHTML = '—';
   if(pOS){
     const refFinal = fimDia ? Math.max(fimDia.totalMin, uOS.dtFim?uOS.dtFim.totalMin:uOS.dtInicio.totalMin) : (uOS.dtFim?uOS.dtFim.totalMin:uOS.dtInicio.totalMin);
     const perdido = Math.max(0, HORA_FIM - refFinal);
-    perdaHTML = `${minToHM(perdido)} (${((perdido/JORNADA)*100).toFixed(1)}%)`;
+    perdaHTML = `${minToHM(perdido)} (${fBR((perdido/JORNADA)*100, 1)}%)`;
   }
   $('fis-kpis').innerHTML = `
-    <div class="kpi c-a"><div class="kpi-lbl">Total OS</div><div class="kpi-val">${tot}</div></div>
+    <div class="kpi c-a"><div class="kpi-lbl">Total OS</div><div class="kpi-val">${fBRk(tot)}</div></div>
     <div class="kpi c-g"><div class="kpi-lbl">% Execução</div><div class="kpi-val">${pct(ex,tot)}</div></div>
-    <div class="kpi c-r"><div class="kpi-lbl">Cortes</div><div class="kpi-val">${cortes}</div></div>
-    <div class="kpi c-g"><div class="kpi-lbl">Pag. POS</div><div class="kpi-val">${pos}</div></div>
-    <div class="kpi c-a"><div class="kpi-lbl">T. Médio Exec.</div><div class="kpi-val">${tMed}${tMed!=='—'?' min':''}</div></div>
+    <div class="kpi c-r"><div class="kpi-lbl">Cortes</div><div class="kpi-val">${fBRk(cortes)}</div></div>
+    <div class="kpi c-g"><div class="kpi-lbl">Pag. POS</div><div class="kpi-val">${fBRk(pos)}</div></div>
+    <div class="kpi c-a"><div class="kpi-lbl">T. Médio Exec.</div><div class="kpi-val">${tMed!=null?fBR(tMed, 1)+' min':'—'}</div></div>
     <div class="kpi c-r"><div class="kpi-lbl">Tempo Perdido</div><div class="kpi-val" style="font-size:18px">${perdaHTML}</div></div>
     <div class="kpi c-o"><div class="kpi-lbl">🚩 Fim do Dia</div><div class="kpi-val" style="font-size:22px">${fimDia?minToHHMM(fimDia.totalMin):'—'}</div><div class="kpi-sub">${fimDia?'Registrado na planilha':'Não informado'}</div></div>`;
   criarChart('ch-fis-res','doughnut',{
     labels:['Executado','Não Exec.','Fim Dia'],
     datasets:[{data:[ex,ne,na], backgroundColor:['rgba(34,197,94,.85)','rgba(239,68,68,.85)','rgba(245,158,11,.85)'], borderWidth:2, borderColor:'#102040'}]
-  },{cutout:'60%', plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}}});
+  },{cutout:'60%', plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}, tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fBRk(ctx.parsed)}`}}}});
   const tipos = {};
   D.forEach(d=>{tipos[d.atividade]=(tipos[d.atividade]||0)+1;});
   criarChart('ch-fis-tipo','pie',{
     labels:Object.keys(tipos),
     datasets:[{data:Object.values(tipos), backgroundColor:['rgba(0,194,224,.85)','rgba(79,142,247,.85)','rgba(168,85,247,.85)','rgba(34,197,94,.85)','rgba(245,158,11,.85)'], borderWidth:2, borderColor:'#102040'}]
-  },{plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}}});
+  },{plugins:{legend:{position:'bottom', labels:{color:'#6a8db5', font:{size:11}, padding:8}}, tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fBRk(ctx.parsed)}`}}}});
   const tmTipo = {};
   D.filter(d=>d.tempo>0 && d.tempo<300).forEach(d=>{
     if(!tmTipo[d.atividade]) tmTipo[d.atividade]={soma:0,n:0};
@@ -1498,17 +1899,17 @@ function renderFiscal(){
   const tmL = Object.keys(tmTipo);
   criarChart('ch-fis-tempo','bar',{
     labels:tmL,
-    datasets:[{label:'T. Médio (min)', data:tmL.map(k=>(tmTipo[k].soma/tmTipo[k].n).toFixed(1)), backgroundColor:'rgba(79,142,247,.8)', borderRadius:4}]
-  },{plugins:{legend:{display:false}}, scales:{x:{ticks:{color:'#6a8db5'}}, y:{ticks:{color:'#6a8db5'}, grid:{color:'rgba(255,255,255,.04)'}}}});
+    datasets:[{label:'T. Médio (min)', data:tmL.map(k=>(tmTipo[k].soma/tmTipo[k].n)), backgroundColor:'rgba(79,142,247,.8)', borderRadius:4}]
+  },{plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>fBR(ctx.parsed.y, 1)+' min'}}}, scales:{x:{ticks:{color:'#6a8db5'}}, y:{ticks:{color:'#6a8db5', callback:v=>fBR(v,1)}, grid:{color:'rgba(255,255,255,.04)'}}}});
   const osComTempo = D.filter(d=>d.tempo>0 && d.tempo<300).sort((a,b)=>a.tempo-b.tempo);
   const maiR = osComTempo[0], maiD = osComTempo[osComTempo.length-1];
   $('fis-tempo-cards').innerHTML = `
-    <div class="tempo-card"><h4>⚡ Mais Rápida</h4><div class="val">${maiR?maiR.tempo+'min':'—'}</div><div class="sub">${esc(maiR?maiR.nrOS:'—')}</div></div>
-    <div class="tempo-card"><h4>🐢 Mais Demorada</h4><div class="val">${maiD?maiD.tempo+'min':'—'}</div><div class="sub">${esc(maiD?maiD.nrOS:'—')}</div></div>
-    <div class="tempo-card"><h4>📊 Tempo Médio</h4><div class="val">${tMed}${tMed!=='—'?' min':''}</div><div class="sub">${ts.length} OS medidas</div></div>
+    <div class="tempo-card"><h4>⚡ Mais Rápida</h4><div class="val">${maiR?fBRk(maiR.tempo)+'min':'—'}</div><div class="sub">${esc(maiR?maiR.nrOS:'—')}</div></div>
+    <div class="tempo-card"><h4>🐢 Mais Demorada</h4><div class="val">${maiD?fBRk(maiD.tempo)+'min':'—'}</div><div class="sub">${esc(maiD?maiD.nrOS:'—')}</div></div>
+    <div class="tempo-card"><h4>📊 Tempo Médio</h4><div class="val">${tMed!=null?fBR(tMed, 1)+' min':'—'}</div><div class="sub">${fBRk(ts.length)} OS medidas</div></div>
     <div class="tempo-card"><h4>⏱ 1ª Baixa</h4><div class="val">${pOS?pOS.dtInicio.str.split(' ')[1]:'—'}</div><div class="sub">${esc(pOS?pOS.nrOS:'—')}</div></div>
     <div class="tempo-card"><h4>🚩 Fim do Dia</h4><div class="val">${fimDia?minToHHMM(fimDia.totalMin):'—'}</div><div class="sub">${fimDia?'OS '+esc(fimDia.reg.nrOS):'sem registro'}</div></div>`;
-  $('fis-os-count').textContent = D.length+' OS';
+  $('fis-os-count').textContent = fBRk(D.length)+' OS';
   const tb = $('tb-fis'); tb.innerHTML='';
   D.forEach((d,i)=>{
     const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
@@ -1520,8 +1921,9 @@ function renderFiscal(){
       <td style="color:var(--muted);font-size:11px">${d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-'}</td>
       <td style="color:var(--accent)">${d.dtInicio?d.dtInicio.str.split(' ')[1]:'—'}</td>
       <td style="color:var(--amarelo)">${d.dtFim?d.dtFim.str.split(' ')[1]:'—'}</td>
-      <td style="text-align:center;font-weight:700">${d.tempo||'—'}</td>
+      <td style="text-align:center;font-weight:700">${d.tempo?fBRk(d.tempo):'—'}</td>
       <td><span class="b ${bl}" style="border-radius:5px;font-size:10px">${esc((d.resultado||'—').slice(0,35))}</span></td>
+      <td>${d.produtivo?'<span class="prod-badge">✅</span>':'—'}</td>
       <td style="font-size:11px">${esc(d.bairro||'-')}</td>`;
     tb.appendChild(tr);
   });
@@ -1530,14 +1932,21 @@ function renderFiscal(){
 // ═══════════ GESTÃO COLABORADORES ═══════════
 function renderGestao(){
   const cfg = carregarCollabConfig();
+  const nomesOrig = new Set();
+  carregarCatalogo().forEach(n=>nomesOrig.add(n));
+  (BASE_ORIGINAL.length ? BASE_ORIGINAL : ALL).forEach(d=>{ if(d.equipe) nomesOrig.add(d.equipe); });
+  carregarHistorico().forEach(h=>{
+    (h.registros||[]).forEach(r=>{ if(r.equipe) nomesOrig.add(r.equipe); });
+  });
   const nomes = {};
-  const fonte = BASE_ORIGINAL.length ? BASE_ORIGINAL : ALL;
-  fonte.forEach(d=>{
-    const orig = d.equipe;
+  nomesOrig.forEach(orig=>{
     const final = cfg.aliases[orig] || orig;
     if(!nomes[final]) nomes[final] = {originais:[], count:0};
     if(!nomes[final].originais.includes(orig)) nomes[final].originais.push(orig);
-    nomes[final].count++;
+  });
+  ALL.forEach(d=>{
+    const final = d.equipe;
+    if(nomes[final]) nomes[final].count = (nomes[final].count||0) + 1;
   });
   cfg.adicionados.forEach(nome=>{
     if(!nomes[nome]) nomes[nome] = {originais:[nome], count:0, manual:true};
@@ -1548,15 +1957,16 @@ function renderGestao(){
   grid.innerHTML = lista.map(([nome,info])=>{
     const excl = cfg.excluidos.includes(nome);
     const alias = info.originais.length>1;
+    const count = info.count||0;
     return `<div class="gest-card ${excl?'excluido':''}">
       <div class="gest-nome">
         ${esc(nome)}
         ${alias?`<span class="b b-a" style="margin-left:6px">${info.originais.length} originais</span>`:''}
         ${info.manual?`<span class="b b-p" style="margin-left:6px">manual</span>`:''}
       </div>
-      <div class="gest-count">${info.count} OS</div>
-      <button class="btn-sm btn-o" onclick="renomearColab('${escAttr(nome)}')">✏️</button>
-      <button class="btn-sm ${excl?'btn-g':'btn-r'}" onclick="toggleExcluirColab('${escAttr(nome)}')">${excl?'↺':'✕'}</button>
+      <div class="gest-count">${fBRk(count)} OS no período</div>
+      <button class="btn-sm btn-o" onclick="renomearColab('${escAttr(nome)}')" title="Renomear/mesclar">✏️</button>
+      <button class="btn-sm ${excl?'btn-g':'btn-r'}" onclick="toggleExcluirColab('${escAttr(nome)}')" title="${excl?'Restaurar':'Excluir'}">${excl?'↺':'✕'}</button>
     </div>`;
   }).join('');
 }
@@ -1566,8 +1976,11 @@ function renomearColab(nomeAtual){
   const cfg = carregarCollabConfig();
   cfg.aliases[nomeAtual] = novo;
   salvarCollabConfig(cfg);
+  const cat = new Set(carregarCatalogo());
+  cat.add(novo);
+  salvarCatalogo([...cat].sort());
   recarregarComConfig();
-  toast(`"${nomeAtual}" → "${novo}"`);
+  toast(`"${nomeAtual}" → "${novo}" (mesclado)`);
 }
 function toggleExcluirColab(nome){
   const cfg = carregarCollabConfig();
@@ -1584,6 +1997,9 @@ function adicionarColab(){
   const cfg = carregarCollabConfig();
   if(!cfg.adicionados.includes(nome)) cfg.adicionados.push(nome);
   salvarCollabConfig(cfg);
+  const cat = new Set(carregarCatalogo());
+  cat.add(nome);
+  salvarCatalogo([...cat].sort());
   recarregarComConfig();
   toast(`"${nome}" adicionado`);
 }
@@ -1613,13 +2029,14 @@ function renderHistorico(){
       <div class="hist-periodo">${h.periodo||'—'}</div>
       <div class="hist-meta">📄 ${esc(h.nomeArquivo||'—')}<br>🕐 ${new Date(h.dataImport).toLocaleString('pt-BR')}</div>
       <div class="hist-stats">
-        <span>Total: <b>${h.total||0}</b></span>
-        <span>Exec: <b>${h.exec||0}</b></span>
-        <span>Fim: <b>${h.fimDia||0}</b></span>
+        <span>Total: <b>${fBRk(h.total||0)}</b></span>
+        <span>Exec: <b>${fBRk(h.exec||0)}</b></span>
+        <span>✅ Prod: <b>${fBRk(h.produtivos||0)}</b></span>
+        <span>Fim: <b>${fBRk(h.fimDia||0)}</b></span>
       </div>
     </div>`).join('');
   const tam = estimarTamanho(hist);
-  $('hist-info').textContent = `${hist.length} período(s) salvos · ~${(tam/1024).toFixed(0)} KB de ~5000 KB`;
+  $('hist-info').textContent = `${hist.length} período(s) salvos · ~${fBR(tam/1024, 0)} KB de ~5000 KB`;
 }
 function renderHistQuick(){
   const hist = carregarHistorico();
@@ -1627,76 +2044,31 @@ function renderHistQuick(){
   if(!hist.length){ el.innerHTML=''; return; }
   el.innerHTML = `<div style="font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">📅 Períodos salvos</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-      ${hist.slice(0,6).map(h=>`<button class="btn btn-o" onclick="event.stopPropagation();abrirPeriodo('${h.id}')">📂 ${h.periodo} (${h.total})</button>`).join('')}
+      ${hist.slice(0,6).map(h=>`<button class="btn btn-o" onclick="event.stopPropagation();abrirPeriodo('${h.id}')">📂 ${h.periodo} (${fBRk(h.total)})</button>`).join('')}
     </div>`;
-}
-
-// ═══════════ AUDITORIA ═══════════
-function renderAuditoria(){
-  const D = ALL;
-  const problemas = [];
-  D.forEach(d=>{
-    if(!d.nrOS) problemas.push({os:'—',p:'Sem Nº OS',d:d.equipe});
-    if(!d.equipe) problemas.push({os:d.nrOS,p:'Sem colaborador',d:'—'});
-    if(!d.resultado) problemas.push({os:d.nrOS,p:'Sem resultado',d:d.equipe});
-    if(!d.dtInicio) problemas.push({os:d.nrOS,p:'Sem data início',d:d.equipe});
-    if(d.resultadoClass==='Pendente') problemas.push({os:d.nrOS,p:'Resultado não classificado',d:d.resultado});
-    if(d.dtInicio && d.dtFim && d.dtFim.totalMin < d.dtInicio.totalMin)
-      problemas.push({os:d.nrOS,p:'Data fim < início',d:`${d.dtInicio.str} → ${d.dtFim.str}`});
-  });
-  const semRes = D.filter(d=>!d.resultado).length;
-  const semData = D.filter(d=>!d.dtInicio).length;
-  const semEquipe = D.filter(d=>!d.equipe).length;
-  const semClass = D.filter(d=>d.resultadoClass==='Pendente').length;
-  $('aud-kpis').innerHTML = `
-    <div class="kpi c-r"><div class="kpi-lbl">Sem Resultado</div><div class="kpi-val">${semRes}</div></div>
-    <div class="kpi c-y"><div class="kpi-lbl">Sem Data</div><div class="kpi-val">${semData}</div></div>
-    <div class="kpi c-o"><div class="kpi-lbl">Sem Equipe</div><div class="kpi-val">${semEquipe}</div></div>
-    <div class="kpi c-p"><div class="kpi-lbl">Sem Classificação</div><div class="kpi-val">${semClass}</div></div>
-    <div class="kpi c-a"><div class="kpi-lbl">Total Problemas</div><div class="kpi-val">${problemas.length}</div></div>`;
-  $('aud-count').textContent = problemas.length+' inconsistências';
-  const tb=$('tb-aud'); tb.innerHTML='';
-  problemas.slice(0,200).forEach(p=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-family:monospace;color:var(--accent);font-size:11px">${esc(p.os)}</td>
-      <td style="color:var(--vermelho);font-weight:700">${esc(p.p)}</td>
-      <td style="font-size:11px;color:var(--muted)">${esc(p.d)}</td>`;
-    tb.appendChild(tr);
-  });
-  const atvs = {};
-  D.forEach(d=>{
-    if(!atvs[d.atividade]) atvs[d.atividade]={t:0,e:0};
-    atvs[d.atividade].t++;
-    if(d.resultadoClass==='Executado') atvs[d.atividade].e++;
-  });
-  const tbA=$('tb-atv'); tbA.innerHTML='';
-  Object.entries(atvs).sort((a,b)=>b[1].t-a[1].t).forEach(([k,v])=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700">${esc(k)}</td><td>${v.t}</td>
-      <td style="color:var(--verde)">${v.e}</td><td>${pct(v.e,v.t)}</td>`;
-    tbA.appendChild(tr);
-  });
 }
 
 // ═══════════ DETALHES ═══════════
 function limparDetalhes(){
-  ['df-colab','df-tipo','df-res'].forEach(id=>$(id).value='');
+  ['df-colab','df-tipo','df-res','df-prod'].forEach(id=>$(id).value='');
   $('df-busca').value='';
   renderDetalhes();
 }
 function renderDetalhes(){
   const c=$('df-colab').value, t=$('df-tipo').value, r=$('df-res').value;
+  const prod = $('df-prod').value;
   const busca = $('df-busca').value.toLowerCase();
   const D = ALL.filter(d=>{
     if(c && d.equipe!==c) return false;
     if(t && d.atividade!==t) return false;
     if(r && d.resultadoClass!==r) return false;
+    if(prod === 'sim' && !d.produtivo) return false;
     if(busca && !d.nrOS.includes(busca) && !d.endereco.toLowerCase().includes(busca) &&
        !d.resultado.toLowerCase().includes(busca) && !d.equipe.toLowerCase().includes(busca) &&
        !d.bairro.toLowerCase().includes(busca)) return false;
     return true;
   });
-  $('det-count').textContent = D.length+' OS exibidas';
+  $('det-count').textContent = fBRk(D.length)+' OS exibidas';
   const tb=$('tb-det'); tb.innerHTML='';
   D.slice(0,300).forEach(d=>{
     const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
@@ -1708,8 +2080,9 @@ function renderDetalhes(){
       <td style="font-size:11px;color:var(--muted)">${d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-'}</td>
       <td style="font-size:11px;color:var(--accent)">${d.dtInicio?d.dtInicio.str.split(' ')[1]:'—'}</td>
       <td style="font-size:11px;color:var(--amarelo)">${d.dtFim?d.dtFim.str.split(' ')[1]:'—'}</td>
-      <td style="text-align:center;font-weight:700">${d.tempo||'—'}</td>
+      <td style="text-align:center;font-weight:700">${d.tempo?fBRk(d.tempo):'—'}</td>
       <td><span class="b ${bl}" style="border-radius:5px;font-size:10px">${esc((d.resultado||'—').slice(0,30))}</span></td>
+      <td>${d.produtivo?'<span class="prod-badge">✅</span>':'—'}</td>
       <td style="font-size:10px;color:var(--muted);max-width:160px">${esc((d.nota||'').slice(0,45))}</td>
       <td style="font-size:11px">${esc(d.endereco)}</td>
       <td style="font-size:11px">${esc(d.bairro)}</td>
@@ -1722,7 +2095,7 @@ function renderDetalhes(){
 // ═══════════ MODAL ═══════════
 function abrirModal(titulo, D, colunas){
   $('modal-title').textContent = titulo;
-  $('modal-sub').textContent = D.length+' OS encontradas';
+  $('modal-sub').textContent = fBRk(D.length)+' OS encontradas';
   $('modal-thead').innerHTML = '<tr>'+colunas.map(c=>`<th>${esc(c.l)}</th>`).join('')+'</tr>';
   const tb=$('modal-tbody'); tb.innerHTML='';
   D.slice(0,500).forEach(d=>{
@@ -1773,7 +2146,7 @@ function showPage(id, el){
   if(id==='fiscal') renderFiscal();
   if(id==='detalhes') renderDetalhes();
   if(id==='historico') renderHistorico();
-  if(id==='auditoria') renderAuditoria();
+  if(id==='planilhas') renderPlanilhas();
   if(id==='relig') renderRelig();
   if(id==='jornada') renderJornada();
   if(id==='gestao') renderGestao();
@@ -1783,37 +2156,54 @@ function showPage(id, el){
 function exportar(){
   if(!ALL.length){ toast('Carregue um arquivo primeiro!',false); return; }
   const wb = XLSX.utils.book_new();
+  const metas = carregarMetas();
   const res = [];
   res.push(['RELATÓRIO DE GESTÃO — CORTE, COBRANÇA & SERVIÇOS']);
-  res.push(['SABESP · Santo André ATC 72']);
+  res.push(['SABESP']);
   res.push(['Gerado em:', new Date().toLocaleString('pt-BR')]);
   res.push([]);
   res.push(['RESUMO GERAL']);
-  res.push(['Total OS','Executadas','Não Exec.','Fim Dia','% Execução']);
+  res.push(['Total OS','Executadas','Produtivos ✅','Não Exec.','Fim Dia','% Execução']);
   const tot=ALL.length, ex=ALL.filter(d=>d.resultadoClass==='Executado').length;
+  const prod=ALL.filter(d=>d.produtivo).length;
   const ne=ALL.filter(d=>d.resultadoClass==='Não Executado').length, na=ALL.filter(d=>d.resultadoClass==='Não Atendida').length;
-  res.push([tot,ex,ne,na,pct(ex,tot)]);
+  res.push([tot,ex,prod,ne,na,pct(ex,tot)]);
   res.push([]);
-  res.push(['METAS']);
-  const metas = carregarMetas();
-  res.push(['Meta Equipe', metas.geral||0]);
-  res.push(['Dias úteis', metas.diasUteis||22]);
-  res.push(['Realizado', ex]);
-  res.push(['% da Meta', metas.geral?pct(ex,metas.geral):'—']);
+  res.push(['METAS EQUIPE (AUTOMÁTICAS · meta batida a 60%)']);
+  const fiscaisAtivos = new Set(ALL.map(d=>d.equipe).filter(Boolean));
+  const diasTrab = diasTrabalhados(ALL);
+  const metaEquipeTotal = Math.round((metas.metaDiaria||0) * (metas.diasUteis||22) * Math.max(1, fiscaisAtivos.size));
+  const metaEquipe60 = Math.ceil(metaEquipeTotal * META_THRESHOLD);
+  const metaFiscalAuto = Math.round((metas.metaDiaria||0) * (metas.diasUteis||22));
+  const metaFiscal60 = Math.ceil(metaFiscalAuto * META_THRESHOLD);
+  res.push(['Meta diária por fiscal', metas.metaDiaria||0]);
+  res.push(['Dias úteis do mês', metas.diasUteis||22]);
+  res.push(['Fiscais ativos', fiscaisAtivos.size]);
+  res.push(['Meta Equipe Total', metaEquipeTotal]);
+  res.push(['Meta Equipe 60% (batida)', metaEquipe60]);
+  res.push(['Meta Individual', metaFiscalAuto]);
+  res.push(['Meta Individual 60%', metaFiscal60]);
+  res.push(['Dias trabalhados', diasTrab]);
+  res.push(['SOMA PRODUTIVOS EQUIPE', prod]);
+  res.push(['Status', prod>=metaEquipe60 ? 'BATIDA' : 'EM ANDAMENTO']);
+  res.push(['Falta p/ bater', Math.max(0, metaEquipe60 - prod)]);
   res.push([]);
   res.push(['METAS POR COLABORADOR']);
-  res.push(['Colaborador','Meta','Realizado','% Atingido','Probabilidade']);
+  res.push(['Colaborador','Meta','Meta 60%','Produtivos','% Real','Probabilidade','Status']);
   const colabs = [...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
   const porColab = {};
-  ALL.filter(d=>d.resultadoClass==='Executado').forEach(d=>{ porColab[d.equipe]=(porColab[d.equipe]||0)+1; });
+  ALL.filter(d=>d.produtivo).forEach(d=>{ porColab[d.equipe]=(porColab[d.equipe]||0)+1; });
   const diasSet = new Set();
   ALL.forEach(d=>{ if(d.dtInicio?.dateStr) diasSet.add(d.dtInicio.dateStr); });
   const diasComDados = Math.max(1, diasSet.size);
   colabs.forEach(nome=>{
     const realizado = porColab[nome]||0;
-    const meta = metas.fiscais[nome]||0;
-    const prob = calcProbabilidade(realizado, meta, diasComDados, metas.diasUteis||22);
-    res.push([nome, meta||'—', realizado, meta?pct(realizado,meta):'—', meta?prob+'%':'—']);
+    const override = metas.fiscaisOverride[nome]||0;
+    const metaFinal = override>0 ? override : metaFiscalAuto;
+    const meta60 = Math.ceil(metaFinal*META_THRESHOLD);
+    const prob = calcProbabilidade(realizado, metaFinal, diasComDados, metas.diasUteis||22);
+    const status = metaFinal>0 ? (realizado>=meta60?'BATIDA':'EM ANDAMENTO') : '—';
+    res.push([nome, metaFinal||'—', meta60||'—', realizado, metaFinal?pct(realizado,metaFinal):'—', metaFinal?prob+'%':'—', status]);
   });
   res.push([]);
   res.push(['JORNADA + FIM DO DIA']);
@@ -1831,13 +2221,14 @@ function exportar(){
       fimDia?minToHHMM(fimDia.totalMin):'—', perdido]);
   });
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(res), 'Resumo + Metas');
-  const hdr = ['Nº OS','Colaborador','Atividade','Origem','Data','Início','Fim','Tempo','Resultado Original','Resultado Classificado','Prazo','Nota','Endereço','Bairro','Município','Status OS'];
+  const hdr = ['Nº OS','Colaborador','Atividade','Origem','Data','Início','Fim','Tempo','Resultado Original','Resultado Classificado','Produtivo','Prazo','Nota','Endereço','Bairro','Município','Status OS'];
   const rows = ALL.map(d=>[
     d.nrOS, d.equipe, d.atividade, d.origem,
     d.dtInicio?d.dtInicio.dateStr.split('-').reverse().join('/'):'-',
     d.dtInicio?d.dtInicio.str.split(' ')[1]:'-',
     d.dtFim?d.dtFim.str.split(' ')[1]:'-',
     d.tempo, d.resultado, d.resultadoClass,
+    d.produtivo?'SIM':'',
     labelPrazo(d.prazoStatus), d.nota, d.endereco, d.bairro, d.municipio, d.statusOS
   ]);
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([hdr, ...rows]), 'Detalhamento OS');
@@ -1852,6 +2243,15 @@ function exportar(){
 // ═══════════ STARTUP ═══════════
 document.addEventListener('DOMContentLoaded', ()=>{
   renderHistQuick();
+  // Toggle visual do acumular
+  const chk = $('chk-acumular');
+  const lbl = $('lbl-acumular');
+  function atualizarToggle(){
+    if(chk.checked) lbl.classList.add('on'); else lbl.classList.remove('on');
+  }
+  chk.addEventListener('change', atualizarToggle);
+  atualizarToggle();
+
   const id = localStorage.getItem(LS_ATIVO);
   if(id){
     const hist = carregarHistorico();
