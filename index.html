@@ -291,8 +291,7 @@ select,input{min-width:120px;font-size:11px}
       <div class="fg"><label>Atividade</label>
         <select id="f-tipo" onchange="filtrar()">
           <option value="">Todas</option>
-          <option>Corte</option>
-          <option>Supressão</option>
+          <option>Corte e Supressão</option>
           <option>Restabelecimento</option>
           <option>Religação</option>
           <option>Outros</option>
@@ -469,8 +468,7 @@ select,input{min-width:120px;font-size:11px}
       <div class="fg"><label>Atividade</label>
         <select id="ff-tipo" onchange="renderFiscal()">
           <option value="">Todas</option>
-          <option>Corte</option>
-          <option>Supressão</option>
+          <option>Corte e Supressão</option>
           <option>Restabelecimento</option>
           <option>Religação</option>
           <option>Outros</option>
@@ -548,8 +546,7 @@ select,input{min-width:120px;font-size:11px}
       <div class="fg"><label>Atividade</label>
         <select id="df-tipo" onchange="renderDetalhes()">
           <option value="">Todas</option>
-          <option>Corte</option>
-          <option>Supressão</option>
+          <option>Corte e Supressão</option>
           <option>Restabelecimento</option>
           <option>Religação</option>
           <option>Outros</option>
@@ -1026,8 +1023,7 @@ function mapAtividade(codTSS, descTSS, familia){
   const c=String(codTSS||''), d=String(descTSS||'').toUpperCase(), f=String(familia||'').toUpperCase();
   if(d.includes('RESTABELEC')||d.includes('RESTAB')) return 'Restabelecimento';
   if(d.includes('RELIGA')||d.includes('RELIG')) return 'Religação';
-  if(d.includes('SUPRESS')||f.includes('SUPRESS')) return 'Supressão';
-  if(c==='4025'||d.includes('CORTAR')||d.includes('CORTE')) return 'Corte';
+  if(d.includes('SUPRESS')||f.includes('SUPRESS') || c==='4025'||d.includes('CORTAR')||d.includes('CORTE')) return 'Corte e Supressão';
   return 'Outros';
 }
 function mapOrigem(familia, descTSS, nota){
