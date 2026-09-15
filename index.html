@@ -1020,10 +1020,21 @@ function mapResultado(res){
   return 'Não Executado';
 }
 function mapAtividade(codTSS, descTSS, familia){
-  const c=String(codTSS||''), d=String(descTSS||'').toUpperCase(), f=String(familia||'').toUpperCase();
-  if(d.includes('RESTABELEC')||d.includes('RESTAB')) return 'Restabelecimento';
-  if(d.includes('RELIGA')||d.includes('RELIG')) return 'Religação';
-  if(d.includes('SUPRESS')||f.includes('SUPRESS') || c==='4025'||d.includes('CORTAR')||d.includes('CORTE')) return 'Corte e Supressão';
+  const c=String(codTSS||'').trim();
+  const d=String(descTSS||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const f=String(familia||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  // Restabelecimento
+  if(d.includes('RESTABELEC')||d.includes('RESTAB')||c==='4675'||c==='4680'||c==='4650'||c==='4720') return 'Restabelecimento';
+  // Religação
+  if(d.includes('RELIGA')||d.includes('RELIG')||c==='4555'||c==='4560'||c==='4570'||c==='4630'||c==='4665') return 'Religação';
+  // Corte e Supressão (códigos e textos reais da planilha GeoCall)
+  // 4025/4005/4030 = Cortar | 4125/4130 = Suprimir | família CORTE SUPRESSÃO ADM
+  if(
+    ['4025','4005','4030','4125','4130','4140'].includes(c) ||
+    d.includes('CORTAR') || d.includes('CORTE') || d.includes('CORTAD') ||
+    d.includes('SUPRIM') || d.includes('SUPRESS') ||
+    f.includes('CORTE') || f.includes('SUPRESS') || f.includes('SUPRIM')
+  ) return 'Corte e Supressão';
   return 'Outros';
 }
 function mapOrigem(familia, descTSS, nota){
