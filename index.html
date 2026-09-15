@@ -22,6 +22,7 @@ header{background:var(--bg2);border-bottom:1px solid var(--borda);padding:14px 2
 .hbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .chip{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;background:var(--card);border:1px solid var(--borda);color:var(--muted)}
 .chip b{color:var(--accent)}
+.chip.ativo{border-color:var(--verde);color:#4ade80}
 .btn{padding:7px 16px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:.15s}
 .btn-p{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg)}
 .btn-p:hover{opacity:.85}
@@ -51,6 +52,8 @@ main.on{display:block}.page{display:none}.page.on{display:block}
 .fg label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
 select,input[type=date],input[type=text],input[type=number]{background:var(--card);border:1px solid var(--borda);color:var(--texto);padding:7px 11px;border-radius:8px;font-size:12px;cursor:pointer;min-width:140px}
 select:focus,input:focus{outline:none;border-color:var(--accent)}
+.filtro-info{font-size:11px;color:var(--muted);padding:8px 0}
+.filtro-info b{color:var(--accent)}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
 .kpi{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;transition:.15s;cursor:pointer}
 .kpi:hover{transform:translateY(-2px);border-color:var(--borda2)}
@@ -114,16 +117,6 @@ tr:hover td{background:rgba(255,255,255,.025)}
 .tempo-card h4{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
 .tempo-card .val{font-size:20px;font-weight:800;color:var(--white)}
 .tempo-card .sub{font-size:11px;color:var(--muted);margin-top:4px}
-.hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:18px}
-.hist-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:16px;cursor:pointer;transition:.15s;position:relative}
-.hist-card:hover{border-color:var(--accent);transform:translateY(-2px)}
-.hist-card.active{border-color:var(--verde);background:linear-gradient(135deg,#102040,#0d2a1e)}
-.hist-periodo{font-size:18px;font-weight:800;color:var(--white);margin-bottom:4px}
-.hist-meta{font-size:11px;color:var(--muted);margin-bottom:8px}
-.hist-stats{display:flex;gap:14px;font-size:12px;margin-top:8px;flex-wrap:wrap}
-.hist-stats span b{color:var(--accent)}
-.hist-del{position:absolute;top:8px;right:8px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:5px}
-.hist-del:hover{background:rgba(239,68,68,.2);color:var(--vermelho)}
 .plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:18px}
 .plan-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--r);padding:16px;position:relative;cursor:pointer;transition:.15s}
 .plan-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.18)}
@@ -133,9 +126,6 @@ tr:hover td{background:rgba(255,255,255,.025)}
 .plan-meta{font-size:10px;color:var(--muted);margin-top:10px;line-height:1.6}.plan-actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
 .plan-actions .btn-sm{padding:5px 9px}.plan-del{position:absolute;top:8px;right:8px}
 .plan-empty{padding:35px;text-align:center;color:var(--muted);border:1px dashed var(--borda);border-radius:var(--r)}
-.plan-modal-form{display:grid;gap:12px;padding:20px}.plan-modal-form label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}.plan-modal-form input,.plan-modal-form textarea{width:100%;min-width:0;background:var(--card);border:1px solid var(--borda);color:var(--texto);padding:9px 11px;border-radius:8px;font-size:12px;font-family:inherit}.plan-modal-form textarea{min-height:90px;resize:vertical}
-@media(max-width:900px){.plan-grid{grid-template-columns:1fr}}
-
 .painel-relig{background:linear-gradient(135deg,#0a1e38 0%,#0d1e35 100%);border:1px solid var(--borda);border-radius:var(--r);padding:22px 24px;margin-bottom:18px}
 .painel-relig h2{font-size:22px;font-weight:800;color:var(--white);margin-bottom:4px;letter-spacing:.5px}
 .painel-relig .sub{font-size:12px;color:var(--muted);margin-bottom:20px}
@@ -235,6 +225,7 @@ tr:hover td{background:rgba(255,255,255,.025)}
 main{padding:14px}header{padding:12px 14px}.tabs{padding:0 14px}
 select,input{min-width:120px;font-size:11px}
 .team-box .num{font-size:38px}
+.plan-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -254,12 +245,13 @@ select,input{min-width:120px;font-size:11px}
   <div class="hbtns">
     <div class="chip">Período: <b id="chip-data">—</b></div>
     <div class="chip">Total OS: <b id="chip-total">—</b></div>
-    <label class="toggle-acum on" id="lbl-acumular" title="Quando ativo, novas planilhas somam à base atual em vez de substituir">
+    <div class="chip ativo" id="chip-filtro-ativo" style="display:none">🔍 <b id="chip-filtro-txt">—</b></div>
+    <label class="toggle-acum on" id="lbl-acumular" title="Quando ativo, novas planilhas somam à base atual">
       <input type="checkbox" id="chk-acumular" checked>
       🔗 Acumular
     </label>
     <button class="btn btn-o" onclick="document.getElementById('file-input').click()">📂 Nova(s) Planilha(s)</button>
-    <button class="btn btn-r" onclick="limparBase()" title="Zera todos os dados carregados">🗑 Limpar Base</button>
+    <button class="btn btn-r" onclick="limparBase()" title="Zera os dados carregados">🗑 Limpar Tela</button>
     <button class="btn btn-g" onclick="exportar()">⬇ Exportar Excel</button>
     <input type="file" id="file-input" accept=".xlsx,.xls" multiple onchange="handleFile(event)">
   </div>
@@ -268,7 +260,6 @@ select,input{min-width:120px;font-size:11px}
 <div class="tabs" id="tabs" style="display:none">
   <div class="tab active" onclick="showPage('geral',this)">📊 Visão Geral</div>
   <div class="tab" onclick="showPage('metas',this)">🎯 Metas</div>
-  <div class="tab" onclick="showPage('relig',this)">🚨 Restab/Relig</div>
   <div class="tab" onclick="showPage('jornada',this)">⏱ Jornada</div>
   <div class="tab" onclick="showPage('fiscal',this)">👤 Produtividade</div>
   <div class="tab" onclick="showPage('gestao',this)">👥 Colaboradores</div>
@@ -286,7 +277,6 @@ select,input{min-width:120px;font-size:11px}
   <p>Pode selecionar <b>várias planilhas ao mesmo tempo</b>.<br>Os dados serão somados (dedupe automático).</p>
   <button class="btn btn-p" onclick="event.stopPropagation();document.getElementById('file-input').click()">Selecionar .xlsx (múltiplos)</button>
   <small>Compatível com: GeoCall / WFM</small>
-  <div id="hist-quick" style="margin-top:24px"></div>
   <div id="plan-quick" style="margin-top:24px"></div>
 </div>
 
@@ -294,13 +284,18 @@ select,input{min-width:120px;font-size:11px}
 
   <div class="page on" id="page-geral">
     <div class="filtros">
+      <div class="fg"><label>📅 Período</label>
+        <select id="f-periodo" onchange="filtrar()"><option value="">Todos os meses</option></select></div>
       <div class="fg"><label>Colaborador / Equipe</label>
         <select id="f-colab" onchange="filtrar()"><option value="">Todos</option></select></div>
       <div class="fg"><label>Atividade</label>
         <select id="f-tipo" onchange="filtrar()">
           <option value="">Todas</option>
-          <option>Corte</option><option>Supressão</option>
-          <option>Restabelecimento</option><option>Religação</option><option>Outros</option>
+          <option>Corte</option>
+          <option>Supressão</option>
+          <option>Restabelecimento</option>
+          <option>Religação</option>
+          <option>Outros</option>
         </select></div>
       <div class="fg"><label>Resultado</label>
         <select id="f-res" onchange="filtrar()">
@@ -312,10 +307,11 @@ select,input{min-width:120px;font-size:11px}
       <div class="fg"><label>Origem</label>
         <select id="f-orig" onchange="filtrar()">
           <option value="">Todas</option>
-          <option>Rotina</option><option>Ação 40+</option><option>Outra Ação</option>
+          <option>Rotina</option>
         </select></div>
       <button class="btn btn-o" style="align-self:flex-end" onclick="limparFiltros()">✕ Limpar</button>
     </div>
+    <div class="filtro-info" id="filtro-info"></div>
     <div class="kpi-grid">
       <div class="kpi c-a" onclick="drilldown('Total OS', d=>true)"><div class="kpi-lbl">Total OS</div><div class="kpi-val" id="k-tot">—</div><div class="kpi-sub">Ordens no período</div></div>
       <div class="kpi c-g" onclick="drilldown('Executadas', d=>d.resultadoClass==='Executado')"><div class="kpi-lbl">Executadas</div><div class="kpi-val" id="k-ex">—</div><div class="kpi-sub" id="k-ex-s">—</div></div>
@@ -323,8 +319,8 @@ select,input{min-width:120px;font-size:11px}
       <div class="kpi c-y" onclick="drilldown('Fim do Dia', d=>d.resultadoClass==='Não Atendida')"><div class="kpi-lbl">Fim do Dia</div><div class="kpi-val" id="k-na">—</div><div class="kpi-sub">Não atendidas</div></div>
       <div class="kpi c-a"><div class="kpi-lbl">% Execução</div><div class="kpi-val" id="k-prod">—</div><div class="kpi-sub">Exec / Total</div></div>
       <div class="kpi c-r" onclick="drilldown('Cortes', d=>d.resultado.toUpperCase().includes('CORTAD'))"><div class="kpi-lbl">Cortes</div><div class="kpi-val" id="k-corte">—</div><div class="kpi-sub">Cortada + Suprimida</div></div>
-      <div class="kpi c-g" onclick="drilldown('Pagamentos POS', d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO')})"><div class="kpi-lbl">Pagamentos POS</div><div class="kpi-val" id="k-pos">—</div><div class="kpi-sub">Confirmados</div></div>
-      <div class="kpi c-p" onclick="drilldown('Produtivos (contam meta)', d=>d.produtivo)"><div class="kpi-lbl">✅ Produtivos</div><div class="kpi-val" id="k-produtivos">—</div><div class="kpi-sub">Contam para meta</div></div>
+      <div class="kpi c-g" onclick="drilldown('Produtivos', d=>d.produtivo)"><div class="kpi-lbl">✅ Produtivos</div><div class="kpi-val" id="k-produtivos">—</div><div class="kpi-sub">Contam para meta</div></div>
+      <div class="kpi c-p"><div class="kpi-lbl">📈 % Produtivos</div><div class="kpi-val" id="k-pprod">—</div><div class="kpi-sub">Produtivos / Total</div></div>
     </div>
     <div class="row2">
       <div class="cc"><div class="cc-title">Produtividade por Colaborador</div><div class="cc-sub">Executadas vs Não Executadas</div><div class="ch-wrap" style="height:260px"><canvas id="ch-colab"></canvas></div></div>
@@ -333,13 +329,13 @@ select,input{min-width:120px;font-size:11px}
     <div class="row3">
       <div class="cc"><div class="cc-title">Motivos de Não Execução</div><div class="cc-sub">Impedimentos frequentes</div><div class="ch-wrap" style="height:200px"><canvas id="ch-imp"></canvas></div></div>
       <div class="cc"><div class="cc-title">Tipo de Atividade</div><div class="cc-sub">Distribuição</div><div class="ch-wrap" style="height:200px"><canvas id="ch-tipo"></canvas></div></div>
-      <div class="cc"><div class="cc-title">Origem / Ação</div><div class="cc-sub">Rotina vs Ações</div><div class="ch-wrap" style="height:200px"><canvas id="ch-orig"></canvas></div></div>
+      <div class="cc"><div class="cc-title">Origem / Ação</div><div class="cc-sub">Rotina</div><div class="ch-wrap" style="height:200px"><canvas id="ch-orig"></canvas></div></div>
     </div>
     <div class="tbl-wrap">
       <div class="tbl-head"><h3>📋 Desempenho por Colaborador</h3><span id="lbl-colab"></span></div>
       <div class="tbl-scroll"><table>
         <thead><tr><th>Colaborador</th><th>Total</th><th>Exec.</th><th>Produtivos ✅</th>
-        <th>Fim Dia</th><th>% Exec.</th><th>Cortes</th><th>POS</th>
+        <th>Fim Dia</th><th>% Exec.</th><th>% Prod.</th><th>Cortes</th>
         <th>Relig.</th><th>Restab.</th><th>Status</th></tr></thead>
         <tbody id="tb-colab"></tbody>
       </table></div>
@@ -430,50 +426,18 @@ select,input{min-width:120px;font-size:11px}
     </div>
   </div>
 
-  <div class="page" id="page-relig">
-    <div class="filtros">
-      <div class="fg"><label>Cidade</label><select id="r-cidade" onchange="renderRelig()"><option value="">Todas</option></select></div>
-      <div class="fg"><label>Status</label><select id="r-status" onchange="renderRelig()">
-        <option value="">Todos</option><option>Planejada</option><option>Planejável</option><option>Despachada</option></select></div>
-      <div class="fg"><label>Colaborador</label><select id="r-colab" onchange="renderRelig()"><option value="">Todos</option></select></div>
-      <div class="fg"><label>Resultado</label><select id="r-res" onchange="renderRelig()">
-        <option value="">Todos</option><option value="Executado">Executado</option>
-        <option value="Não Executado">Não Executado</option><option value="Pendente">Pendente</option></select></div>
-      <button class="btn btn-o" style="align-self:flex-end" onclick="limparRelig()">✕ Limpar</button>
-    </div>
-    <div class="painel-relig">
-      <h2>PRIMARIZAÇÃO — ACOMPANHAMENTO RELIG/RESTAB</h2>
-      <div class="sub" id="relig-update">Última atualização: —</div>
-      <div class="pr-grid">
-        <div class="pr-box destaque" onclick="drilldownRelig('Total OS', ()=>true)"><div class="lbl">Total de OS</div><div class="val" id="pr-total">—</div></div>
-        <div class="pr-box vermelho" onclick="drilldownRelig('Em Atraso', d=>d.prazoStatus==='atrasado')"><div class="lbl">🔴 Em Atraso</div><div class="val" id="pr-atraso">—</div></div>
-        <div class="pr-box vermelho" onclick="drilldownRelig('Atrasando <24h', d=>d.prazoStatus==='urgente'||d.prazoStatus==='hoje')"><div class="lbl">⚠ Atrasando &lt;24h</div><div class="val" id="pr-urgente">—</div></div>
-        <div class="pr-box destaque" onclick="drilldownRelig('Executadas', d=>d.resultadoClass==='Executado')"><div class="lbl">✔ Executadas</div><div class="val" id="pr-exec">—</div></div>
-      </div>
-      <div class="pr-cidades" id="pr-cidades"></div>
-      <div class="pr-status" id="pr-status"></div>
-    </div>
-    <div class="tbl-wrap">
-      <div class="tbl-head"><h3>📋 OS Restabelecimento / Religação</h3><span id="relig-count">—</span></div>
-      <div class="tbl-scroll"><table>
-        <thead><tr><th>Nº OS</th><th>Cidade</th><th>Colaborador</th><th>Endereço</th>
-        <th>Atividade</th><th>Resultado</th><th>Prazo</th><th>Status Prazo</th>
-        <th>Status OS</th><th>Tempo</th></tr></thead>
-        <tbody id="tb-relig"></tbody>
-      </table></div>
-    </div>
-  </div>
-
   <div class="page" id="page-jornada">
     <div class="filtros">
       <div class="fg"><label>Colaborador</label>
         <select id="jf-colab" onchange="renderJornada()"><option value="">Todos</option></select></div>
-      <button class="btn btn-o" style="align-self:flex-end" onclick="document.getElementById('jf-colab').value='';renderJornada()">✕ Limpar</button>
+      <div class="fg"><label>📅 Período</label>
+        <select id="jf-periodo" onchange="renderJornada()"><option value="">Todos os meses</option></select></div>
+      <button class="btn btn-o" style="align-self:flex-end" onclick="document.getElementById('jf-colab').value='';document.getElementById('jf-periodo').value='';renderJornada()">✕ Limpar</button>
     </div>
     <div class="kpi-grid" id="j-kpis"></div>
     <div class="cc" style="margin-bottom:14px">
-      <div class="cc-title">⏱ Linha do Tempo — Primeiro, Último Serviço e Fim do Dia</div>
-      <div class="cc-sub">Horário comercial 08h00–17h00 · Vermelho = perdido · 🚩 Marcador = Fim do Dia</div>
+      <div class="cc-title">⏱ Linha do Tempo — Primeira OS, Última OS e Fim do Dia</div>
+      <div class="cc-sub">Horário comercial 08h00–17h00 · 🚩 Marcador = Fim do Dia · ▼ = Última OS</div>
       <div id="timeline-container" style="padding:4px 0"></div>
       <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:12px;height:12px;border-radius:3px;background:var(--verde);display:inline-block"></span>Trabalhou</span>
@@ -483,9 +447,9 @@ select,input{min-width:120px;font-size:11px}
       </div>
     </div>
     <div class="tbl-wrap">
-      <div class="tbl-head"><h3>📊 Resumo de Jornada com Hora do Fim do Dia</h3><span>Base: 08h–17h (540min)</span></div>
+      <div class="tbl-head"><h3>📊 Resumo de Jornada</h3><span>1ª OS, Última OS e Fim do Dia</span></div>
       <div class="tbl-scroll"><table>
-        <thead><tr><th>Colaborador</th><th>1ª Baixa</th><th>Última Baixa</th>
+        <thead><tr><th>Colaborador</th><th>1ª OS</th><th>Última OS</th>
         <th>🚩 Fim do Dia</th><th>Jornada Efetiva</th><th>Tempo Perdido</th>
         <th>% Perda</th><th>% Aproveit.</th><th>Alerta</th></tr></thead>
         <tbody id="tb-jornada"></tbody>
@@ -504,8 +468,12 @@ select,input{min-width:120px;font-size:11px}
         <select id="ff-colab" onchange="renderFiscal()"><option value="">— Selecione —</option></select></div>
       <div class="fg"><label>Atividade</label>
         <select id="ff-tipo" onchange="renderFiscal()">
-          <option value="">Todas</option><option>Corte</option><option>Supressão</option>
-          <option>Restabelecimento</option><option>Religação</option><option>Outros</option>
+          <option value="">Todas</option>
+          <option>Corte</option>
+          <option>Supressão</option>
+          <option>Restabelecimento</option>
+          <option>Religação</option>
+          <option>Outros</option>
         </select></div>
       <div class="fg"><label>Resultado</label>
         <select id="ff-res" onchange="renderFiscal()">
@@ -558,23 +526,10 @@ select,input{min-width:120px;font-size:11px}
     <div class="gest-grid" id="gest-grid"></div>
   </div>
 
-  <div class="page" id="page-historico">
-    <div class="cc" style="margin-bottom:14px">
-      <div class="cc-title">📅 Histórico de Períodos Importados</div>
-      <div class="cc-sub">Cada importação fica gravada no navegador. Clique para reabrir ou exclua com ×.</div>
-      <div id="hist-info" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
-    </div>
-    <div class="hist-grid" id="hist-grid"></div>
-    <div id="hist-vazio" style="text-align:center;padding:60px;color:var(--muted)">
-      <div style="font-size:48px;margin-bottom:12px">📭</div>
-      <p>Nenhum período salvo ainda. Importe uma planilha para começar.</p>
-    </div>
-  </div>
-
   <div class="page" id="page-planilhas">
     <div class="cc" style="margin-bottom:14px">
       <div class="cc-title">📚 Planilhas Salvas — Standby</div>
-      <div class="cc-sub">As planilhas originais ficam armazenadas neste navegador. Clique em <b>Abrir</b> para carregar a planilha diretamente no dashboard, sem precisar fazer upload novamente.</div>
+      <div class="cc-sub">As planilhas originais ficam armazenadas neste navegador. Clique em <b>Abrir agora</b> para carregar direto no dashboard.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
         <button class="btn btn-p" onclick="document.getElementById('file-input').click()">➕ Salvar nova planilha</button>
         <button class="btn btn-o" onclick="renderPlanilhas()">↻ Atualizar lista</button>
@@ -586,12 +541,18 @@ select,input{min-width:120px;font-size:11px}
 
   <div class="page" id="page-detalhes">
     <div class="filtros">
+      <div class="fg"><label>📅 Período</label>
+        <select id="df-periodo" onchange="renderDetalhes()"><option value="">Todos os meses</option></select></div>
       <div class="fg"><label>Colaborador</label>
         <select id="df-colab" onchange="renderDetalhes()"><option value="">Todos</option></select></div>
       <div class="fg"><label>Atividade</label>
         <select id="df-tipo" onchange="renderDetalhes()">
-          <option value="">Todas</option><option>Corte</option><option>Supressão</option>
-          <option>Restabelecimento</option><option>Religação</option><option>Outros</option>
+          <option value="">Todas</option>
+          <option>Corte</option>
+          <option>Supressão</option>
+          <option>Restabelecimento</option>
+          <option>Religação</option>
+          <option>Outros</option>
         </select></div>
       <div class="fg"><label>Resultado</label>
         <select id="df-res" onchange="renderDetalhes()">
@@ -606,6 +567,7 @@ select,input{min-width:120px;font-size:11px}
         <input type="text" id="df-busca" placeholder="Nº OS, endereço, bairro..." oninput="renderDetalhes()" style="min-width:200px"></div>
       <button class="btn btn-o" style="align-self:flex-end" onclick="limparDetalhes()">✕ Limpar</button>
     </div>
+    <div class="filtro-info" id="det-info"></div>
     <div class="tbl-wrap">
       <div class="tbl-head"><h3>📋 Detalhamento Completo</h3><span id="det-count"></span></div>
       <div class="tbl-scroll"><table>
@@ -635,16 +597,18 @@ select,input{min-width:120px;font-size:11px}
 <script>
 // ═══════════ ESTADO ═══════════
 let ALL = [], FILT = [], BASE_ORIGINAL = [];
+let COLABS_LIST = [];
+let PERIODOS_LIST = [];
 const CHARTS = {};
 const HORA_INI = 8*60, HORA_FIM = 17*60, JORNADA = HORA_FIM-HORA_INI;
-const LS_KEY = 'sabesp_dashboard_v11_historico';
-const LS_ATIVO = 'sabesp_dashboard_v11_ativo';
-const LS_COLLAB = 'sabesp_dashboard_v11_collab_config';
-const LS_METAS = 'sabesp_dashboard_v11_metas';
-const LS_CATALOGO = 'sabesp_dashboard_v11_catalogo';
-  const DB_PLANILHAS = 'sabesp_dashboard_planilhas_v1';
-  const DB_PLANILHAS_STORE = 'planilhas';
-  let PLAN_DB_PROMISE = null;
+const LS_KEY = 'sabesp_dashboard_v13_historico';
+const LS_ATIVO = 'sabesp_dashboard_v13_ativo';
+const LS_COLLAB = 'sabesp_dashboard_v13_collab_config';
+const LS_METAS = 'sabesp_dashboard_v13_metas';
+const LS_CATALOGO = 'sabesp_dashboard_v13_catalogo';
+const DB_PLANILHAS = 'sabesp_dashboard_planilhas_v2';
+const DB_PLANILHAS_STORE = 'planilhas';
+let PLAN_DB_PROMISE = null;
 
 // ═══════════ PRODUTIVOS ═══════════
 const PRODUTIVOS = [
@@ -659,21 +623,42 @@ const PRODUTIVOS = [
   'SUPRIMIDA LIGAÇÃO DE AGUA POR DEBITO OP',
   'VISTORIADO LOCAL E IDENTIFICADA SITUAÇÃO',
 ];
+
+const PRODUTIVOS_KEYWORDS = [
+  ['CLIENTE', 'POS'],
+  ['APRESENTOU', 'FATURAS', 'PAGAS'],
+  ['APRESENTOU', 'FATURA', 'PAGA'],
+  ['CORTADA', 'DEBITO', 'DIF'],
+  ['CORTADA', 'DEBITO', 'OP'],
+  ['PAGAMENTO', 'EFETIVADO', 'POS'],
+  ['PGTO', 'EFETUOU', 'POS'],
+  ['RELIGACAO', 'DEB', 'OP'],
+  ['RELIGACAO', 'AGUA', 'OP'],
+  ['RESTABELECIDA', 'LIGACAO', 'AGUA', 'DIF'],
+  ['RESTABELECIDA', 'LIGACAO', 'AGUA', 'OP'],
+  ['SUPRIMIDA', 'DEBITO', 'OP'],
+  ['SUPRIMIDA', 'LIGACAO', 'AGUA'],
+  ['VISTORIADO', 'IDENTIFICADA', 'SITUACAO'],
+];
+
 function normalizarTexto(s){
   return String(s||'').toUpperCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/\s+/g,' ').trim();
 }
 const PRODUTIVOS_NORM = PRODUTIVOS.map(normalizarTexto);
+
 function classificarProdutivo(resultado){
   const r = normalizarTexto(resultado);
   if(!r) return false;
-  return PRODUTIVOS_NORM.some(p => r === p || r.includes(p));
+  if(PRODUTIVOS_NORM.includes(r)) return true;
+  if(PRODUTIVOS_NORM.some(p => r.includes(p))) return true;
+  if(PRODUTIVOS_KEYWORDS.some(keys => keys.every(k => r.includes(k)))) return true;
+  return false;
 }
 const META_THRESHOLD = 0.6;
 
 // ═══════════ FORMATTAÇÃO BR ═══════════
-// Formata número no padrão brasileiro: 1.234,56
 const fBR = (n, dec=0) => {
   if(n==null || isNaN(n)) return '—';
   return Number(n).toLocaleString('pt-BR', {
@@ -681,7 +666,13 @@ const fBR = (n, dec=0) => {
     maximumFractionDigits: dec,
   });
 };
-const fBRk = (n) => n==null || isNaN(n) ? '—' : Number(n).toLocaleString('pt-BR'); // inteiro
+const fBRk = (n) => n==null || isNaN(n) ? '—' : Number(n).toLocaleString('pt-BR');
+const fBytes = (b) => {
+  if(!b) return '0 B';
+  if(b < 1024) return b + ' B';
+  if(b < 1024*1024) return fBR(b/1024, 1) + ' KB';
+  return fBR(b/1024/1024, 2) + ' MB';
+};
 
 // ═══════════ UTILS ═══════════
 const $ = id=>document.getElementById(id);
@@ -744,6 +735,16 @@ function calcPrazoStatus(prazo){
 }
 const labelPrazo = s => ({atrasado:'🔴 ATRASADO',urgente:'🟠 <6H',hoje:'🟡 <24H',futuro:'🟢 OK',sem:'⚪ SEM PRAZO'}[s]||'⚪');
 const corPrazo = s => ({atrasado:'ap-atrasado',urgente:'ap-urgente',hoje:'ap-hoje',futuro:'ap-futuro',sem:'ap-sem'}[s]||'ap-sem');
+
+const MESES_NOMES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+function formatarPeriodo(p){
+  if(!p) return '—';
+  const [ano,mes] = p.split('-');
+  const m = parseInt(mes,10);
+  if(!ano || !m) return p;
+  const nome = MESES_NOMES[m-1] || mes;
+  return `${nome.charAt(0).toUpperCase()}${nome.slice(1)}/${ano}`;
+}
 
 // ═══════════ CATÁLOGO PERMANENTE ═══════════
 function carregarCatalogo(){
@@ -894,7 +895,6 @@ function renderMetas(){
     <div class="kpi c-y"><div class="kpi-lbl">📅 Dias Restantes</div><div class="kpi-val">${diasRestantes}</div><div class="kpi-sub">de ${diasUteis} úteis</div></div>
   `;
 
-  // Evolução
   const porDia = {};
   produtivos.forEach(d=>{ if(d.dtInicio?.dateStr){ porDia[d.dtInicio.dateStr] = (porDia[d.dtInicio.dateStr]||0)+1; } });
   const datas = Object.keys(porDia).sort();
@@ -1031,9 +1031,6 @@ function mapAtividade(codTSS, descTSS, familia){
   return 'Outros';
 }
 function mapOrigem(familia, descTSS, nota){
-  const s = (String(familia||'')+' '+String(descTSS||'')+' '+String(nota||'')).toUpperCase();
-  if(s.includes('40+')||s.includes('40 MAIS')||s.includes('AÇÃO 40')) return 'Ação 40+';
-  if(s.includes('AÇÃO')||s.includes('ACAO')) return 'Outra Ação';
   return 'Rotina';
 }
 
@@ -1104,11 +1101,11 @@ function extrair(wb){
   return dados;
 }
 
-// ═══════════ PLANILHAS SALVAS — INDEXEDDB ═══════════
+// ═══════════ INDEXEDDB PLANILHAS ═══════════
 function abrirPlanilhasDB(){
   if(PLAN_DB_PROMISE) return PLAN_DB_PROMISE;
   PLAN_DB_PROMISE = new Promise((resolve,reject)=>{
-    if(!window.indexedDB){ reject(new Error('IndexedDB não disponível neste navegador.')); return; }
+    if(!window.indexedDB){ reject(new Error('IndexedDB não disponível')); return; }
     const req = indexedDB.open(DB_PLANILHAS,1);
     req.onupgradeneeded = e=>{
       const db=e.target.result;
@@ -1119,7 +1116,7 @@ function abrirPlanilhasDB(){
       }
     };
     req.onsuccess=e=>resolve(e.target.result);
-    req.onerror=()=>reject(req.error||new Error('Falha ao abrir armazenamento das planilhas.'));
+    req.onerror=()=>reject(req.error||new Error('Falha IndexedDB'));
   });
   return PLAN_DB_PROMISE;
 }
@@ -1148,24 +1145,19 @@ async function salvarPlanilhaArquivo(file,dados){
     const item={
       id:'plan_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
       nome:nomeBase,
-      descricao:`Planilha GeoCall/WFM importada em ${new Date().toLocaleString('pt-BR')}.`,
+      descricao:`Importada em ${new Date().toLocaleString('pt-BR')}`,
       arquivo:file.name,
-      mime:file.type||'application/octet-stream',
       blob:file,
       tamanho:file.size||0,
       totalOS:dados.length||0,
       periodo:periodoDosDados(dados),
       createdAt:agora,
       updatedAt:agora,
-      ultimoAcesso:null
     };
     const tx=db.transaction(DB_PLANILHAS_STORE,'readwrite');
     await idbRequest(tx.objectStore(DB_PLANILHAS_STORE).put(item));
     return item;
-  }catch(e){
-    console.error('Não foi possível salvar a planilha original:',e);
-    return null;
-  }
+  }catch(e){ console.error(e); return null; }
 }
 function periodoDosDados(dados){
   const cont={};
@@ -1185,15 +1177,14 @@ async function excluirPlanilha(id,ev){
   if(ev) ev.stopPropagation();
   const item=await obterPlanilha(id).catch(()=>null);
   if(!item) return;
-  if(!confirm(`Excluir a planilha salva "${item.nome}"?\n\nO arquivo original será removido do armazenamento deste navegador.`)) return;
+  if(!confirm(`Excluir a planilha salva "${item.nome}"?`)) return;
   try{
     const db=await abrirPlanilhasDB();
     const tx=db.transaction(DB_PLANILHAS_STORE,'readwrite');
     await idbRequest(tx.objectStore(DB_PLANILHAS_STORE).delete(id));
-    if(localStorage.getItem('sabesp_dashboard_v11_planilha_ativa')===id) localStorage.removeItem('sabesp_dashboard_v11_planilha_ativa');
-    await renderPlanilhas(); renderPlanQuick();
+    await renderPlanilhas();
     toast('Planilha removida do standby');
-  }catch(e){toast('Erro ao excluir planilha: '+e.message,false);}
+  }catch(e){toast('Erro ao excluir: '+e.message,false);}
 }
 async function editarPlanilha(id,ev){
   if(ev) ev.stopPropagation();
@@ -1203,7 +1194,7 @@ async function editarPlanilha(id,ev){
   const novaDesc=prompt('Descrição da planilha:',item.descricao||'');
   if(novaDesc===null) return;
   await atualizarPlanilhaMeta(id,{nome:novoNome.trim()||item.nome,descricao:novaDesc.trim()});
-  await renderPlanilhas(); renderPlanQuick();
+  await renderPlanilhas();
   toast('Nome e descrição atualizados');
 }
 async function abrirPlanilhaSalva(id,ev){
@@ -1216,7 +1207,6 @@ async function abrirPlanilhaSalva(id,ev){
     const wb=XLSX.read(buffer,{type:'array',cellDates:true});
     const dados=extrair(wb);
     if(!dados.length) throw new Error('Nenhuma OS encontrada nesta planilha.');
-    // Ao escolher uma planilha salva, ela vira a base ativa. Não acumula automaticamente.
     const vistos=new Set(), dadosNovos=[];
     dados.forEach(d=>{
       const key=(d.nrOS||'')+'|'+(d.dtInicio?.dateStr||'');
@@ -1228,29 +1218,29 @@ async function abrirPlanilhaSalva(id,ev){
     FILT=[...ALL];
     atualizarCatalogo(dadosNovos);
     await atualizarPlanilhaMeta(id,{totalOS:dadosNovos.length,periodo:periodoDosDados(dadosNovos),ultimoAcesso:new Date().toISOString()});
-    try{localStorage.setItem('sabesp_dashboard_v11_planilha_ativa',id);}catch(e){}
+    try{localStorage.setItem(LS_ATIVO,id);}catch(e){}
     salvarPeriodo(item.arquivo||item.nome,dadosNovos);
     init();
-    renderPlanilhas(); renderPlanQuick();
-    toast(`"${item.nome}" carregada diretamente · ${dadosNovos.length} OS`);
+    renderPlanilhas();
+    toast(`"${item.nome}" carregada · ${dadosNovos.length} OS`);
   }catch(e){console.error(e);toast('Erro ao abrir planilha: '+e.message,false);}
   finally{loader(false);}
 }
 async function renderPlanilhas(){
   const grid=$('plan-grid'); if(!grid) return;
   const arr=await listarPlanilhas();
-  const ativo=localStorage.getItem('sabesp_dashboard_v11_planilha_ativa');
+  const ativo=localStorage.getItem(LS_ATIVO);
   $('plan-info').textContent=`${arr.length} planilha(s) salva(s) neste navegador · o arquivo original permanece disponível para reabertura`;
   if(!arr.length){grid.innerHTML='<div class="plan-empty" style="grid-column:1/-1"><div style="font-size:42px;margin-bottom:10px">📭</div><b>Nenhuma planilha salva ainda.</b><br><span style="font-size:11px">Importe uma .xlsx ou .xls para ela aparecer aqui.</span></div>';return;}
   grid.innerHTML=arr.map(p=>{
     const dt=p.updatedAt||p.createdAt;
-    const kb=p.tamanho?fBR(p.tamanho/1024,0)+' KB':'tamanho não informado';
+    const kb=p.tamanho?fBytes(p.tamanho):'—';
     return `<div class="plan-card ${p.id===ativo?'active':''}" onclick="abrirPlanilhaSalva('${escAttr(p.id)}')">
       <button class="hist-del plan-del" onclick="excluirPlanilha('${escAttr(p.id)}',event)" title="Excluir">×</button>
       <div class="plan-icon">📊</div>
       <div class="plan-name">${esc(p.nome||p.arquivo||'Planilha')}</div>
       <div class="plan-desc">${esc(p.descricao||'Sem descrição.')}</div>
-      <div class="plan-meta">📄 ${esc(p.arquivo||'—')}<br>📅 ${dt?new Date(dt).toLocaleString('pt-BR'):'—'}<br>📦 ${kb} · ${fBRk(p.totalOS||0)} OS · ${esc(p.periodo||'—')}</div>
+      <div class="plan-meta">📄 ${esc(p.arquivo||'—')}<br>📅 ${dt?new Date(dt).toLocaleString('pt-BR'):'—'}<br>📦 ${kb} · ${fBRk(p.totalOS||0)} OS · ${esc(formatarPeriodo(p.periodo))}</div>
       <div class="plan-actions">
         <button class="btn btn-p" onclick="abrirPlanilhaSalva('${escAttr(p.id)}',event)">▶ Abrir agora</button>
         <button class="btn btn-o" onclick="editarPlanilha('${escAttr(p.id)}',event)">✏️ Editar</button>
@@ -1265,7 +1255,7 @@ async function renderPlanQuick(){
   el.innerHTML=`<div style="font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">📚 Planilhas em standby</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">${arr.map(p=>`<button class="btn btn-o" onclick="event.stopPropagation();abrirPlanilhaSalva('${escAttr(p.id)}')">📊 ${esc(p.nome||p.arquivo)}${p.totalOS?` (${fBRk(p.totalOS)})`:''}</button>`).join('')}</div>`;
 }
 
-// ═══════════ HISTÓRICO EM LOCALSTORAGE ═══════════
+// ═══════════ LOCALSTORAGE ═══════════
 function serializarReg(d){
   return {
     nrOS:d.nrOS, equipe:d.equipe, codTSS:d.codTSS, descTSS:d.descTSS,
@@ -1331,42 +1321,21 @@ function salvarPeriodo(nomeArquivo, dados){
   try{ localStorage.setItem(LS_ATIVO, id); }catch(e){}
   return id;
 }
-function abrirPeriodo(id){
-  const hist = carregarHistorico();
-  const h = hist.find(x=>x.id===id);
-  if(!h){ toast('Período não encontrado',false); return; }
-  ALL = (h.registros||[]).map(desserializarReg);
-  ALL = aplicarCollabConfig(ALL);
-  BASE_ORIGINAL = (h.registros||[]).map(desserializarReg);
-  try{ localStorage.setItem(LS_ATIVO, id); }catch(e){}
-  init();
-  toast(`Período ${h.periodo} carregado (${ALL.length} OS)`);
-}
-function excluirPeriodo(id, ev){
-  if(ev) ev.stopPropagation();
-  if(!confirm('Excluir este período do histórico?')) return;
-  let hist = carregarHistorico().filter(x=>x.id!==id);
-  salvarHistorico(hist);
-  renderHistorico(); renderHistQuick();
-  renderPlanQuick();
-  renderPlanilhas();
-  toast('Período excluído');
-}
 
 // ═══════════ LIMPAR BASE ═══════════
 function limparBase(){
-  if(!BASE_ORIGINAL.length && !ALL.length){ toast('Não há dados para limpar', false); return; }
-  if(!confirm(`Tem certeza? Isso vai apagar ${ALL.length} OS carregadas (o histórico fica intacto).`)) return;
-  BASE_ORIGINAL = [];
-  ALL = [];
-  FILT = [];
+  if(!ALL.length){ toast('Não há dados para limpar', false); return; }
+  if(!confirm(`Limpar a tela atual? (${fBRk(ALL.length)} OS)\n\nAs planilhas salvas continuam intactas.`)) return;
+  ALL = []; FILT = []; BASE_ORIGINAL = [];
   $('main').classList.remove('on');
   $('tabs').style.display = 'none';
   $('upload-zone').style.display = 'block';
   $('chip-data').textContent = '—';
   $('chip-total').textContent = '—';
+  $('chip-filtro-ativo').style.display = 'none';
   try{ localStorage.removeItem(LS_ATIVO); }catch(e){}
-  toast('Base limpa');
+  renderPlanQuick();
+  toast('Tela limpa');
 }
 
 // ═══════════ HANDLE FILES ═══════════
@@ -1392,7 +1361,7 @@ async function processFiles(files){
       if(dados.length){
         todosDados.push(...dados); nomesArquivos.push(file.name);
         const salvo=await salvarPlanilhaArquivo(file,dados);
-        if(!salvo) console.warn('Planilha processada, mas não salva no standby:',file.name);
+        if(!salvo) console.warn('Planilha não salva no standby:',file.name);
       }else erros++;
     }catch(err){erros++;console.error('Erro em',file.name,err);}
     concluidos++; loader(true,`Processando... ${concluidos}/${validos.length}`);
@@ -1400,11 +1369,11 @@ async function processFiles(files){
   finalizarImportacao(todosDados,nomesArquivos,erros);
   await renderPlanilhas(); await renderPlanQuick();
 }
+
 function finalizarImportacao(dados, nomesArquivos, erros){
   try{
     if(!dados.length) throw new Error('Nenhuma OS encontrada nos arquivos selecionados.');
 
-    // Dedupe interno entre os arquivos desta importação
     const vistosNovos = new Set();
     const dadosNovos = [];
     dados.forEach(d=>{
@@ -1418,7 +1387,6 @@ function finalizarImportacao(dados, nomesArquivos, erros){
     let dadosFinais, msg;
 
     if(modoAcumular() && BASE_ORIGINAL.length > 0){
-      // MODO ACUMULAR: soma com a base atual, deduplicando
       const vistos = new Set();
       BASE_ORIGINAL.forEach(d=>{
         const key = (d.nrOS||'') + '|' + (d.dtInicio?.dateStr||'');
@@ -1434,14 +1402,13 @@ function finalizarImportacao(dados, nomesArquivos, erros){
       });
       dadosFinais = [...BASE_ORIGINAL, ...realmenteNovos];
       const antes = BASE_ORIGINAL.length;
-      msg = `+${realmenteNovos.length} OS adicionadas · ${jaExistiam} já existiam · Total: ${antes} → ${dadosFinais.length}`;
+      msg = `+${fBRk(realmenteNovos.length)} OS adicionadas · ${fBRk(jaExistiam)} já existiam · Total: ${fBRk(antes)} → ${fBRk(dadosFinais.length)}`;
     } else {
-      // MODO SUBSTITUIR
       dadosFinais = dadosNovos;
-      msg = `${dadosNovos.length} OS carregadas`;
+      msg = `${fBRk(dadosNovos.length)} OS carregadas`;
     }
 
-    if(dupInternos > 0) msg += ` · ${dupInternos} dup. nos arquivos`;
+    if(dupInternos > 0) msg += ` · ${fBRk(dupInternos)} dup. nos arquivos`;
     if(erros > 0) msg += ` · ${erros} erro(s)`;
 
     BASE_ORIGINAL = dadosFinais.slice();
@@ -1465,44 +1432,95 @@ function finalizarImportacao(dados, nomesArquivos, erros){
 
 // ═══════════ INIT ═══════════
 function init(){
-  const colabs = [...new Set(ALL.map(d=>d.equipe).filter(Boolean))].sort();
-  ['f-colab','jf-colab','ff-colab','df-colab','r-colab'].forEach(id=>{
+  const colabsSet = new Set();
+  carregarCatalogo().forEach(n=>colabsSet.add(n));
+  ALL.forEach(d=>{ if(d.equipe) colabsSet.add(d.equipe); });
+  COLABS_LIST = [...colabsSet].sort();
+
+  const periodosSet = new Set();
+  ALL.forEach(d=>{ if(d.dtInicio?.dateStr) periodosSet.add(d.dtInicio.dateStr.slice(0,7)); });
+  PERIODOS_LIST = [...periodosSet].sort().reverse();
+
+  ['f-colab','jf-colab','ff-colab','df-colab'].forEach(id=>{
     const sel = $(id); if(!sel) return;
     const base = id==='ff-colab' ? '<option value="">— Selecione —</option>' : '<option value="">Todos</option>';
-    sel.innerHTML = base + colabs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    sel.innerHTML = base + COLABS_LIST.map((c,i)=>`<option value="${i}">${esc(c)}</option>`).join('');
   });
-  const cidades = [...new Set(ALL.map(d=>d.municipio).filter(Boolean))].sort();
-  const rCid = $('r-cidade');
-  if(rCid) rCid.innerHTML = '<option value="">Todas</option>' + cidades.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  ['f-periodo','jf-periodo','df-periodo'].forEach(id=>{
+    const sel = $(id); if(!sel) return;
+    sel.innerHTML = '<option value="">Todos os meses</option>' + PERIODOS_LIST.map((p,i)=>`<option value="${i}">${esc(formatarPeriodo(p))}</option>`).join('');
+  });
 
   const datas = ALL.map(d=>d.dtInicio?.dateStr).filter(Boolean);
-  const maxData = datas.length ? datas.sort().slice(-1)[0] : '—';
-  $('chip-data').textContent = maxData ? maxData.split('-').reverse().join('/') : '—';
-  $('chip-total').textContent = ALL.length;
+  const minData = datas.length ? datas.sort()[0] : null;
+  const maxData = datas.length ? datas.sort().slice(-1)[0] : null;
+  if(minData && maxData){
+    const minF = minData.split('-').reverse().join('/');
+    const maxF = maxData.split('-').reverse().join('/');
+    $('chip-data').textContent = minF === maxF ? maxF : `${minF} → ${maxF}`;
+  } else {
+    $('chip-data').textContent = '—';
+  }
+  $('chip-total').textContent = fBRk(ALL.length);
 
   $('upload-zone').style.display = 'none';
   $('tabs').style.display = 'flex';
   $('main').classList.add('on');
 
-  renderGeral(); renderMetas(); renderRelig(); renderJornada(); renderHistorico();
-  renderPlanilhas(); renderPlanQuick();
+  renderGeral(); renderMetas(); renderJornada(); renderPlanilhas();
+}
+
+// ═══════════ FILTROS HELPERS ═══════════
+function getFiltroColab(id){
+  const sel = $(id);
+  if(!sel || sel.value === '') return '';
+  return COLABS_LIST[+sel.value] || '';
+}
+function getFiltroPeriodo(id){
+  const sel = $(id);
+  if(!sel || sel.value === '') return '';
+  return PERIODOS_LIST[+sel.value] || '';
 }
 
 // ═══════════ GERAL ═══════════
 function filtrar(){
-  const c=$('f-colab').value, t=$('f-tipo').value, r=$('f-res').value, o=$('f-orig').value;
+  const c = getFiltroColab('f-colab');
+  const t = $('f-tipo').value;
+  const r = $('f-res').value;
+  const o = $('f-orig').value;
+  const per = getFiltroPeriodo('f-periodo');
+
   FILT = ALL.filter(d=>{
-    if(c && d.equipe!==c) return false;
-    if(t && d.atividade!==t) return false;
-    if(r && d.resultadoClass!==r) return false;
-    if(o && d.origem!==o) return false;
+    if(c && d.equipe !== c) return false;
+    if(t && d.atividade !== t) return false;
+    if(r && d.resultadoClass !== r) return false;
+    if(o && d.origem !== o) return false;
+    if(per){
+      const dPer = d.dtInicio?.dateStr?.slice(0,7);
+      if(dPer !== per) return false;
+    }
     return true;
   });
+
+  const chip = $('chip-filtro-ativo');
+  const ativos = [];
+  if(c) ativos.push(c);
+  if(per) ativos.push(formatarPeriodo(per));
+  if(t) ativos.push(t);
+  if(r) ativos.push(r);
+  if(o) ativos.push(o);
+  if(ativos.length){
+    $('chip-filtro-txt').textContent = ativos.join(' · ');
+    chip.style.display = 'flex';
+  } else chip.style.display = 'none';
+
   renderGeral();
 }
 function limparFiltros(){
-  ['f-colab','f-tipo','f-res','f-orig'].forEach(id=>$(id).value='');
-  FILT=[...ALL]; renderGeral();
+  ['f-colab','f-tipo','f-res','f-orig','f-periodo'].forEach(id=>$(id).value='');
+  FILT=[...ALL];
+  $('chip-filtro-ativo').style.display = 'none';
+  renderGeral();
 }
 function renderGeral(){
   const D = FILT, tot = D.length;
@@ -1510,7 +1528,6 @@ function renderGeral(){
   const ne = D.filter(d=>d.resultadoClass==='Não Executado').length;
   const na = D.filter(d=>d.resultadoClass==='Não Atendida').length;
   const cortes = D.filter(d=>d.resultado.toUpperCase().includes('CORTAD')).length;
-  const pos = D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
   const produtivos = D.filter(d=>d.produtivo).length;
   $('k-tot').textContent=fBRk(tot);
   $('k-ex').textContent=fBRk(ex); $('k-ex-s').textContent=pct(ex,tot)+' do total';
@@ -1518,8 +1535,16 @@ function renderGeral(){
   $('k-na').textContent=fBRk(na);
   $('k-prod').textContent=pct(ex,tot);
   $('k-corte').textContent=fBRk(cortes);
-  $('k-pos').textContent=fBRk(pos);
   $('k-produtivos').textContent=fBRk(produtivos);
+  $('k-pprod').textContent=pct(produtivos,tot);
+
+  const info = $('filtro-info');
+  if(D.length !== ALL.length){
+    info.innerHTML = `Mostrando <b>${fBRk(D.length)}</b> de <b>${fBRk(ALL.length)}</b> OS`;
+  } else {
+    info.innerHTML = `Mostrando todas as <b>${fBRk(ALL.length)}</b> OS`;
+  }
+
   renderChartsGeral(D,tot,ex,ne,na);
   renderTblColab(D); renderTblRes(D,tot); renderTblUlt(D);
 }
@@ -1570,15 +1595,13 @@ function renderChartsGeral(D,tot,ex,ne,na){
 function renderTblColab(D){
   const cm = {};
   D.forEach(d=>{
-    if(!cm[d.equipe]) cm[d.equipe]={ex:0,ne:0,na:0,prod:0,cortes:0,pos:0,relig:0,restab:0};
+    if(!cm[d.equipe]) cm[d.equipe]={ex:0,ne:0,na:0,prod:0,cortes:0,relig:0,restab:0};
     const c=cm[d.equipe];
     if(d.resultadoClass==='Executado') c.ex++;
     else if(d.resultadoClass==='Não Executado') c.ne++;
     else c.na++;
     if(d.produtivo) c.prod++;
     if(d.resultado.toUpperCase().includes('CORTAD')) c.cortes++;
-    const r = d.resultado.toUpperCase();
-    if(r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO')) c.pos++;
     if(d.atividade==='Religação') c.relig++;
     if(d.atividade==='Restabelecimento') c.restab++;
   });
@@ -1589,6 +1612,7 @@ function renderTblColab(D){
     return (b[1].ex/tb2)-(a[1].ex/ta);
   }).forEach(([nome,v])=>{
     const tot=v.ex+v.ne+v.na, p=tot>0?v.ex/tot:0;
+    const pp=tot>0?v.prod/tot:0;
     const bl=p>=.7?'b-g':p>=.5?'b-y':'b-r';
     const st=p>=.7?'Ótimo':p>=.5?'Regular':'Atenção';
     const fc=p>=.7?'var(--verde)':p>=.5?'var(--amarelo)':'var(--vermelho)';
@@ -1600,7 +1624,8 @@ function renderTblColab(D){
       <td style="color:#4ade80;font-weight:800">${fBRk(v.prod)} ✅</td>
       <td style="color:var(--amarelo)">${fBRk(v.na)}</td>
       <td><div style="display:flex;align-items:center;gap:7px"><div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(p*100)}%;background:${fc}"></div></div><span style="font-weight:700;font-size:12px">${fBR(p*100, 1)}%</span></div></td>
-      <td>${fBRk(v.cortes)}</td><td>${fBRk(v.pos)}</td><td>${fBRk(v.relig)}</td><td>${fBRk(v.restab)}</td>
+      <td><span style="font-weight:700;color:#4ade80">${fBR(pp*100, 1)}%</span></td>
+      <td>${fBRk(v.cortes)}</td><td>${fBRk(v.relig)}</td><td>${fBRk(v.restab)}</td>
       <td><span class="b ${bl}">${st}</span></td>`;
     tb.appendChild(tr);
   });
@@ -1634,82 +1659,9 @@ function renderTblUlt(D){
   });
 }
 
-// ═══════════ RESTAB / RELIG ═══════════
-const ehRestabRelig = d => d.atividade==='Restabelecimento' || d.atividade==='Religação';
-function limparRelig(){
-  ['r-cidade','r-status','r-colab','r-res'].forEach(id=>$(id).value='');
-  renderRelig();
-}
-function renderRelig(){
-  const cid=$('r-cidade').value, st=$('r-status').value, col=$('r-colab').value, rs=$('r-res').value;
-  let D = ALL.filter(ehRestabRelig);
-  if(cid) D = D.filter(d=>d.municipio===cid);
-  if(st) D = D.filter(d=>(d.statusOS||'').toUpperCase().includes(st.toUpperCase()));
-  if(col) D = D.filter(d=>d.equipe===col);
-  if(rs) D = D.filter(d=>d.resultadoClass===rs);
-  const total = D.length;
-  const atraso = D.filter(d=>d.prazoStatus==='atrasado').length;
-  const urgente = D.filter(d=>d.prazoStatus==='urgente'||d.prazoStatus==='hoje').length;
-  const exec = D.filter(d=>d.resultadoClass==='Executado').length;
-  $('pr-total').textContent = fBRk(total);
-  $('pr-atraso').textContent = fBRk(atraso);
-  $('pr-urgente').textContent = fBRk(urgente);
-  $('pr-exec').textContent = fBRk(exec);
-  $('relig-update').textContent = 'Última atualização: ' + new Date().toLocaleString('pt-BR');
-  const cidades = {};
-  D.forEach(d=>{const k=d.municipio||'Não inf.';cidades[k]=(cidades[k]||0)+1;});
-  const cidArr = Object.entries(cidades).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  $('pr-cidades').innerHTML = cidArr.map(([n,q])=>`
-    <div class="pr-cidade ${q>total*0.5?'alerta':''}" onclick="drilldownRelig('Cidade: ${escAttr(n)}', d=>d.municipio==='${escAttr(n)}')">
-      <div class="nome">${esc(n)}</div><div class="qtd">${fBRk(q)}</div>
-    </div>`).join('') || '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px">Sem dados</div>';
-  const statusCount = {Planejada:0, Planejável:0, Despachada:0};
-  D.forEach(d=>{
-    const s = (d.statusOS||'').toUpperCase();
-    if(s.includes('PLANEJADA')) statusCount.Planejada++;
-    else if(s.includes('PLANEJÁVEL')||s.includes('PLANEJAVEL')) statusCount.Planejável++;
-    else if(s.includes('DESPACHADA')) statusCount.Despachada++;
-  });
-  $('pr-status').innerHTML = `
-    <div class="box planejada"><div class="nome">Planejada</div><div class="qtd">${fBRk(statusCount.Planejada)}</div></div>
-    <div class="box planejavel"><div class="nome">Planejável</div><div class="qtd">${fBRk(statusCount.Planejável)}</div></div>
-    <div class="box despachada"><div class="nome">Despachada</div><div class="qtd">${fBRk(statusCount.Despachada)}</div></div>`;
-  D.sort((a,b)=>{
-    const o = {atrasado:0,urgente:1,hoje:2,futuro:3,sem:4};
-    return (o[a.prazoStatus]||9)-(o[b.prazoStatus]||9);
-  });
-  $('relig-count').textContent = fBRk(D.length)+' OS';
-  const tb=$('tb-relig'); tb.innerHTML='';
-  D.slice(0,500).forEach(d=>{
-    const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td style="font-family:monospace;color:var(--accent);font-size:11px">${esc(d.nrOS)}</td>
-      <td style="font-size:11px">${esc(d.municipio||'—')}</td>
-      <td style="font-size:11px">${esc(d.equipe.split(' ').slice(0,2).join(' '))}</td>
-      <td style="font-size:11px">${esc(d.endereco||'—').slice(0,40)}</td>
-      <td><span class="b b-p" style="font-size:10px">${esc(d.atividade)}</span></td>
-      <td><span class="b ${bl}" style="border-radius:5px;font-size:10px;white-space:normal">${esc((d.resultado||'—').slice(0,30))}</span></td>
-      <td style="font-size:11px">${d.prazoDate?d.prazoDate.toLocaleString('pt-BR').slice(0,16):'—'}</td>
-      <td><span class="alerta-prazo ${corPrazo(d.prazoStatus)}">${labelPrazo(d.prazoStatus)}</span></td>
-      <td style="font-size:11px">${esc(d.statusOS||'—')}</td>
-      <td style="text-align:center;font-size:11px">${d.tempo?fBRk(d.tempo):'—'}</td>`;
-    tb.appendChild(tr);
-  });
-}
-function drilldownRelig(titulo, fn){
-  const D = ALL.filter(ehRestabRelig).filter(fn);
-  abrirModal(titulo, D, [
-    {k:'nrOS', l:'Nº OS'},{k:'municipio', l:'Cidade'},{k:'equipe', l:'Colaborador'},
-    {k:'endereco', l:'Endereço'},{k:'atividade', l:'Atividade'},{k:'resultado', l:'Resultado'},
-    {k:'statusOS', l:'Status OS'},
-    {k:'prazoStatus', l:'Prazo', fmt:v=>`<span class="alerta-prazo ${corPrazo(v)}">${labelPrazo(v)}</span>`},
-  ]);
-}
-
 // ═══════════ JORNADA ═══════════
-function acharFimDiaDoColab(equipe){
-  const regs = ALL.filter(d=>d.equipe===equipe && d.resultadoClass==='Não Atendida');
+function acharFimDiaDoColab(equipe, dados){
+  const regs = (dados||ALL).filter(d=>d.equipe===equipe && d.resultadoClass==='Não Atendida');
   if(!regs.length) return null;
   const comHora = regs.filter(d=>d.dtFim||d.dtInicio);
   if(!comHora.length) return null;
@@ -1722,9 +1674,14 @@ function acharFimDiaDoColab(equipe){
   const dt = reg.dtFim || reg.dtInicio;
   return { totalMin: dt.totalMin, str: dt.str, hora: dt.hora, min: dt.min, reg };
 }
+
 function renderJornada(){
-  const filtColab = $('jf-colab').value;
-  const D = filtColab ? ALL.filter(d=>d.equipe===filtColab) : ALL;
+  const c = getFiltroColab('jf-colab');
+  const per = getFiltroPeriodo('jf-periodo');
+  let D = ALL;
+  if(c) D = D.filter(d=>d.equipe===c);
+  if(per) D = D.filter(d=>d.dtInicio?.dateStr?.slice(0,7) === per);
+
   const cm = {};
   D.forEach(d=>{
     if(!d.dtInicio) return;
@@ -1736,46 +1693,60 @@ function renderJornada(){
     const reais = os.filter(d=>d.dtInicio && d.resultadoClass!=='Não Atendida');
     if(!reais.length) return;
     const sorted = reais.slice().sort((a,b)=>a.dtInicio.totalMin-b.dtInicio.totalMin);
-    const p = sorted[0], u = sorted[sorted.length-1];
+    const p = sorted[0];
+    const u = sorted[sorted.length-1];
+
     const inicio = p.dtInicio.totalMin;
-    const fimUltima = u.dtFim ? u.dtFim.totalMin : u.dtInicio.totalMin;
-    const fimDia = acharFimDiaDoColab(nome);
+    const fimUltimaOS = u.dtFim ? u.dtFim.totalMin : u.dtInicio.totalMin;
+
+    const fimDia = acharFimDiaDoColab(nome, os);
     const fimDiaMin = fimDia ? fimDia.totalMin : null;
-    const refFinal = fimDiaMin != null ? Math.max(fimDiaMin, fimUltima) : fimUltima;
+
+    const refFinal = fimDiaMin != null ? fimDiaMin : fimUltimaOS;
     const perdido = Math.max(0, HORA_FIM - refFinal);
     const jef = Math.max(0, refFinal - inicio);
+
     jornadas.push({
-      nome, primeiraOS:p, ultimaOS:u,
-      inicioMin:inicio, fimMin:refFinal,
+      nome,
+      primeiraOS: p,
+      ultimaOS: u,
+      inicioMin: inicio,
+      fimUltimaOS: fimUltimaOS,
       fimDiaMin, fimDia,
-      jornadaEfetiva:jef, tempoPerdido:perdido,
-      atrasoInicio:Math.max(0, inicio-HORA_INI),
-      pctPerda:((perdido/JORNADA)*100).toFixed(1),
-      pctAprov:((jef/JORNADA)*100).toFixed(1),
+      refFinal,
+      jornadaEfetiva: jef,
+      tempoPerdido: perdido,
+      atrasoInicio: Math.max(0, inicio-HORA_INI),
+      pctPerda: ((perdido/JORNADA)*100).toFixed(1),
+      pctAprov: ((jef/JORNADA)*100).toFixed(1),
     });
   });
   jornadas.sort((a,b)=>b.tempoPerdido-a.tempoPerdido);
+
   const totalPerdido = jornadas.reduce((s,j)=>s+j.tempoPerdido,0);
   const mediaPerdido = jornadas.length ? Math.round(totalPerdido/jornadas.length) : 0;
   const alertas = jornadas.filter(j=>j.tempoPerdido>60).length;
   const fimDiaCedo = jornadas.filter(j=>j.fimDiaMin != null && j.fimDiaMin < (16*60)).length;
+
   $('j-kpis').innerHTML = `
     <div class="kpi c-r"><div class="kpi-lbl">Tempo Total Perdido</div><div class="kpi-val">${minToHM(totalPerdido)}</div><div class="kpi-sub">Soma da equipe</div></div>
-    <div class="kpi c-y"><div class="kpi-lbl">Média por Colaborador</div><div class="kpi-val">${minToHM(mediaPerdido)}</div><div class="kpi-sub">Após última baixa</div></div>
+    <div class="kpi c-y"><div class="kpi-lbl">Média por Colaborador</div><div class="kpi-val">${minToHM(mediaPerdido)}</div><div class="kpi-sub">Após última OS</div></div>
     <div class="kpi c-r"><div class="kpi-lbl">Alertas</div><div class="kpi-val">${fBRk(alertas)}</div><div class="kpi-sub">+60min perdidos</div></div>
     <div class="kpi c-o"><div class="kpi-lbl">🚩 Fim do Dia cedo</div><div class="kpi-val">${fBRk(fimDiaCedo)}</div><div class="kpi-sub">Antes das 16h</div></div>
     <div class="kpi c-a"><div class="kpi-lbl">Colaboradores</div><div class="kpi-val">${fBRk(jornadas.length)}</div><div class="kpi-sub">Com dados</div></div>`;
+
   const tc = $('timeline-container'); tc.innerHTML='';
   const labels=['08h','09h','10h','11h','12h','13h','14h','15h','16h','17h'];
   const labDiv = document.createElement('div'); labDiv.className='tl-labels';
   labels.forEach(l=>{const s=document.createElement('span');s.textContent=l;labDiv.appendChild(s);});
   tc.appendChild(labDiv);
   const toW = m=>(m/JORNADA*100).toFixed(2)+'%';
+
   jornadas.slice(0,30).forEach(j=>{
     const row = document.createElement('div'); row.className='tl-row';
     const nameEl = document.createElement('div'); nameEl.className='tl-name';
     const fimDiaStr = j.fimDiaMin!=null ? ` · 🚩 Fim do Dia: ${minToHHMM(j.fimDiaMin)}` : ' · 🚩 s/ Fim do Dia';
-    nameEl.textContent = `${j.nome.split(' ').slice(0,2).join(' ')} · 1ª OS: ${j.primeiraOS.dtInicio.str.split(' ')[1]}${fimDiaStr} · Perdeu: ${minToHM(j.tempoPerdido)}`;
+    nameEl.textContent = `${j.nome.split(' ').slice(0,2).join(' ')} · 1ª OS: ${j.primeiraOS.dtInicio.str.split(' ')[1]} · Última: ${minToHHMM(j.fimUltimaOS)}${fimDiaStr} · Perdeu: ${minToHM(j.tempoPerdido)}`;
     row.appendChild(nameEl);
     const bar = document.createElement('div'); bar.className='timeline-bar';
     if(j.atrasoInicio>0){
@@ -1788,11 +1759,17 @@ function renderJornada(){
     seg2.style.cssText=`left:${inicioX.toFixed(2)}%;width:${toW(j.jornadaEfetiva)};background:rgba(34,197,94,.75)`;
     bar.appendChild(seg2);
     if(j.tempoPerdido>0){
-      const fimX = ((j.fimMin-HORA_INI)/JORNADA*100).toFixed(2);
+      const fimX = ((j.refFinal-HORA_INI)/JORNADA*100).toFixed(2);
       const seg3=document.createElement('div'); seg3.className='tl-seg';
       seg3.style.cssText=`left:${fimX}%;width:${toW(j.tempoPerdido)};background:rgba(239,68,68,.65)`;
       bar.appendChild(seg3);
     }
+    const ultimaX = Math.max(0,Math.min(100,((j.fimUltimaOS-HORA_INI)/JORNADA*100)));
+    const flagU = document.createElement('div');
+    flagU.style.cssText = `position:absolute;left:${ultimaX}%;top:-2px;transform:translateX(-50%);font-size:12px;cursor:help;color:#f59e0b`;
+    flagU.title = `Última OS: ${minToHHMM(j.fimUltimaOS)}`;
+    flagU.textContent = '▼';
+    bar.appendChild(flagU);
     if(j.fimDiaMin!=null){
       const flagX = Math.max(0,Math.min(100,((j.fimDiaMin-HORA_INI)/JORNADA*100)));
       const flag = document.createElement('div');
@@ -1803,10 +1780,11 @@ function renderJornada(){
     }
     row.appendChild(bar); tc.appendChild(row);
   });
+
   const tb = $('tb-jornada'); tb.innerHTML='';
   jornadas.forEach(j=>{
     const iniH = minToHHMM(j.inicioMin);
-    const fimH = minToHHMM(j.fimMin);
+    const fimUltOS = minToHHMM(j.fimUltimaOS);
     const fd = j.fimDiaMin!=null ? minToHHMM(j.fimDiaMin) : '—';
     let fdCls = 'fimdia-hora', fdIcon = '';
     if(j.fimDiaMin!=null){
@@ -1820,7 +1798,7 @@ function renderJornada(){
     tr.innerHTML=`
       <td style="font-weight:700">${esc(j.nome)}</td>
       <td style="color:var(--accent);font-weight:700">${iniH}</td>
-      <td style="color:var(--amarelo);font-weight:700">${fimH}</td>
+      <td style="color:#fb923c;font-weight:700">${fimUltOS}</td>
       <td><div class="fimdia-box"><span class="${fdCls}">${fd}</span>${fdIcon?`<span>${fdIcon}</span>`:''}</div></td>
       <td>${minToHM(j.jornadaEfetiva)}</td>
       <td style="color:var(--vermelho);font-weight:700">${minToHM(j.tempoPerdido)}</td>
@@ -1839,7 +1817,8 @@ function renderJornada(){
 
 // ═══════════ FISCAL / PRODUTIVIDADE ═══════════
 function renderFiscal(){
-  const colab=$('ff-colab').value, tipo=$('ff-tipo').value, res=$('ff-res').value;
+  const colab = getFiltroColab('ff-colab');
+  const tipo=$('ff-tipo').value, res=$('ff-res').value;
   if(!colab){ $('fiscal-vazio').style.display='block'; $('fiscal-content').style.display='none'; return; }
   $('fiscal-vazio').style.display='none';
   $('fiscal-content').style.display='block';
@@ -1856,7 +1835,7 @@ function renderFiscal(){
   const pOS=sorted[0], uOS=sorted[sorted.length-1];
   const fimDia = acharFimDiaDoColab(colab);
   $('fn-nome').textContent = colab;
-  $('fn-meta').textContent = `${tot} OS no período${pOS?` · 1ª: ${pOS.dtInicio.str.split(' ')[1]}${fimDia?` · 🚩 Fim do Dia: ${minToHHMM(fimDia.totalMin)}`:''}`:''}`;
+  $('fn-meta').textContent = `${fBRk(tot)} OS no período${pOS?` · 1ª: ${pOS.dtInicio.str.split(' ')[1]}${fimDia?` · 🚩 Fim do Dia: ${minToHHMM(fimDia.totalMin)}`:''}`:''}`;
   $('fn-kpis').innerHTML = `
     <div class="fk"><div class="fk-val" style="color:var(--verde)">${fBRk(ex)}</div><div class="fk-lbl">Executadas</div></div>
     <div class="fk"><div class="fk-val" style="color:#4ade80">${fBRk(prod)}</div><div class="fk-lbl">✅ Produtivos</div></div>
@@ -1864,12 +1843,11 @@ function renderFiscal(){
     <div class="fk"><div class="fk-val" style="color:var(--amarelo)">${fBRk(na)}</div><div class="fk-lbl">Fim Dia</div></div>
     <div class="fk"><div class="fk-val" style="color:var(--accent)">${pct(ex,tot)}</div><div class="fk-lbl">Produtiv.</div></div>`;
   const cortes = D.filter(d=>d.resultado.toUpperCase().includes('CORTAD')).length;
-  const pos = D.filter(d=>{const r=d.resultado.toUpperCase();return r.includes('PAGAMENTO EFETIVADO')||r.includes('EFETUOU PGTO');}).length;
   const ts = D.filter(d=>d.tempo>0 && d.tempo<300).map(d=>d.tempo);
   const tMed = ts.length ? (ts.reduce((a,b)=>a+b,0)/ts.length) : null;
   let perdaHTML = '—';
-  if(pOS){
-    const refFinal = fimDia ? Math.max(fimDia.totalMin, uOS.dtFim?uOS.dtFim.totalMin:uOS.dtInicio.totalMin) : (uOS.dtFim?uOS.dtFim.totalMin:uOS.dtInicio.totalMin);
+  if(pOS && uOS){
+    const refFinal = fimDia ? fimDia.totalMin : (uOS.dtFim?uOS.dtFim.totalMin:uOS.dtInicio.totalMin);
     const perdido = Math.max(0, HORA_FIM - refFinal);
     perdaHTML = `${minToHM(perdido)} (${fBR((perdido/JORNADA)*100, 1)}%)`;
   }
@@ -1877,7 +1855,7 @@ function renderFiscal(){
     <div class="kpi c-a"><div class="kpi-lbl">Total OS</div><div class="kpi-val">${fBRk(tot)}</div></div>
     <div class="kpi c-g"><div class="kpi-lbl">% Execução</div><div class="kpi-val">${pct(ex,tot)}</div></div>
     <div class="kpi c-r"><div class="kpi-lbl">Cortes</div><div class="kpi-val">${fBRk(cortes)}</div></div>
-    <div class="kpi c-g"><div class="kpi-lbl">Pag. POS</div><div class="kpi-val">${fBRk(pos)}</div></div>
+    <div class="kpi c-g"><div class="kpi-lbl">✅ Produtivos</div><div class="kpi-val">${fBRk(prod)}</div></div>
     <div class="kpi c-a"><div class="kpi-lbl">T. Médio Exec.</div><div class="kpi-val">${tMed!=null?fBR(tMed, 1)+' min':'—'}</div></div>
     <div class="kpi c-r"><div class="kpi-lbl">Tempo Perdido</div><div class="kpi-val" style="font-size:18px">${perdaHTML}</div></div>
     <div class="kpi c-o"><div class="kpi-lbl">🚩 Fim do Dia</div><div class="kpi-val" style="font-size:22px">${fimDia?minToHHMM(fimDia.totalMin):'—'}</div><div class="kpi-sub">${fimDia?'Registrado na planilha':'Não informado'}</div></div>`;
@@ -1907,7 +1885,7 @@ function renderFiscal(){
     <div class="tempo-card"><h4>⚡ Mais Rápida</h4><div class="val">${maiR?fBRk(maiR.tempo)+'min':'—'}</div><div class="sub">${esc(maiR?maiR.nrOS:'—')}</div></div>
     <div class="tempo-card"><h4>🐢 Mais Demorada</h4><div class="val">${maiD?fBRk(maiD.tempo)+'min':'—'}</div><div class="sub">${esc(maiD?maiD.nrOS:'—')}</div></div>
     <div class="tempo-card"><h4>📊 Tempo Médio</h4><div class="val">${tMed!=null?fBR(tMed, 1)+' min':'—'}</div><div class="sub">${fBRk(ts.length)} OS medidas</div></div>
-    <div class="tempo-card"><h4>⏱ 1ª Baixa</h4><div class="val">${pOS?pOS.dtInicio.str.split(' ')[1]:'—'}</div><div class="sub">${esc(pOS?pOS.nrOS:'—')}</div></div>
+    <div class="tempo-card"><h4>⏱ 1ª OS</h4><div class="val">${pOS?pOS.dtInicio.str.split(' ')[1]:'—'}</div><div class="sub">${esc(pOS?pOS.nrOS:'—')}</div></div>
     <div class="tempo-card"><h4>🚩 Fim do Dia</h4><div class="val">${fimDia?minToHHMM(fimDia.totalMin):'—'}</div><div class="sub">${fimDia?'OS '+esc(fimDia.reg.nrOS):'sem registro'}</div></div>`;
   $('fis-os-count').textContent = fBRk(D.length)+' OS';
   const tb = $('tb-fis'); tb.innerHTML='';
@@ -2017,58 +1995,36 @@ function recarregarComConfig(){
   renderGestao();
 }
 
-// ═══════════ HISTÓRICO ═══════════
-function renderHistorico(){
-  const hist = carregarHistorico();
-  const ativo = localStorage.getItem(LS_ATIVO);
-  const grid = $('hist-grid');
-  $('hist-vazio').style.display = hist.length ? 'none':'block';
-  grid.innerHTML = hist.map(h=>`
-    <div class="hist-card ${h.id===ativo?'active':''}" onclick="abrirPeriodo('${h.id}')">
-      <button class="hist-del" onclick="excluirPeriodo('${h.id}',event)" title="Excluir">×</button>
-      <div class="hist-periodo">${h.periodo||'—'}</div>
-      <div class="hist-meta">📄 ${esc(h.nomeArquivo||'—')}<br>🕐 ${new Date(h.dataImport).toLocaleString('pt-BR')}</div>
-      <div class="hist-stats">
-        <span>Total: <b>${fBRk(h.total||0)}</b></span>
-        <span>Exec: <b>${fBRk(h.exec||0)}</b></span>
-        <span>✅ Prod: <b>${fBRk(h.produtivos||0)}</b></span>
-        <span>Fim: <b>${fBRk(h.fimDia||0)}</b></span>
-      </div>
-    </div>`).join('');
-  const tam = estimarTamanho(hist);
-  $('hist-info').textContent = `${hist.length} período(s) salvos · ~${fBR(tam/1024, 0)} KB de ~5000 KB`;
-}
-function renderHistQuick(){
-  const hist = carregarHistorico();
-  const el = $('hist-quick');
-  if(!hist.length){ el.innerHTML=''; return; }
-  el.innerHTML = `<div style="font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">📅 Períodos salvos</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-      ${hist.slice(0,6).map(h=>`<button class="btn btn-o" onclick="event.stopPropagation();abrirPeriodo('${h.id}')">📂 ${h.periodo} (${fBRk(h.total)})</button>`).join('')}
-    </div>`;
-}
-
 // ═══════════ DETALHES ═══════════
 function limparDetalhes(){
-  ['df-colab','df-tipo','df-res','df-prod'].forEach(id=>$(id).value='');
+  ['df-colab','df-tipo','df-res','df-prod','df-periodo'].forEach(id=>$(id).value='');
   $('df-busca').value='';
   renderDetalhes();
 }
 function renderDetalhes(){
-  const c=$('df-colab').value, t=$('df-tipo').value, r=$('df-res').value;
+  const c = getFiltroColab('df-colab');
+  const t=$('df-tipo').value, r=$('df-res').value;
   const prod = $('df-prod').value;
+  const per = getFiltroPeriodo('df-periodo');
   const busca = $('df-busca').value.toLowerCase();
   const D = ALL.filter(d=>{
-    if(c && d.equipe!==c) return false;
-    if(t && d.atividade!==t) return false;
-    if(r && d.resultadoClass!==r) return false;
+    if(c && d.equipe !== c) return false;
+    if(t && d.atividade !== t) return false;
+    if(r && d.resultadoClass !== r) return false;
     if(prod === 'sim' && !d.produtivo) return false;
+    if(per && d.dtInicio?.dateStr?.slice(0,7) !== per) return false;
     if(busca && !d.nrOS.includes(busca) && !d.endereco.toLowerCase().includes(busca) &&
        !d.resultado.toLowerCase().includes(busca) && !d.equipe.toLowerCase().includes(busca) &&
        !d.bairro.toLowerCase().includes(busca)) return false;
     return true;
   });
   $('det-count').textContent = fBRk(D.length)+' OS exibidas';
+  const info = $('det-info');
+  if(D.length !== ALL.length){
+    info.innerHTML = `Mostrando <b>${fBRk(D.length)}</b> de <b>${fBRk(ALL.length)}</b> OS`;
+  } else {
+    info.innerHTML = `Mostrando todas as <b>${fBRk(ALL.length)}</b> OS`;
+  }
   const tb=$('tb-det'); tb.innerHTML='';
   D.slice(0,300).forEach(d=>{
     const bl=d.resultadoClass==='Executado'?'b-g':d.resultadoClass==='Não Atendida'?'b-y':'b-r';
@@ -2145,9 +2101,7 @@ function showPage(id, el){
   if(id==='metas') renderMetas();
   if(id==='fiscal') renderFiscal();
   if(id==='detalhes') renderDetalhes();
-  if(id==='historico') renderHistorico();
   if(id==='planilhas') renderPlanilhas();
-  if(id==='relig') renderRelig();
   if(id==='jornada') renderJornada();
   if(id==='gestao') renderGestao();
 }
@@ -2206,8 +2160,8 @@ function exportar(){
     res.push([nome, metaFinal||'—', meta60||'—', realizado, metaFinal?pct(realizado,metaFinal):'—', metaFinal?prob+'%':'—', status]);
   });
   res.push([]);
-  res.push(['JORNADA + FIM DO DIA']);
-  res.push(['Colaborador','1ª Baixa','Última Baixa','🚩 Fim do Dia','Tempo Perdido (min)']);
+  res.push(['JORNADA — 1ª OS, Última OS e Fim do Dia']);
+  res.push(['Colaborador','1ª OS','Última OS (real)','🚩 Fim do Dia','Tempo Perdido (min)']);
   colabs.forEach(nome=>{
     const reais = ALL.filter(d=>d.equipe===nome && d.dtInicio && d.resultadoClass!=='Não Atendida');
     if(!reais.length){ res.push([nome,'—','—','—','—']); return; }
@@ -2215,9 +2169,9 @@ function exportar(){
     const p=sorted[0], u=sorted[sorted.length-1];
     const fimUlt = u.dtFim?u.dtFim.totalMin:u.dtInicio.totalMin;
     const fimDia = acharFimDiaDoColab(nome);
-    const refFinal = fimDia ? Math.max(fimDia.totalMin, fimUlt) : fimUlt;
+    const refFinal = fimDia ? fimDia.totalMin : fimUlt;
     const perdido = Math.max(0, HORA_FIM - refFinal);
-    res.push([nome, p.dtInicio.str.split(' ')[1], (u.dtFim||u.dtInicio).str.split(' ')[1],
+    res.push([nome, p.dtInicio.str.split(' ')[1], minToHHMM(fimUlt),
       fimDia?minToHHMM(fimDia.totalMin):'—', perdido]);
   });
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(res), 'Resumo + Metas');
@@ -2232,18 +2186,12 @@ function exportar(){
     labelPrazo(d.prazoStatus), d.nota, d.endereco, d.bairro, d.municipio, d.statusOS
   ]);
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([hdr, ...rows]), 'Detalhamento OS');
-  const rr = ALL.filter(ehRestabRelig);
-  const hdrRR = ['Nº OS','Cidade','Colaborador','Endereço','Atividade','Resultado','Prazo','Status OS'];
-  const rowsRR = rr.map(d=>[d.nrOS, d.municipio, d.equipe, d.endereco, d.atividade, d.resultado, labelPrazo(d.prazoStatus), d.statusOS]);
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([hdrRR, ...rowsRR]), 'Restab_Relig');
   XLSX.writeFile(wb, 'Relatorio_Gestao_Operacional.xlsx');
   toast('Relatório exportado!');
 }
 
 // ═══════════ STARTUP ═══════════
 document.addEventListener('DOMContentLoaded', ()=>{
-  renderHistQuick();
-  // Toggle visual do acumular
   const chk = $('chk-acumular');
   const lbl = $('lbl-acumular');
   function atualizarToggle(){
@@ -2252,11 +2200,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   chk.addEventListener('change', atualizarToggle);
   atualizarToggle();
 
+  renderPlanQuick();
   const id = localStorage.getItem(LS_ATIVO);
   if(id){
-    const hist = carregarHistorico();
-    const h = hist.find(x=>x.id===id);
-    if(h && confirm(`Carregar último período (${h.periodo}) com ${h.total} OS?`)) abrirPeriodo(id);
+    abrirPlanilhaSalva(id).catch(()=>{});
   }
 });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
